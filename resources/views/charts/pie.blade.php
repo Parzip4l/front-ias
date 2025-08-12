@@ -1,0 +1,129 @@
+@extends('layouts.vertical', ['title' => 'Apex Pie Chart'])
+
+@section('content')
+    @include('layouts.partials.page-title', ['subtitle' => 'Apex', 'title' => 'Pie Charts'])
+    <div class="row">
+        <div class="col-xl-6">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="header-title">Simple Pie Chart</h4>
+                    <div dir="ltr">
+                        <div id="simple-pie" class="apex-charts" data-colors="#6b5eae,#35b8e0,#31ce77,#fa5c7c,#e3eaef"></div>
+                    </div>
+                </div>
+                <!-- end card body-->
+            </div>
+            <!-- end card -->
+        </div>
+        <!-- end col-->
+
+        <div class="col-xl-6">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="header-title">Simple Donut Chart</h4>
+                    <div dir="ltr">
+                        <div id="simple-donut" class="apex-charts" data-colors="#39afd1,#fbcc5c,#313a46,#fa5c7c,#31ce77">
+                        </div>
+                    </div>
+                </div>
+                <!-- end card body-->
+            </div>
+            <!-- end card -->
+        </div>
+        <!-- end col-->
+    </div>
+    <!-- end row-->
+
+    <div class="row">
+        <div class="col-xl-6">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="header-title mb-4">Monochrome Pie Chart</h4>
+                    <div dir="ltr">
+                        <div id="monochrome-pie" class="apex-charts"></div>
+                    </div>
+                </div>
+                <!-- end card body-->
+            </div>
+            <!-- end card -->
+        </div>
+        <!-- end col-->
+
+        <div class="col-xl-6">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="header-title mb-4">Gradient Donut Chart</h4>
+                    <div dir="ltr">
+                        <div id="gradient-donut" class="apex-charts" data-colors="#6b5eae,#35b8e0,#31ce77,#fa5c7c,#e3eaef">
+                        </div>
+                    </div>
+                </div>
+                <!-- end card body-->
+            </div>
+            <!-- end card -->
+        </div>
+        <!-- end col-->
+    </div>
+    <!-- end row-->
+
+    <div class="row">
+        <div class="col-xl-6">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="header-title mb-4">Patterned Donut Chart</h4>
+                    <div dir="ltr">
+                        <div id="patterned-donut" class="apex-charts" data-colors="#39afd1,#fbcc5c,#313a46,#fa5c7c,#31ce77">
+                        </div>
+                    </div>
+                </div>
+                <!-- end card body-->
+            </div>
+            <!-- end card -->
+        </div>
+        <!-- end col-->
+
+        <div class="col-xl-6">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="header-title mb-4">Pie Chart with Image fill</h4>
+                    <div dir="ltr">
+                        <div id="image-pie" class="apex-charts" data-colors="#39afd1,#fbcc5c,#6b5eae,#31ce77"></div>
+                    </div>
+                </div>
+                <!-- end card body-->
+            </div>
+            <!-- end card -->
+        </div>
+        <!-- end col-->
+    </div>
+    <!-- end row-->
+
+    <div class="row">
+        <div class="col-xl-6">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="header-title mb-4">Donut Update</h4>
+                    <div dir="ltr">
+                        <div id="update-donut" class="apex-charts" data-colors="#6b5eae,#35b8e0,#31ce77,#fa5c7c"></div>
+                    </div>
+
+                    <div class="text-center mt-2">
+                        <button class="btn btn-sm btn-primary" id="randomize">RANDOMIZE</button>
+                        <button class="btn btn-sm btn-primary" id="add">ADD</button>
+                        <button class="btn btn-sm btn-primary" id="remove">REMOVE</button>
+                        <button class="btn btn-sm btn-primary" id="reset">RESET</button>
+                    </div>
+
+                </div>
+                <!-- end card body-->
+            </div>
+            <!-- end card -->
+        </div>
+        <!-- end col-->
+    </div>
+    <!-- end row-->
+@endsection
+
+@section('scripts')
+    @vite(['resources/js/components/chart-apex-pie.js'])
+@endsection

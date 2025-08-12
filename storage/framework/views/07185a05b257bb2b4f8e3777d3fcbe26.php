@@ -1,0 +1,11 @@
+<meta charset="utf-8" />
+<title><?php echo e($title); ?> | IAS Travel </title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta content="A fully featured admin theme which can be used to build CRM, CMS, etc." name="description" />
+<meta content="IAS Travel" name="author" />
+
+<!-- App favicon -->
+<link rel="shortcut icon" href="/images/ias.png">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<?php /**PATH D:\Muhamad Sobirin\project\front-ias2\resources\views/layouts/partials/title-meta.blade.php ENDPATH**/ ?>
