@@ -6,8 +6,23 @@ use App\Http\Controllers\UserManagement\UserController;
 use App\Http\Controllers\Sppd\SppdController;
 use App\Http\Controllers\Finance\MitraSaldoController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 require __DIR__ . '/auth.php';
+
+// Forgot Pass
+Route::get('/forgot-password', [SppdAuthController::class, 'ForgotPassword'])->name('sppd.forgotpass');
+Route::get('/reset-password', function (Request $request) {
+    // Ambil token & email dari query
+    $token = $request->query('token');
+    $email = $request->query('email');
+
+    // Kirim ke view biar bisa dipakai di form hidden input
+    return view('auth.createpw', compact('token', 'email'));
+})->name('password.reset.form');
+
+Route::post('/logout', [SppdAuthController::class, 'logout'])->name('logout');
 
 Route::group(['prefix' => '/', 'middleware' => 'jwt.session'], function () {
     Route::get('', [RoutingController::class, 'index'])->name('root');
@@ -37,4 +52,4 @@ Route::group(['prefix' => '/', 'middleware' => 'jwt.session'], function () {
     Route::get('{any}', [RoutingController::class, 'root'])->name('any');
 });
 
-Route::post('/logout', [SppdAuthController::class, 'logout'])->name('logout');
+

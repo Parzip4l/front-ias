@@ -14,6 +14,11 @@ class SppdAuthController extends Controller
         return view('auth.login');
     }
 
+    public function ForgotPassword()
+    {
+        return view('auth.recoverpw');
+    }
+
     public function doLogin(Request $request, SppdApiService $api)
     {
         $request->validate([
