@@ -1,7 +1,7 @@
 @extends('layouts.vertical', ['title' => 'Buat SPPD'])
 
 @section('css')
-    @vite(['node_modules/select2/dist/css/select2.min.css'])
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <style>
         .addon-card {
             border: 1px solid #e0e0e0;
@@ -147,7 +147,7 @@
 @endsection
 
 @section('scripts')
-@vite(['node_modules/select2/dist/js/select2.min.js'])
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
 $(function(){
