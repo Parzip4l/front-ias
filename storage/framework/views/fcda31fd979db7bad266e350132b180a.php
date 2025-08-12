@@ -45,7 +45,7 @@ class="h-100"
                             <label class="form-check-label" for="show-password">Show Password</label>
                         </div>
 
-                        <a href=""
+                        <a href="<?php echo e(route('sppd.forgotpass')); ?>"
                             class="text-muted border-bottom border-dashed">Forget Password</a>
                     </div>
 
@@ -53,10 +53,6 @@ class="h-100"
                         <button class="btn btn-primary fw-semibold" type="submit">Login</button>
                     </div>
                 </form>
-
-                <p class="text-muted fs-14 mb-4">Don't have an account? <a
-                        href="" class="fw-semibold text-danger ms-1">Sign Up
-                        !</a></p>
             </div>
         </div>
     </div>

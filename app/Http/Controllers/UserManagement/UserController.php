@@ -198,4 +198,177 @@ class UserController extends Controller
             return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
+
+    // Divisi Section
+
+    // 1. Get Divisi
+    public function divisi()
+    {
+        $baseUrl = rtrim(env('SPPD_API_URL'), '/');
+        $token = Session::get('jwt_token');
+
+        if (!$token) {
+            return redirect()->route('login')->with('error', 'Token belum tersedia, silakan login dulu.');
+        }
+
+        $divisi = [];
+        $users = [];
+
+        try {
+            // ====== Ambil daftar divisi ======
+            $divisiResponse = Http::withToken($token)
+                ->accept('application/json')
+                ->get($baseUrl . '/divisi/list');
+
+            if ($divisiResponse->status() == 401) {
+                Session::forget('jwt_token');
+                return redirect()->route('login')->with('error', 'Sesi habis, silakan login ulang.');
+            }
+
+            if ($divisiResponse->successful()) {
+                $divisi = $divisiResponse->json()['data'] ?? [];
+            } else {
+                session()->flash('error', 'Gagal mengambil data divisi.');
+            }
+
+            // ====== Ambil daftar user ======
+            $userResponse = Http::withToken($token)
+                ->accept('application/json')
+                ->get($baseUrl . '/user/user-list');
+
+            if ($userResponse->successful()) {
+                $users = $userResponse->json()['data'] ?? [];
+            } else {
+                session()->flash('error', 'Gagal mengambil data user.');
+            }
+
+        } catch (\Exception $e) {
+            session()->flash('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+        return view('pages.usermanagement.divisi.index', compact('divisi', 'users'));
+    }
+
+    // 2. SImpan Roles
+    public function storeDivisi(Request $request)
+    {
+        // Validasi input 'name' wajib dan string maksimal 255 karakter
+        $validated = $request->validate([
+            'name' => 'required|string|max:25',
+            'head_id' => 'required|integer|max_digits:3',
+        ]);
+
+        $apiUrl = rtrim(env('SPPD_API_URL'), '/') . '/divisi/store';
+        $token = Session::get('jwt_token');
+
+        // Cek token, jika tidak ada redirect ke login
+        if (!$token) {
+            return redirect()->route('login')->with('error', 'Token belum tersedia, silakan login dulu.');
+        }
+
+        try {
+            // Kirim POST request ke API dengan payload 'name'
+            $response = Http::withToken($token)
+                ->accept('application/json')
+                ->post($apiUrl, [
+                    'name' => $validated['name'],
+                    'head_id' => $validated['head_id'],
+                ]);
+
+            if ($response->status() == 401) {
+                // Token expired atau tidak valid
+                Session::forget('jwt_token'); // hapus token dari session
+                return redirect()->route('login')->with('error', 'Sesi habis, silakan login ulang.');
+            }
+
+            if ($response->successful()) {
+                return redirect()->route('divisi.index')->with('success', 'Divisi berhasil ditambahkan.');
+            } else {
+                $errorMessage = $response->json('message') ?? 'Gagal menyimpan divisi.';
+                return back()->withInput()->with('error', $errorMessage);
+            }
+
+        } catch (\Exception $e) {
+            // Tangani error exception, redirect balik dengan pesan error
+            return back()->withInput()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    // 3. Update Roles
+    public function updateDivisi(Request $request)
+    {
+        $validated = $request->validate([
+            'id' => 'required|integer',
+            'name' => 'required|string|max:25',
+            'head_id' => 'required|integer|max_digits:3',
+        ]);
+
+        $apiUrl = rtrim(env('SPPD_API_URL'), '/') . '/divisi/update';
+        $token = Session::get('jwt_token');
+
+        if (!$token) {
+            return redirect()->route('login')->with('error', 'Token belum tersedia, silakan login dulu.');
+        }
+
+        try {
+            $response = Http::withToken($token)
+                ->accept('application/json')
+                ->post($apiUrl, [
+                    'id' => $validated['id'],
+                    'name' => $validated['name'],
+                    'head_id' => $validated['head_id'],
+                ]);
+
+            if ($response->status() == 401) {
+                // Token expired atau tidak valid
+                Session::forget('jwt_token'); // hapus token dari session
+                return redirect()->route('login')->with('error', 'Sesi habis, silakan login ulang.');
+            }
+
+            if ($response->successful()) {
+                return redirect()->route('divisi.index')->with('success', 'Divisi berhasil diupdate.');
+            } else {
+                $errorMessage = $response->json('message') ?? 'Gagal mengupdate Divisi.';
+                return back()->withInput()->with('error', $errorMessage);
+            }
+        } catch (\Exception $e) {
+            return back()->withInput()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    // 4. Hapus Roles
+    public function destroyDivisi(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|integer',
+        ]);
+
+        $apiUrl = rtrim(env('SPPD_API_URL'), '/') . '/divisi/delete';
+        $token = Session::get('jwt_token');
+
+        if (!$token) {
+            return redirect()->route('login')->with('error', 'Token belum tersedia, silakan login dulu.');
+        }
+
+        try {
+            // Kirim POST dengan form-data id ke API
+            $response = Http::withToken($token)
+                ->accept('application/json')
+                ->post($apiUrl, ['id' => $request->id]);
+
+            if ($response->status() == 401) {
+                // Token expired atau tidak valid
+                Session::forget('jwt_token'); // hapus token dari session
+                return redirect()->route('login')->with('error', 'Sesi habis, silakan login ulang.');
+            }
+
+            if ($response->successful()) {
+                return redirect()->route('divisi.index')->with('success', 'divisi berhasil dihapus.');
+            } else {
+                $errorMessage = $response->json('message') ?? 'Gagal menghapus divisi.';
+                return back()->with('error', $errorMessage);
+            }
+        } catch (\Exception $e) {
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
 }

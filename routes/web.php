@@ -35,6 +35,14 @@ Route::group(['prefix' => '/', 'middleware' => 'jwt.session'], function () {
         Route::post('/roles-create', [UserController::class, 'storeRoles'])->name('roles.create');
         Route::put('/roles-update', [UserController::class, 'updateRole'])->name('roles.update');
         Route::post('/roles-delete', [UserController::class, 'destroyRole'])->name('roles.delete');
+
+        // Divisi
+        Route::prefix('divisi')->group(function () {
+            Route::get('/list-data', [UserController::class, 'divisi'])->name('divisi.index');
+            Route::post('/store', [UserController::class, 'storeDivisi'])->name('divisi.store');
+            Route::put('/update', [UserController::class, 'updateDivisi'])->name('divisi.update');
+            Route::post('/delete', [UserController::class, 'destroyDivisi'])->name('divisi.delete');
+        });
     });
 
     Route::prefix('sppd')->group(function () {

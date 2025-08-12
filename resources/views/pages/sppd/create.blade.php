@@ -91,8 +91,6 @@
                         <select class="form-select select2" name="transport" id="transport">
                             <option value="">Pilih...</option>
                             <option value="pesawat">Pesawat</option>
-                            <option value="kereta">Kereta</option>
-                            <option value="mobil-dinas">Mobil Dinas</option>
                         </select>
                     </div>
 

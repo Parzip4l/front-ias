@@ -1,7 +1,7 @@
 
 
 <?php $__env->startSection('css'); ?>
-    <?php echo app('Illuminate\Foundation\Vite')(['node_modules/select2/dist/css/select2.min.css']); ?>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <style>
         .addon-card {
             border: 1px solid #e0e0e0;
@@ -91,8 +91,6 @@
                         <select class="form-select select2" name="transport" id="transport">
                             <option value="">Pilih...</option>
                             <option value="pesawat">Pesawat</option>
-                            <option value="kereta">Kereta</option>
-                            <option value="mobil-dinas">Mobil Dinas</option>
                         </select>
                     </div>
 
@@ -147,7 +145,7 @@
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startSection('scripts'); ?>
-<?php echo app('Illuminate\Foundation\Vite')(['node_modules/select2/dist/js/select2.min.js']); ?>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
 $(function(){

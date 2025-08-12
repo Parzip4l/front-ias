@@ -130,7 +130,7 @@
                             <a href="{{ route('roles.index')}}" class="side-nav-link">Role</a>
                         </li>
                         <li class="side-nav-item">
-                            <a href="#" class="side-nav-link">Departement</a>
+                            <a href="{{route('divisi.index')}}" class="side-nav-link">Departement</a>
                         </li>
                         <li class="side-nav-item">
                             <a href="#" class="side-nav-link">Settings</a>
