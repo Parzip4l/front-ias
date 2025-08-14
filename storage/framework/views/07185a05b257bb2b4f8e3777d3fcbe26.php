@@ -7,5 +7,6 @@
 <!-- App favicon -->
 <link rel="shortcut icon" href="/images/ias.png">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
 <?php /**PATH D:\Muhamad Sobirin\project\front-ias2\resources\views/layouts/partials/title-meta.blade.php ENDPATH**/ ?>

@@ -31,6 +31,10 @@ Route::group(['prefix' => '/', 'middleware' => 'jwt.session'], function () {
     // user Management
     Route::prefix('user-management')->group(function () {
         Route::get('/users', [UserController::class, 'index'])->name('users.index');
+        Route::get('/users-create', [UserController::class, 'create'])->name('users.create');
+        Route::post('/users-store', [UserController::class, 'storeUser'])->name('users.store');
+
+        // Roles
         Route::get('/roles', [UserController::class, 'roles'])->name('roles.index');
         Route::post('/roles-create', [UserController::class, 'storeRoles'])->name('roles.create');
         Route::put('/roles-update', [UserController::class, 'updateRole'])->name('roles.update');
@@ -45,8 +49,14 @@ Route::group(['prefix' => '/', 'middleware' => 'jwt.session'], function () {
         });
     });
 
+    // Sppd
     Route::prefix('sppd')->group(function () {
+        Route::get('/list-data', [SppdController::class, 'index'])->name('sppd.index');
         Route::get('/pengajuan-sppd', [SppdController::class, 'create'])->name('sppd.create');
+        Route::get('/preview/{id}', [SppdController::class, 'preview'])->name('sppd.previews');
+        // Route::post('/store', [SppdController::class, 'storeDivisi'])->name('divisi.store');
+        // Route::put('/update', [SppdController::class, 'updateDivisi'])->name('divisi.update');
+        // Route::post('/delete', [SppdController::class, 'destroyDivisi'])->name('divisi.delete');
     });
 
     // Finance

@@ -13,8 +13,9 @@
     <div class="row">
         <div class="col-12">
             <div class="card">
-                <div class="card-header border-bottom border-dashed">
+                <div class="card-header border-bottom border-dashed d-flex justify-content-between">
                     <h5 class="mb-0">List Data User</h5>
+                    <a href="{{route('users.create')}}" class="btn btn-sm btn-primary">Tambah User</a>
                 </div>
                 <div class="card-body">
                     <table id="basic-datatable" class="table dt-responsive nowrap w-100">

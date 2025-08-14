@@ -34,7 +34,7 @@
                 <a href="{{ route('home') }}" class="side-nav-link">
                     <span class="menu-icon"><i class="ti ti-dashboard"></i></span>
                     <span class="menu-text"> Dashboard </span>
-                    <span class="badge bg-success rounded-pill">5</span>
+                    <!-- <span class="badge bg-success rounded-pill">5</span> -->
                 </a>
             </li>
 
@@ -48,7 +48,7 @@
                 <div class="collapse" id="sidebarSppd">
                     <ul class="sub-menu">
                         <li class="side-nav-item">
-                             <a href="{{ route ('third' , ['pages','sppd','index']) }}" class="side-nav-link">
+                             <a href="{{ route ('sppd.index') }}" class="side-nav-link">
                                 <span class="menu-text">List SPPD</span>
                             </a>
                         </li>
@@ -102,6 +102,7 @@
             </li>
 
             <!-- Finance -->
+            @if(session('user.role') == 'admin')
             <li class="side-nav-title">Finance</li>
             <li class="side-nav-item">
                 <a href="{{ route ('finance.saldo-mitra') }}" class="side-nav-link">
@@ -109,7 +110,7 @@
                     <span class="menu-text"> Saldo Mitra </span>
                 </a>
             </li>
-
+            
             <li class="side-nav-title mt-2">
                 Settings
             </li>
@@ -138,6 +139,7 @@
                     </ul>
                 </div>
             </li>
+            @endif
 
             
         </ul>

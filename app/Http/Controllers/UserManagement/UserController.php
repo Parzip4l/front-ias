@@ -41,6 +41,111 @@ class UserController extends Controller
         return view('pages.usermanagement.userlist', compact('users'));
     }
 
+    // Create user
+    public function create()
+    {
+        $baseUrl = rtrim(env('SPPD_API_URL'), '/');
+        $token = Session::get('jwt_token');
+
+        if (!$token) {
+            return redirect()->route('login')->with('error', 'Token belum tersedia, silakan login dulu.');
+        }
+
+        $divisi = [];
+        $role = [];
+
+        try {
+            // ====== Ambil daftar divisi ======
+            $divisiResponse = Http::withToken($token)
+                ->accept('application/json')
+                ->get($baseUrl . '/divisi/list');
+
+            if ($divisiResponse->status() == 401) {
+                Session::forget('jwt_token');
+                return redirect()->route('login')->with('error', 'Sesi habis, silakan login ulang.');
+            }
+
+            if ($divisiResponse->successful()) {
+                $divisi = $divisiResponse->json()['data'] ?? [];
+            } else {
+                session()->flash('error', 'Gagal mengambil data divisi.');
+            }
+
+            // ====== Ambil daftar user ======
+            $roleResponse = Http::withToken($token)
+                ->accept('application/json')
+                ->get($baseUrl . '/user/role-list');
+
+            if ($roleResponse->successful()) {
+                $role = $roleResponse->json()['data'] ?? [];
+            } else {
+                session()->flash('error', 'Gagal mengambil data roles.');
+            }
+
+        } catch (\Exception $e) {
+            session()->flash('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+        return view('pages.usermanagement.createuser', compact('divisi', 'role'));
+    }
+
+    // Store User
+    public function storeUser(Request $request)
+    {
+        // Validasi input 'name' wajib dan string maksimal 255 karakter
+        $validated = $request->validate([
+            'name' => 'required|string|max:50',
+            'email' => 'required|email',
+            'divisi_id' => 'required',
+            'role' => 'required',
+        ]);
+
+        $apiUrl = rtrim(env('SPPD_API_URL'), '/') . '/user/create-user';
+        $token = Session::get('jwt_token');
+
+        // Cek token, jika tidak ada redirect ke login
+        if (!$token) {
+            return redirect()->route('login')->with('error', 'Token belum tersedia, silakan login dulu.');
+        }
+
+        try {
+            // Kirim POST request ke API dengan payload 'name'
+            $response = Http::withToken($token)
+                ->accept('application/json')
+                ->post($apiUrl, [
+                    'name' => $validated['name'],
+                    'email' => $validated['email'],
+                    'divisi_id' => $validated['divisi_id'],
+                    'role' => $validated['role'],
+                ]);
+
+            if ($response->status() == 401) {
+                // Token expired atau tidak valid
+                Session::forget('jwt_token'); // hapus token dari session
+                return redirect()->route('login')->with('error', 'Sesi habis, silakan login ulang.');
+            }
+
+            if ($response->successful()) {
+                return redirect()->route('users.index')->with('success', 'User berhasil ditambahkan.');
+            } else {
+                $errorMessage = $response->json('message') ?? 'Gagal menyimpan user.';
+
+                // Jika API mengirimkan array error seperti validasi Laravel
+                if (isset($response->json()['errors'])) {
+                    $errors = $response->json()['errors'];
+                    // Gabungkan semua pesan error jadi string
+                    $errorMessage = collect($errors)->flatten()->implode(' ');
+                }
+
+                return back()->withInput()->with('error', $errorMessage);
+            }
+
+
+        } catch (\Exception $e) {
+            // Tangani error exception, redirect balik dengan pesan error
+            return back()->withInput()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
     // Roles Section
 
     // 1. Get Roles

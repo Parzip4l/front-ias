@@ -48,7 +48,7 @@
                 <div class="collapse" id="sidebarSppd">
                     <ul class="sub-menu">
                         <li class="side-nav-item">
-                             <a href="<?php echo e(route ('third' , ['pages','sppd','index'])); ?>" class="side-nav-link">
+                             <a href="<?php echo e(route ('sppd.index')); ?>" class="side-nav-link">
                                 <span class="menu-text">List SPPD</span>
                             </a>
                         </li>
@@ -102,6 +102,7 @@
             </li>
 
             <!-- Finance -->
+            <?php if(session('user.role') == 'admin'): ?>
             <li class="side-nav-title">Finance</li>
             <li class="side-nav-item">
                 <a href="<?php echo e(route ('finance.saldo-mitra')); ?>" class="side-nav-link">
@@ -109,7 +110,7 @@
                     <span class="menu-text"> Saldo Mitra </span>
                 </a>
             </li>
-
+            
             <li class="side-nav-title mt-2">
                 Settings
             </li>
@@ -138,6 +139,7 @@
                     </ul>
                 </div>
             </li>
+            <?php endif; ?>
 
             
         </ul>
