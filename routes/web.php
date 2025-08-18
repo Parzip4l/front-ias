@@ -65,7 +65,7 @@ Route::group(['prefix' => '/', 'middleware' => 'jwt.session'], function () {
             Route::get('/list', [BudgetController::class, 'index'])->name('budget.index');
             Route::post('/store', [BudgetController::class, 'store'])->name('budget.store');
             Route::get('/{id}/edit', [BudgetController::class, 'edit'])->name('budget.edit');
-            Route::put('/update', [BudgetController::class, 'update'])->name('budget.update');
+            Route::put('/update/{id}', [BudgetController::class, 'update'])->name('budget.update');
             Route::post('/delete', [BudgetController::class, 'destroy'])->name('budget.delete');
         });
 
