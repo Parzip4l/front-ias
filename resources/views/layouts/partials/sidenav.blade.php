@@ -110,9 +110,31 @@
                     <span class="menu-text"> Saldo Mitra </span>
                 </a>
             </li>
-            
+
+            <!-- Master Data -->
+
             <li class="side-nav-title mt-2">
                 Settings
+            </li>
+            
+
+            <li class="side-nav-item">
+                <a data-bs-toggle="collapse" href="#budgetLayout" aria-expanded="false" aria-controls="budgetLayout"
+                    class="side-nav-link">
+                    <span class="menu-icon"><i class="ti ti-shopping-cart"></i></span>
+                    <span class="menu-text"> Budget </span>
+                    <span class="menu-arrow"></span>
+                </a>
+                <div class="collapse" id="budgetLayout">
+                    <ul class="sub-menu">
+                        <li class="side-nav-item">
+                            <a href="{{route('budget.index')}}" class="side-nav-link">Budget</a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="{{route('budget-category.index')}}" class="side-nav-link">Budget Kategori</a>
+                        </li>
+                    </ul>
+                </div>
             </li>
 
             <li class="side-nav-item">
@@ -132,6 +154,9 @@
                         </li>
                         <li class="side-nav-item">
                             <a href="{{route('divisi.index')}}" class="side-nav-link">Departement</a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="{{route('posisi.index')}}" class="side-nav-link">Posisi</a>
                         </li>
                         <li class="side-nav-item">
                             <a href="#" class="side-nav-link">Settings</a>

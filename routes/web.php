@@ -1,13 +1,19 @@
 <?php
 
-use App\Http\Controllers\RoutingController;
-use App\Http\Controllers\Auth\SppdAuthController;
-use App\Http\Controllers\UserManagement\UserController;
-use App\Http\Controllers\Sppd\SppdController;
-use App\Http\Controllers\Finance\MitraSaldoController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+
+// Controller
+use App\Http\Controllers\RoutingController;
+use App\Http\Controllers\Auth\SppdAuthController;
+use App\Http\Controllers\UserManagement\UserController;
+use App\Http\Controllers\UserManagement\PosisiController;
+use App\Http\Controllers\UserManagement\BudgetCategoryController;
+use App\Http\Controllers\UserManagement\BudgetController;
+
+use App\Http\Controllers\Sppd\SppdController;
+use App\Http\Controllers\Finance\MitraSaldoController;
 
 require __DIR__ . '/auth.php';
 
@@ -46,6 +52,28 @@ Route::group(['prefix' => '/', 'middleware' => 'jwt.session'], function () {
             Route::post('/store', [UserController::class, 'storeDivisi'])->name('divisi.store');
             Route::put('/update', [UserController::class, 'updateDivisi'])->name('divisi.update');
             Route::post('/delete', [UserController::class, 'destroyDivisi'])->name('divisi.delete');
+        });
+
+        Route::prefix('posisi')->group(function () {
+            Route::get('/list', [PosisiController::class, 'index'])->name('posisi.index');
+            Route::post('/store', [PosisiController::class, 'store'])->name('posisi.store');
+            Route::put('/update', [PosisiController::class, 'update'])->name('posisi.update');
+            Route::post('/delete', [PosisiController::class, 'destroy'])->name('posisi.delete');
+        });
+
+        Route::prefix('budget')->group(function () {
+            Route::get('/list', [BudgetController::class, 'index'])->name('budget.index');
+            Route::post('/store', [BudgetController::class, 'store'])->name('budget.store');
+            Route::get('/{id}/edit', [BudgetController::class, 'edit'])->name('budget.edit');
+            Route::put('/update', [BudgetController::class, 'update'])->name('budget.update');
+            Route::post('/delete', [BudgetController::class, 'destroy'])->name('budget.delete');
+        });
+
+        Route::prefix('budget-category')->group(function () {
+            Route::get('/list', [BudgetCategoryController::class, 'index'])->name('budget-category.index');
+            Route::post('/store', [BudgetCategoryController::class, 'store'])->name('budget-category.store');
+            Route::put('/update', [BudgetCategoryController::class, 'update'])->name('budget-category.update');
+            Route::post('/delete', [BudgetCategoryController::class, 'destroy'])->name('budget-category.delete');
         });
     });
 
