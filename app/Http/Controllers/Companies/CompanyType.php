@@ -42,85 +42,44 @@ class CompanyType extends Controller
 
     public function store(Request $request)
     {
-        // Validasi input sesuai form
+        // Validasi input 'name' wajib dan string maksimal 255 karakter
         $validated = $request->validate([
-            'name'             => 'required|string|max:50',
-            'customer_id'      => 'required|string',
-            'email'            => 'required|email',
-            'company_type_id'  => 'required|integer',
-            'phone'            => 'required|string|max:20',
-            'address'          => 'required|string',
-            'zipcode'          => 'nullable|string|max:10',
-            'is_pkp'           => 'required|boolean',
-            'npwp_number'      => 'nullable|string|max:25',
-            'npwp_file'        => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:1024',
-            'sppkp_file'       => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:1024',
-            'skt_file'         => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:1024',
-            'is_active'        => 'nullable|boolean',
+            'name' => 'required|string|max:25',
+            'description' => 'required|string',
         ]);
 
-        $apiUrl = rtrim(env('SPPD_API_URL'), '/') . '/company/store';
-        $token  = Session::get('jwt_token');
+        $apiUrl = rtrim(env('SPPD_API_URL'), '/') . '/company-type/store';
+        $token = Session::get('jwt_token');
 
+        // Cek token, jika tidak ada redirect ke login
         if (!$token) {
             return redirect()->route('login')->with('error', 'Token belum tersedia, silakan login dulu.');
         }
 
         try {
-            $httpRequest = Http::withToken($token)->accept('application/json');
-
-            // attach file jika ada
-            if ($request->hasFile('npwp_file')) {
-                $httpRequest->attach(
-                    'npwp_file',
-                    file_get_contents($request->file('npwp_file')->getRealPath()),
-                    $request->file('npwp_file')->getClientOriginalName()
-                );
-            }
-
-            if ($request->hasFile('sppkp_file')) {
-                $httpRequest->attach(
-                    'sppkp_file',
-                    file_get_contents($request->file('sppkp_file')->getRealPath()),
-                    $request->file('sppkp_file')->getClientOriginalName()
-                );
-            }
-
-            if ($request->hasFile('skt_file')) {
-                $httpRequest->attach(
-                    'skt_file',
-                    file_get_contents($request->file('skt_file')->getRealPath()),
-                    $request->file('skt_file')->getClientOriginalName()
-                );
-            }
-
-            // kirim payload utama
-            $response = $httpRequest->post($apiUrl, [
-                'name'            => $validated['name'],
-                'customer_id'     => $validated['customer_id'],
-                'email'           => $validated['email'],
-                'company_type_id' => $validated['company_type_id'],
-                'phone'           => $validated['phone'],
-                'address'         => $validated['address'],
-                'zipcode'         => $request->input('zipcode'),
-                'is_pkp'          => $validated['is_pkp'],
-                'npwp_number'     => $request->input('npwp_number'),
-                'is_active'       => $request->input('is_active', 1),
-            ]);
+            // Kirim POST request ke API dengan payload 'name'
+            $response = Http::withToken($token)
+                ->accept('application/json')
+                ->post($apiUrl, [
+                    'name' => $validated['name'],
+                    'description' => $validated['description'],
+                ]);
 
             if ($response->status() == 401) {
-                Session::forget('jwt_token');
+                // Token expired atau tidak valid
+                Session::forget('jwt_token'); // hapus token dari session
                 return redirect()->route('login')->with('error', 'Sesi habis, silakan login ulang.');
             }
 
             if ($response->successful()) {
-                return redirect()->route('company.index')->with('success', 'Company berhasil ditambahkan.');
+                return redirect()->route('companytype.index')->with('success', 'Data berhasil ditambahkan.');
             } else {
-                $errorMessage = $response->json('message') ?? 'Gagal menyimpan Company.';
+                $errorMessage = $response->json('message') ?? 'Gagal menyimpan Data.';
                 return back()->withInput()->with('error', $errorMessage);
             }
 
         } catch (\Exception $e) {
+            // Tangani error exception, redirect balik dengan pesan error
             return back()->withInput()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
