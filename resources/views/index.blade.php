@@ -435,7 +435,7 @@
     </div>
 
     <div class="row">
-  <div class="col-xl-8">
+  <div class="col-xl-12">
     <div class="card">
       <div class="card-header d-flex flex-wrap align-items-center gap-2 border-bottom border-dashed">
         <h4 class="header-title me-auto">Top 5 Provinces Visited</h4>
@@ -504,39 +504,6 @@
 <!-- end card-body -->
     </div> <!-- end card -->
   </div> <!-- end col -->
-
-  <div class="col-xl-4">
-    <div class="card">
-      <div class="card-header d-flex flex-wrap align-items-center gap-2 border-bottom border-dashed">
-        <h4 class="header-title me-auto">Popular Transport Modes</h4>
-        <div class="d-flex gap-2 justify-content-end text-end">
-          <a href="javascript:void(0);" class="btn btn-sm btn-primary">Refresh <i class="ti ti-refresh ms-1"></i></a>
-        </div>
-      </div>
-      <div class="card-body">
-        <ul class="list-group list-group-flush">
-  <li class="list-group-item d-flex justify-content-between align-items-center py-3 border-0 border-bottom rounded-top hover-shadow">
-    <div class="d-flex align-items-center gap-2">
-      <i class="ti ti-plane fs-5 text-primary"></i>
-      <span class="fw-semibold">Pesawat</span>
-    </div>
-    <span class="badge bg-primary rounded-pill px-3 py-2 fs-6">45%</span>
-  </li>
-  <li class="list-group-item d-flex justify-content-between align-items-center py-3 border-0 border-bottom hover-shadow">
-    <div class="d-flex align-items-center gap-2">
-      <i class="ti ti-train fs-5 text-info"></i>
-      <span class="fw-semibold">Kereta</span>
-    </div>
-    <span class="badge bg-info rounded-pill px-3 py-2 fs-6">30%</span>
-  </li>
-  <li class="list-group-item d-flex justify-content-between align-items-center py-3 border-0 rounded-bottom hover-shadow">
-    <div class="d-flex align-items-center gap-2">
-      <i class="ti ti-car fs-5 text-success"></i>
-      <span class="fw-semibold">Mobil Dinas</span>
-    </div>
-    <span class="badge bg-success rounded-pill px-3 py-2 fs-6">15%</span>
-  </li>
-</ul>
       </div> <!-- end card-body-->
     </div> <!-- end card -->
   </div> <!-- end col -->

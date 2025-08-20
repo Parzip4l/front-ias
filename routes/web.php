@@ -11,6 +11,10 @@ use App\Http\Controllers\UserManagement\UserController;
 use App\Http\Controllers\UserManagement\PosisiController;
 use App\Http\Controllers\UserManagement\BudgetCategoryController;
 use App\Http\Controllers\UserManagement\BudgetController;
+use App\Http\Controllers\Employee\EmployeeController;
+
+use App\Http\Controllers\Companies\CompanyType;
+use App\Http\Controllers\Companies\CompanyController;
 
 use App\Http\Controllers\Sppd\SppdController;
 use App\Http\Controllers\Finance\MitraSaldoController;
@@ -75,6 +79,15 @@ Route::group(['prefix' => '/', 'middleware' => 'jwt.session'], function () {
             Route::put('/update', [BudgetCategoryController::class, 'update'])->name('budget-category.update');
             Route::post('/delete', [BudgetCategoryController::class, 'destroy'])->name('budget-category.delete');
         });
+
+        Route::prefix('karyawan')->group(function () {
+            Route::get('/list', [EmployeeController::class, 'index'])->name('employee.index');
+            Route::get('/create', [EmployeeController::class, 'create'])->name('employee.create');
+            Route::post('/store', [EmployeeController::class, 'store'])->name('employee.store');
+            Route::get('/{id}/edit', [EmployeeController::class, 'edit'])->name('employee.edit');
+            Route::put('/update/{id}', [EmployeeController::class, 'update'])->name('employee.update');
+            Route::post('/delete', [EmployeeController::class, 'destroy'])->name('employee.delete');
+        });
     });
 
     // Sppd
@@ -85,6 +98,23 @@ Route::group(['prefix' => '/', 'middleware' => 'jwt.session'], function () {
         // Route::post('/store', [SppdController::class, 'storeDivisi'])->name('divisi.store');
         // Route::put('/update', [SppdController::class, 'updateDivisi'])->name('divisi.update');
         // Route::post('/delete', [SppdController::class, 'destroyDivisi'])->name('divisi.delete');
+    });
+
+    // Companies-type
+    Route::prefix('company')->group(function () {
+        Route::prefix('type')->group(function () {
+            Route::get('/list', [CompanyType::class, 'index'])->name('companytype.index');
+            Route::post('/store', [CompanyType::class, 'store'])->name('companytype.store');
+            Route::put('/update', [CompanyType::class, 'update'])->name('companytype.update');
+            Route::post('/delete', [CompanyType::class, 'destroy'])->name('companytype.delete');
+        });
+        Route::get('/list', [CompanyController::class, 'index'])->name('company.index');
+        Route::get('/create', [CompanyController::class, 'create'])->name('company.create');
+        Route::post('/store', [CompanyController::class, 'store'])->name('company.store');
+        Route::get('/{id}/edit', [CompanyController::class, 'edit'])->name('company.edit');
+        Route::get('/{id}/details', [CompanyController::class, 'single'])->name('company.single');
+        Route::put('/update', [CompanyController::class, 'update'])->name('company.update');
+        Route::post('/delete', [CompanyController::class, 'destroy'])->name('company.delete');
     });
 
     // Finance

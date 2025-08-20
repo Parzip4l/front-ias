@@ -95,6 +95,13 @@
             </li>
 
             <li class="side-nav-item">
+                <a href="{{route('employee.index')}}" class="side-nav-link">
+                    <span class="menu-icon"><i class="ti ti-users"></i></span>
+                    <span class="menu-text"> Karyawan </span>
+                </a>
+            </li>
+
+            <li class="side-nav-item">
                 <a href="#" class="side-nav-link">
                     <span class="menu-icon"><i class="ti ti-calendar"></i></span>
                     <span class="menu-text"> Calendar </span>
@@ -110,13 +117,43 @@
                     <span class="menu-text"> Saldo Mitra </span>
                 </a>
             </li>
+            <li class="side-nav-item">
+                <a href="{{ route ('finance.saldo-mitra') }}" class="side-nav-link">
+                    <span class="menu-icon"><i class="ti ti-file-invoice"></i></span>
+                    <span class="menu-text"> Report </span>
+                </a>
+            </li>
 
             <!-- Master Data -->
-
             <li class="side-nav-title mt-2">
                 Settings
             </li>
             
+
+            <li class="side-nav-item">
+                <a data-bs-toggle="collapse" href="#companySidebar" aria-expanded="false" aria-controls="companySidebar"
+                    class="side-nav-link">
+                    <span class="menu-icon"><i class="ti ti-briefcase"></i></span>
+                    <span class="menu-text"> Perusahaan </span>
+                    <span class="menu-arrow"></span>
+                </a>
+                <div class="collapse" id="companySidebar">
+                    <ul class="sub-menu">
+                        <li class="side-nav-item">
+                            <a href="{{route('company.index')}}" class="side-nav-link">Perusahaan</a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="{{route('companytype.index')}}" class="side-nav-link">Jenis Usaha</a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="#" class="side-nav-link">Approval Layer Sppd</a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="#" class="side-nav-link">Lokasi</a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
 
             <li class="side-nav-item">
                 <a data-bs-toggle="collapse" href="#budgetLayout" aria-expanded="false" aria-controls="budgetLayout"

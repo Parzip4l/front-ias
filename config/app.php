@@ -66,7 +66,7 @@ return [
     */
 
     'timezone' => env('APP_TIMEZONE', 'UTC'),
-
+    'backend_url' => env('BACKEND_URL', 'http://127.0.0.1:8000'),
     /*
     |--------------------------------------------------------------------------
     | Application Locale Configuration
