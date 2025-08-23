@@ -17,6 +17,7 @@ use App\Http\Controllers\Companies\CompanyType;
 use App\Http\Controllers\Companies\CompanyController;
 
 use App\Http\Controllers\Sppd\SppdController;
+use App\Http\Controllers\Sppd\ApprovalController;
 use App\Http\Controllers\Finance\MitraSaldoController;
 
 require __DIR__ . '/auth.php';
@@ -98,6 +99,19 @@ Route::group(['prefix' => '/', 'middleware' => 'jwt.session'], function () {
         // Route::post('/store', [SppdController::class, 'storeDivisi'])->name('divisi.store');
         // Route::put('/update', [SppdController::class, 'updateDivisi'])->name('divisi.update');
         // Route::post('/delete', [SppdController::class, 'destroyDivisi'])->name('divisi.delete');
+        Route::prefix('approval')->group(function () {
+            Route::get('/list', [ApprovalController::class, 'index'])->name('flow.index');
+            Route::post('/store', [ApprovalController::class, 'store'])->name('flow.store');
+            Route::put('/update/{id}', [ApprovalController::class, 'update'])->name('flow.update');
+            Route::get('/{id}/details', [ApprovalController::class, 'show'])->name('flow.single');
+            Route::get('/final-step/{id}', [ApprovalController::class, 'isFinal'])->name('flow.final');
+            Route::post('/delete', [ApprovalController::class, 'destroy'])->name('flow.delete');
+
+            // Steps
+            Route::post('/store-steps', [ApprovalController::class, 'addStep'])->name('steps.store');
+            Route::post('/delete-steps', [ApprovalController::class, 'deleteStep'])->name('steps.delete');
+
+        });
     });
 
     // Companies-type

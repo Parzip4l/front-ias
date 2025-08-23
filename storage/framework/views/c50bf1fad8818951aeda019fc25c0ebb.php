@@ -1,10 +1,8 @@
-@extends('layouts.base', ['title' => 'Sign Up'])
-
-@section('body-attribuet')
+<?php $__env->startSection('body-attribuet'); ?>
     class="h-100"
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
     <div class="auth-bg d-flex min-vh-100 justify-content-center align-items-center">
         <div class="row g-0 justify-content-center w-100 m-xxl-5 px-xxl-4 m-3">
             <div class="col-xl-4 col-lg-5 col-md-6">
@@ -14,7 +12,7 @@
                         <img src="/images/ias.png" alt="logo light" height="120" class="logo-light">
                     </a>
 
-                    <form action="{{ route('root') }}" class="text-start mb-3">
+                    <form action="<?php echo e(route('root')); ?>" class="text-start mb-3">
                         <div class="mb-3">
                             <label class="form-label" for="example-name">Your Name</label>
                             <input type="text" id="example-name" name="example-name" class="form-control"
@@ -39,7 +37,7 @@
                     </form>
 
                     <p class="text-nuted fs-14 mb-4">Already have an account? <a
-                            href="{{ route('second', ['auth', 'login']) }}" class="fw-semibold text-danger ms-1">Login
+                            href="<?php echo e(route('second', ['auth', 'login'])); ?>" class="fw-semibold text-danger ms-1">Login
                             !</a></p>
 
                     <p class="mt-auto mb-0">
@@ -51,4 +49,6 @@
             </div>
         </div>
     </div>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.base', ['title' => 'Sign Up'], \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH D:\Muhamad Sobirin\project\front-ias2\resources\views/auth/register.blade.php ENDPATH**/ ?>

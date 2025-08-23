@@ -51,6 +51,10 @@ class="h-100"
 
                     <div class="d-grid">
                         <button class="btn btn-primary fw-semibold" type="submit">Login</button>
+                        <div>
+                            <span class="text-muted">Belum Punya Akun ?<a href="<?php echo e(route('register')); ?>"
+                            class="text-muted border-bottom border-dashed"> <b>Register disini</b></a></span>
+                        </div>
                     </div>
                 </form>
             </div>

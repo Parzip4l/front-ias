@@ -14,6 +14,11 @@ class SppdAuthController extends Controller
         return view('auth.login');
     }
 
+    public function showRegister()
+    {
+        return view('auth.register');
+    }
+
     public function ForgotPassword()
     {
         return view('auth.recoverpw');

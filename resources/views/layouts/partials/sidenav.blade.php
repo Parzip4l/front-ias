@@ -146,7 +146,7 @@
                             <a href="{{route('companytype.index')}}" class="side-nav-link">Jenis Usaha</a>
                         </li>
                         <li class="side-nav-item">
-                            <a href="#" class="side-nav-link">Approval Layer Sppd</a>
+                            <a href="{{route('flow.index')}}" class="side-nav-link">Approval Layer Sppd</a>
                         </li>
                         <li class="side-nav-item">
                             <a href="#" class="side-nav-link">Lokasi</a>

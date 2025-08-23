@@ -1,26 +1,46 @@
-
-
 <?php $__env->startSection('css'); ?>
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <style>
-        .addon-card {
-            border: 1px solid #e0e0e0;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .addon-card:hover {
-            background: #f8f9fa;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
-        }
-        .addon-card.selected {
-            border: 2px solid #0d6efd;
-            background: #e7f1ff;
-        }
-        .addon-card input[type="checkbox"] {
-            display: none;
-        }
-    </style>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    .stepper {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+    }
+    .stepper .step {
+        flex: 1;
+        text-align: center;
+        padding: 10px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 14px;
+        background: #f1f3f5;
+        margin: 0 5px;
+        transition: .3s;
+    }
+    .stepper .step.active {
+        background: #0d6efd;
+        color: #fff;
+    }
+    .form-step { display: none; }
+    .form-step.active { display: block; }
+    .addon-card {
+        border: 1px solid #e0e0e0;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .addon-card:hover {
+        background: #f8f9fa;
+        box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+    }
+    .addon-card.selected {
+        border: 2px solid #0d6efd;
+        background: #e7f1ff;
+    }
+    .addon-card input[type="checkbox"] {
+        display: none;
+    }
+</style>
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startSection('content'); ?>
@@ -31,75 +51,118 @@
         <form id="form-sppd">
             <?php echo csrf_field(); ?>
             <div class="card">
-                <div class="card-header border-bottom border-dashed">
-                    <h4 class="header-title">Data Perjalanan Dinas</h4>
-                </div>
-                <div class="card-body row g-3">
+                <div class="card-body">
 
-                    <!-- Data Pegawai -->
-                    <div class="col-md-6">
-                        <label class="form-label">Nama Pegawai</label>
-                        <input type="text" class="form-control" name="employee_name" value="<?php echo e(session('user.name')); ?>" readonly>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Jabatan</label>
-                        <input type="text" class="form-control" name="position" value="<?php echo e(session('user.position')); ?>" readonly>
+                    <!-- Progress -->
+                    <div class="stepper mb-4">
+                        <div class="step active">1. Informasi Umum</div>
+                        <div class="step">2. Pesawat</div>
+                        <div class="step">3. Hotel</div>
+                        <div class="step">4. Addons</div>
+                        <div class="step">5. Preview</div>
                     </div>
 
-                    <!-- Lokasi Tujuan -->
-                    <div class="col-md-4">
-                        <label class="form-label">Provinsi</label>
-                        <select class="form-select select2" id="province" name="province">
-                            <option value="">Pilih Provinsi...</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Kabupaten/Kota</label>
-                        <select class="form-select select2" id="city" name="city">
-                            <option value="">Pilih Kabupaten/Kota...</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Kota Tujuan</label>
-                        <select class="form-select select2" id="destination" name="destination">
-                            <option value="">Pilih Kota Tujuan...</option>
-                        </select>
-                    </div>
-
-                    <!-- Jadwal -->
-                    <div class="col-md-6">
-                        <label class="form-label">Tanggal Berangkat</label>
-                        <input type="date" class="form-control" name="departure_date" id="departure_date">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Tanggal Kembali</label>
-                        <input type="date" class="form-control" name="return_date" id="return_date">
-                    </div>
-
-                    <!-- Hotel -->
-                    <div class="col-md-6">
-                        <label class="form-label">Hotel</label>
-                        <select class="form-select select2" name="hotel" id="hotel">
-                            <option value="">Pilih Hotel...</option>
-                        </select>
-                        <div id="hotel-type" class="mt-1 text-muted fst-italic"></div>
+                    <!-- Step 1: Informasi Umum -->
+                    <div class="form-step active" id="step-1">
+                        <h5 class="mb-3">Informasi Umum</h5>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Nama Pegawai</label>
+                                <input type="text" class="form-control" value="<?php echo e(session('user.name')); ?>" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Jabatan</label>
+                                <input type="text" class="form-control" value="<?php echo e(session('user.position')); ?>" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Tujuan</label>
+                                <input type="text" class="form-control" name="destination" placeholder="Masukkan kota tujuan">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Tanggal Berangkat</label>
+                                <input type="date" class="form-control" name="departure_date" id="departure_date">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Tanggal Kembali</label>
+                                <input type="date" class="form-control" name="return_date" id="return_date">
+                            </div>
+                        </div>
+                        <div class="mt-3 text-end">
+                            <button type="button" class="btn btn-primary next-step">Lanjut</button>
+                        </div>
                     </div>
 
-                    <!-- Transportasi -->
-                    <div class="col-md-6">
-                        <label class="form-label">Transportasi</label>
-                        <select class="form-select select2" name="transport" id="transport">
-                            <option value="">Pilih...</option>
-                            <option value="pesawat">Pesawat</option>
-                        </select>
+                    <!-- Step 2: Pesawat -->
+                    <div class="form-step" id="step-2">
+                        <h5 class="mb-3">Pesawat</h5>
+                        <div class="flight-list">
+                            <?php $__currentLoopData = [
+                                ['maskapai'=>'AirAsia Indonesia','from'=>'CGK','to'=>'SIN','depart'=>'08:30','arrive'=>'11:20','durasi'=>'1j 50m','harga'=>1143000,'bagasi'=>1,'wifi'=>true],
+                                ['maskapai'=>'Pelita Air','from'=>'CGK','to'=>'SIN','depart'=>'07:10','arrive'=>'10:00','durasi'=>'1j 50m','harga'=>1195400,'bagasi'=>20,'wifi'=>false],
+                                ['maskapai'=>'Citilink','from'=>'CGK','to'=>'SIN','depart'=>'06:20','arrive'=>'09:10','durasi'=>'1j 50m','harga'=>1202600,'bagasi'=>0,'wifi'=>false],
+                            ]; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $f): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <div class="card mb-3 shadow-sm flight-card" data-nama="<?php echo e($f['maskapai']); ?>" data-harga="<?php echo e($f['harga']); ?>">
+                                <div class="card-body d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="fw-bold"><?php echo e($f['maskapai']); ?></h6>
+                                        <div class="d-flex align-items-center">
+                                            <span class="me-2"><?php echo e($f['depart']); ?> - <?php echo e($f['arrive']); ?></span>
+                                            <span class="text-muted"><?php echo e($f['durasi']); ?> • <?php echo e($f['from']); ?> → <?php echo e($f['to']); ?></span>
+                                        </div>
+                                        <small>
+                                            <?php if($f['bagasi']>0): ?> 🧳 <?php echo e($f['bagasi']); ?>kg <?php endif; ?>
+                                            <?php if($f['wifi']): ?> 📶 WiFi <?php endif; ?>
+                                        </small>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="fw-bold text-danger">Rp <?php echo e(number_format($f['harga'],0,',','.')); ?></div>
+                                        <button type="button" class="btn btn-sm btn-primary pilih-pesawat mt-2">Pilih</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                        </div>
+                        <div id="pesawat-preview" class="alert alert-info mt-3 d-none"></div>
+                        <div class="mt-3 d-flex justify-content-between">
+                            <button type="button" class="btn btn-secondary prev-step">Kembali</button>
+                            <button type="button" class="btn btn-primary next-step">Lanjut</button>
+                        </div>
                     </div>
 
-                    <!-- Conditional Transport Fields -->
-                    <div id="transport-extra" class="row mt-2"></div>
+                    <!-- Step 3: Hotel -->
+                    <div class="form-step" id="step-3">
+                        <h5 class="mb-3">Hotel</h5>
+                        <div class="hotel-list">
+                            <?php $__currentLoopData = [
+                                ['nama'=>'Hotel Mulia Senayan','lokasi'=>'Jakarta','harga'=>950000,'bintang'=>5,'fasilitas'=>'Kolam renang, Gym, Spa'],
+                                ['nama'=>'Ibis Styles','lokasi'=>'Jakarta','harga'=>550000,'bintang'=>3,'fasilitas'=>'Restoran, Meeting Room'],
+                                ['nama'=>'RedDoorz Plus','lokasi'=>'Jakarta','harga'=>250000,'bintang'=>2,'fasilitas'=>'AC, WiFi Gratis'],
+                            ]; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $h): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <div class="card mb-3 shadow-sm hotel-card" data-nama="<?php echo e($h['nama']); ?>" data-harga="<?php echo e($h['harga']); ?>">
+                                <div class="card-body d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="fw-bold"><?php echo e($h['nama']); ?> ⭐<?php echo e($h['bintang']); ?></h6>
+                                        <div class="text-muted"><?php echo e($h['lokasi']); ?></div>
+                                        <small><?php echo e($h['fasilitas']); ?></small>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="fw-bold text-danger">Rp <?php echo e(number_format($h['harga'],0,',','.')); ?>/mlm</div>
+                                        <button type="button" class="btn btn-sm btn-primary pilih-hotel mt-2">Pilih</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                        </div>
+                        <div id="hotel-preview" class="alert alert-info mt-3 d-none"></div>
+                        <div class="mt-3 d-flex justify-content-between">
+                            <button type="button" class="btn btn-secondary prev-step">Kembali</button>
+                            <button type="button" class="btn btn-primary next-step">Lanjut</button>
+                        </div>
+                    </div>
 
-                    <!-- Add-ons -->
-                    <div class="col-md-12">
-                        <label class="form-label">Tambahan Layanan</label>
+                    <!-- Step 4: Addons -->
+                    <div class="form-step" id="step-4">
+                        <h5 class="mb-3">Tambahan Layanan</h5>
                         <div class="row" id="addon-list">
                             <?php $__currentLoopData = [
                                 ['id' => 'sewa-kendaraan', 'nama' => 'Sewa Kendaraan', 'harga' => 500000, 'desc' => 'Mobil atau motor selama perjalanan'],
@@ -108,33 +171,31 @@
                                 ['id' => 'asuransi', 'nama' => 'Asuransi Perjalanan', 'harga' => 150000, 'desc' => 'Proteksi perjalanan lengkap']
                             ]; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $addon): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <div class="col-md-3">
-                                <div class="card addon-card border" data-id="<?php echo e($addon['id']); ?>" data-harga="<?php echo e($addon['harga']); ?>">
+                                <div class="card addon-card" data-harga="<?php echo e($addon['harga']); ?>">
                                     <div class="card-body text-center">
                                         <h6 class="fw-bold"><?php echo e($addon['nama']); ?></h6>
                                         <small class="text-muted d-block"><?php echo e($addon['desc']); ?></small>
-                                        <div class="mt-2 fw-bold text-primary">Rp <?php echo e(number_format($addon['harga'], 0, ',', '.')); ?> / Hari</div>
-                                        <input type="checkbox" name="addons[]" value="<?php echo e($addon['id']); ?>" class="addon-check mt-2">
+                                        <div class="mt-2 fw-bold text-primary">Rp <?php echo e(number_format($addon['harga'],0,',','.')); ?></div>
+                                        <input type="checkbox" name="addons[]" value="<?php echo e($addon['id']); ?>" class="addon-check">
                                     </div>
                                 </div>
                             </div>
                             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </div>
+                        <div class="mt-3 d-flex justify-content-between">
+                            <button type="button" class="btn btn-secondary prev-step">Kembali</button>
+                            <button type="button" class="btn btn-primary next-step">Lanjut</button>
+                        </div>
                     </div>
 
-                    <!-- Estimasi & Saldo -->
-                    <div class="col-md-6 mt-3">
-                        <label class="form-label">Estimasi Biaya</label>
-                        <input type="text" class="form-control" id="estimated_cost" readonly>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Saldo Perjalanan</label>
-                        <input type="text" class="form-control" value="Rp 5.000.000" readonly>
-                    </div>
-
-                    <!-- Buttons -->
-                    <div class="col-md-12 mt-3">
-                        <button type="button" id="btn-preview" class="btn btn-warning">Preview</button>
-                        <button type="submit" class="btn btn-primary">Submit</button>
+                    <!-- Step 5: Preview -->
+                    <div class="form-step" id="step-5">
+                        <h5 class="mb-3">Preview</h5>
+                        <div id="previewContent" class="border rounded p-3 bg-light"></div>
+                        <div class="mt-3 d-flex justify-content-between">
+                            <button type="button" class="btn btn-secondary prev-step">Kembali</button>
+                            <button type="submit" class="btn btn-success">Submit</button>
+                        </div>
                     </div>
 
                 </div>
@@ -145,432 +206,66 @@
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startSection('scripts'); ?>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 $(function(){
     $('.select2').select2();
 
-    // Lokasi Dummy Data
-    const lokasiData = {
-        "DKI Jakarta": {
-            "Jakarta Selatan": ["Blok M", "Kebayoran Baru", "Pondok Indah"],
-            "Jakarta Pusat": ["Gambir", "Menteng", "Tanah Abang"]
-        },
-        "Jawa Barat": {
-            "Bandung": ["Dago", "Cihampelas", "Lembang"],
-            "Bogor": ["Cibinong", "Sentul", "Puncak"]
-        }
-    };
+    let currentStep = 1;
+    const steps = $(".form-step");
+    const stepper = $(".stepper .step");
 
-    const bandaraData = {
-        "Blok M": ["Soekarno-Hatta (CGK)", "Halim Perdanakusuma (HLP)"],
-        "Kebayoran Baru": ["Halim Perdanakusuma (HLP)"],
-        "Pondok Indah": ["Soekarno-Hatta (CGK)"],
-        "Gambir": ["Halim Perdanakusuma (HLP)"],
-        "Menteng": ["Soekarno-Hatta (CGK)"],
-        "Tanah Abang": ["Soekarno-Hatta (CGK)"],
-        "Dago": ["Husein Sastranegara (BDO)"],
-        "Cihampelas": ["Husein Sastranegara (BDO)"],
-        "Lembang": ["Husein Sastranegara (BDO)"],
-        "Cibinong": ["Soekarno-Hatta (CGK)"],
-        "Sentul": ["Soekarno-Hatta (CGK)"],
-        "Puncak": ["Soekarno-Hatta (CGK)"]
-    };
+    function showStep(step){
+        steps.removeClass("active").eq(step-1).addClass("active");
+        stepper.removeClass("active").eq(step-1).addClass("active");
+    }
 
-    const stasiunData = {
-        "Blok M": ["Stasiun Gambir", "Stasiun Senen"],
-        "Kebayoran Baru": ["Stasiun Kebayoran"],
-        "Pondok Indah": ["Stasiun Kebayoran"],
-        "Gambir": ["Stasiun Gambir"],
-        "Menteng": ["Stasiun Cikini"],
-        "Tanah Abang": ["Stasiun Tanah Abang"],
-        "Dago": ["Stasiun Bandung"],
-        "Cihampelas": ["Stasiun Bandung"],
-        "Lembang": ["Stasiun Cimahi"],
-        "Cibinong": ["Stasiun Cibinong"],
-        "Sentul": ["Stasiun Bogor"],
-        "Puncak": ["Stasiun Bogor"]
-    };
-
-    let selectedDestination = "";
-
-    // Populate Provinsi
-    $.each(lokasiData, (prov) => $('#province').append(`<option>${prov}</option>`));
-
-    $('#province').change(function(){
-        let prov = $(this).val();
-        $('#city').html('<option value="">Pilih Kabupaten/Kota...</option>');
-        $('#destination').html('<option value="">Pilih Kota Tujuan...</option>');
-        if(lokasiData[prov]){
-            $.each(lokasiData[prov], (city) => $('#city').append(`<option>${city}</option>`));
-        }
+    $(".next-step").click(function(){
+        if(currentStep < steps.length){ currentStep++; showStep(currentStep); }
+    });
+    $(".prev-step").click(function(){
+        if(currentStep > 1){ currentStep--; showStep(currentStep); }
     });
 
-    $('#city').change(function(){
-        let prov = $('#province').val();
-        let city = $(this).val();
-        $('#destination').html('<option value="">Pilih Kota Tujuan...</option>');
-        if(lokasiData[prov]?.[city]){
-            lokasiData[prov][city].forEach(dest => $('#destination').append(`<option>${dest}</option>`));
-        }
-    });
-
-    $('#destination').change(function(){
-        selectedDestination = $(this).val();
-
-        // Contoh data hotel dengan harga & tipe
-        let hotels = [
-            { name: "Hotel Santika", harga: 700000, type: "Bintang 3" },
-            { name: "Aston", harga: 1000000, type: "Bintang 4" },
-            { name: "Ibis Styles", harga: 850000, type: "Bintang 3" },
-            { name: "RedDoorz", harga: 400000, type: "Budget" }
-        ];
-
-        // Reset option hotel
-        $('#hotel').html('<option value="">Pilih Hotel...</option>');
-
-        // Append option hotel dengan data harga dan tipe
-        hotels.forEach(h => {
-            $('#hotel').append(`<option value="${h.name}" data-harga="${h.harga}" data-type="${h.type}">${h.name} (Rp ${h.harga.toLocaleString('id-ID')} / hari, ${h.type})</option>`);
-        });
-
-        // Reset hotel type display jika ada
-        $('#hotel-type').text('');
-    });
-
-
-    $('#transport').change(function(){
-        let type = $(this).val(), html = '';
-        if(type === 'pesawat'){
-            html = pesawatFields(selectedDestination);
-        } else if(type === 'kereta'){
-            html = keretaFields(selectedDestination);
-        } else if(type === 'mobil-dinas'){
-            html = mobilFields();
-        }
-        $('#transport-extra').html(html);
-        $('.select2').select2();
-    });
-
-    // Validasi Tanggal
-    $('#departure_date, #return_date').change(function(){
-        let dep = $('#departure_date').val(), ret = $('#return_date').val();
-        if(dep && ret && ret < dep){
-            alert('Tanggal kembali tidak boleh sebelum tanggal berangkat.');
-            $('#return_date').val('');
-        }
-    });
-
-    // Estimasi Biaya (Dummy Logic)
-    $('#form-sppd').on('change', 'input, select', function(){
-        let base = 500000;
-        let transportCost = parseInt($('input[name="ticket_price"]').val()) || 0;
-        let addons = $('input[name="addons[]"]:checked').length * 200000;
-        $('#estimated_cost').val(`Rp ${(base + transportCost + addons).toLocaleString()}`);
+    // Addon toggle
+    $('#addon-list').on('click', '.addon-card', function(){
+        let check = $(this).find('.addon-check');
+        check.prop('checked', !check.prop('checked'));
+        $(this).toggleClass('selected', check.prop('checked'));
     });
 
     // Preview
-    $('#btn-preview').click(function(){
-        let formData = $('#form-sppd').serializeArray();
-        let html = '<table class="table table-bordered"><tbody>';
-        formData.forEach(item => {
-            html += `<tr><th>${item.name}</th><td>${item.value}</td></tr>`;
-        });
-        html += '</tbody></table>';
-        $('#previewContent').html(html);
-        $('#previewModal').modal('show');
-    });
-
-    // Submit
-    $('#form-sppd').submit(function(e){
+    $('#form-sppd').on('submit', function(e){
         e.preventDefault();
-        $.post('/api/sppd', $(this).serialize())
-        .done(() => {
-            alert('SPPD berhasil dibuat!');
-            window.location.href = '/sppd';
-        })
-        .fail(() => {
-            alert('Terjadi kesalahan saat membuat SPPD.');
-        });
+        Swal.fire({
+            icon: 'success',
+            title: 'SPPD Berhasil Dibuat!',
+            showConfirmButton: false,
+            timer: 1500
+        }).then(()=> window.location.href='/sppd');
     });
-
-    // Field Generators
-    function pesawatFields(dest){
-        let bandaraAsal = bandaraData["Gambir"] || []; // ganti sesuai lokasi kantor
-        let bandaraTiba = bandaraData[dest] || [];
-
-        let asalHTML = bandaraAsal.map(b => `<option>${b}</option>`).join('');
-        let tibaHTML = bandaraTiba.map(b => `<option>${b}</option>`).join('');
-
-        return `
-            <!-- Tiket Berangkat -->
-            <h6 class="mt-3">Keberangkatan</h6>
-            <div class="col-md-4 mt-2">
-                <label class="form-label">Bandara Berangkat</label>
-                <select class="form-select select2" name="departure_airport">
-                    ${asalHTML}
-                </select>
-            </div>
-            <div class="col-md-4 mt-2">
-                <label class="form-label">Bandara Tiba</label>
-                <select class="form-select select2" name="arrival_airport">
-                    ${tibaHTML}
-                </select>
-            </div>
-            <div class="col-md-4 mt-2">
-                <label class="form-label">Maskapai</label>
-                <select class="form-select select2" name="airline">
-                    <option>Garuda Indonesia</option>
-                    <option>Batik Air</option>
-                    <option>Citilink</option>
-                    <option>Lion Air</option>
-                </select>
-            </div>
-            <div class="col-md-4 mt-2">
-                <label class="form-label">No. Penerbangan</label>
-                <input type="text" class="form-control" name="flight_number">
-            </div>
-            <div class="col-md-4 mt-2">
-                <label class="form-label">Kelas</label>
-                <select class="form-select select2" name="flight_class">
-                    <option>Ekonomi</option>
-                    <option>Bisnis</option>
-                    <option>First Class</option>
-                </select>
-            </div>
-            <div class="col-md-4 mt-2">
-                <label class="form-label">Harga Tiket</label>
-                <input type="text" class="form-control rupiah ticket-price" name="ticket_price_depart">
-            </div>
-
-            <!-- Tiket Pulang -->
-            <h6 class="mt-4">Kepulangan</h6>
-            <div class="col-md-4 mt-2">
-                <label class="form-label">Bandara Berangkat</label>
-                <select class="form-select select2" name="return_departure_airport">
-                    ${tibaHTML}
-                </select>
-            </div>
-            <div class="col-md-4 mt-2">
-                <label class="form-label">Bandara Tiba</label>
-                <select class="form-select select2" name="return_arrival_airport">
-                    ${asalHTML}
-                </select>
-            </div>
-            <div class="col-md-4 mt-2">
-                <label class="form-label">Maskapai</label>
-                <select class="form-select select2" name="return_airline">
-                    <option>Garuda Indonesia</option>
-                    <option>Batik Air</option>
-                    <option>Citilink</option>
-                    <option>Lion Air</option>
-                </select>
-            </div>
-            <div class="col-md-4 mt-2">
-                <label class="form-label">No. Penerbangan</label>
-                <input type="text" class="form-control" name="return_flight_number">
-            </div>
-            <div class="col-md-4 mt-2">
-                <label class="form-label">Kelas</label>
-                <select class="form-select select2" name="return_flight_class">
-                    <option>Ekonomi</option>
-                    <option>Bisnis</option>
-                    <option>First Class</option>
-                </select>
-            </div>
-            <div class="col-md-4 mt-2">
-                <label class="form-label">Harga Tiket</label>
-                <input type="text" class="form-control rupiah ticket-price" name="ticket_price_return">
-            </div>
-        `;
-    }
-
-
-    function keretaFields(dest, origin){
-        let stasiunAsalOptions = stasiunData[origin] || [];
-        let stasiunTibaOptions = stasiunData[dest] || [];
-
-        let asalHTML = stasiunAsalOptions.map(s => `<option>${s}</option>`).join('');
-        let tibaHTML = stasiunTibaOptions.map(s => `<option>${s}</option>`).join('');
-
-        return `
-            <!-- Berangkat -->
-            <h6 class="mt-3">Keberangkatan</h6>
-            <div class="col-md-4 mt-2">
-                <label class="form-label">Stasiun Berangkat</label>
-                <select class="form-select select2" name="departure_station">
-                    ${asalHTML}
-                </select>
-            </div>
-            <div class="col-md-4 mt-2">
-                <label class="form-label">Stasiun Tiba</label>
-                <select class="form-select select2" name="arrival_station">
-                    ${tibaHTML}
-                </select>
-            </div>
-            <div class="col-md-4 mt-2">
-                <label class="form-label">Nama Kereta</label>
-                <select class="form-select select2" name="train_name">
-                    <option>Argo Bromo Anggrek</option>
-                    <option>Taksaka</option>
-                    <option>Turangga</option>
-                </select>
-            </div>
-            <div class="col-md-4 mt-2">
-                <label class="form-label">Kelas</label>
-                <select class="form-select select2" name="train_class">
-                    <option>Eksekutif</option>
-                    <option>Bisnis</option>
-                    <option>Ekonomi</option>
-                </select>
-            </div>
-            <div class="col-md-4 mt-2">
-                <label class="form-label">Harga Tiket</label>
-                <input type="text" class="form-control rupiah ticket-price" name="ticket_price_depart">
-            </div>
-
-            <!-- Pulang -->
-            <h6 class="mt-4">Kepulangan</h6>
-            <div class="col-md-4 mt-2">
-                <label class="form-label">Stasiun Berangkat</label>
-                <select class="form-select select2" name="return_departure_station">
-                    ${tibaHTML}
-                </select>
-            </div>
-            <div class="col-md-4 mt-2">
-                <label class="form-label">Stasiun Tiba</label>
-                <select class="form-select select2" name="return_arrival_station">
-                    ${asalHTML}
-                </select>
-            </div>
-            <div class="col-md-4 mt-2">
-                <label class="form-label">Nama Kereta</label>
-                <select class="form-select select2" name="return_train_name">
-                    <option>Argo Bromo Anggrek</option>
-                    <option>Taksaka</option>
-                    <option>Turangga</option>
-                </select>
-            </div>
-            <div class="col-md-4 mt-2">
-                <label class="form-label">Kelas</label>
-                <select class="form-select select2" name="return_train_class">
-                    <option>Eksekutif</option>
-                    <option>Bisnis</option>
-                    <option>Ekonomi</option>
-                </select>
-            </div>
-            <div class="col-md-4 mt-2">
-                <label class="form-label">Harga Tiket</label>
-                <input type="text" class="form-control rupiah ticket-price" name="ticket_price_return">
-            </div>
-        `;
-    }
-
-    document.addEventListener("input", function(e){
-        if(e.target.classList.contains("rupiah")){
-            let value = e.target.value.replace(/[^,\d]/g, "");
-            let parts = value.split(",");
-            let integerPart = parts[0];
-            let decimalPart = parts[1];
-
-            let sisa = integerPart.length % 3;
-            let rupiah = integerPart.substr(0, sisa);
-            let ribuan = integerPart.substr(sisa).match(/\d{3}/g);
-
-            if(ribuan){
-                let separator = sisa ? "." : "";
-                rupiah += separator + ribuan.join(".");
-            }
-
-            rupiah = decimalPart !== undefined ? rupiah + "," + decimalPart : rupiah;
-            e.target.value = rupiah ? "Rp " + rupiah : "";
-        }
-    });
-
-    function mobilFields(){
-        return `
-            <div class="col-md-3 mt-2">
-                <label class="form-label">Plat Nomor</label>
-                <input type="text" class="form-control" name="plate_number">
-            </div>
-            <div class="col-md-3 mt-2">
-                <label class="form-label">Jenis Mobil</label>
-                <input type="text" class="form-control" name="car_type">
-            </div>
-            <div class="col-md-3 mt-2">
-                <label class="form-label">Jenis BBM</label>
-                <select class="form-control select2" name="fuel_type">
-                    <option>Pertalite</option>
-                    <option>Pertamax</option>
-                    <option>Solar</option>
-                    <option>Dexlite</option>
-                </select>
-            </div>
-            <div class="col-md-3 mt-2">
-                <label class="form-label">Nominal Bensin</label>
-                <input type="text" class="form-control" name="fuel_cost">
-            </div>
-        `;
-    }
-});
-</script>
-<script>
-$(function(){
-    // Klik card untuk pilih/unpilih add-on
-    $('#addon-list').on('click', '.addon-card', function(){
-        let checkbox = $(this).find('.addon-check');
-        checkbox.prop('checked', !checkbox.prop('checked'));
-        $(this).toggleClass('selected', checkbox.prop('checked'));
-        hitungTotal();
-    });
-
-    // Fungsi Hitung Total
-    function hitungTotal(){
-        let total = 0;
-
-        // Ambil tiket berangkat & pulang (jika ada input .ticket-price)
-        $('.ticket-price').each(function(){
-            let val = $(this).val().replace(/[^0-9]/g, "");
-            total += parseInt(val) || 0;
-        });
-
-        // Hitung jumlah hari perjalanan
-        let depDate = $('#departure_date').val();
-        let retDate = $('#return_date').val();
-        let totalHari = 1;
-        if(depDate && retDate){
-            let dep = new Date(depDate);
-            let ret = new Date(retDate);
-            let diffTime = ret - dep;
-            totalHari = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
-            if(totalHari < 1) totalHari = 1;
-        }
-
-        // Hitung biaya hotel per hari
-        let hotelSelected = $('#hotel option:selected');
-        let hotelHarga = parseInt(hotelSelected.data('harga')) || 0;
-        total += hotelHarga * totalHari;
-
-        // Hitung biaya add-on per hari
-        $('.addon-check:checked').each(function(){
-            let harga = $(this).closest('.addon-card').data('harga');
-            total += parseInt(harga) * totalHari;
-        });
-
-        // Update estimasi biaya di input
-        $('#estimated_cost').val(`Rp ${total.toLocaleString('id-ID')}`);
-    }
-
-    // Trigger setiap ada perubahan
-    $(document).on('input change', '.ticket-price, .addon-check, #departure_date, #return_date, #hotel', hitungTotal);
-
 });
 
-$('#btn-preview').click(function() {
-    let formData = $('#form-sppd').serialize();
-    let url = '/preview?' + formData;
-    window.open(url, '_blank'); // buka di tab baru
+// Pesawat pilih
+$('.pilih-pesawat').click(function(){
+    let card = $(this).closest('.flight-card');
+    let nama = card.data('nama');
+    let harga = card.data('harga');
+    $('#pesawat-preview').removeClass('d-none').html(
+        `<b>Pesawat dipilih:</b> ${nama} <br> Harga: Rp ${harga.toLocaleString()}`
+    );
+});
+
+// Hotel pilih
+$('.pilih-hotel').click(function(){
+    let card = $(this).closest('.hotel-card');
+    let nama = card.data('nama');
+    let harga = card.data('harga');
+    $('#hotel-preview').removeClass('d-none').html(
+        `<b>Hotel dipilih:</b> ${nama} <br> Harga: Rp ${harga.toLocaleString()}/mlm`
+    );
 });
 </script>
 <?php $__env->stopSection(); ?>

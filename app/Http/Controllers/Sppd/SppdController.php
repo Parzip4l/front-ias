@@ -40,7 +40,31 @@ class SppdController extends Controller
 
     public function create()
     {
-        return view('pages.sppd.create');
+        $apiUrl = rtrim(env('SPPD_API_URL'), '/') . '/karyawan/list';
+        $token = Session::get('jwt_token');
+
+        if (!$token) {
+            return redirect()->route('login')->with('error', 'Token belum tersedia, silakan login dulu.');
+        }
+        
+        try {
+            $response = Http::withToken($token)
+                ->accept('application/json')
+                ->get($apiUrl);
+            if ($response->successful()) {
+                // Ambil data user dari API response
+                $pegawais = $response->json()['data'] ?? [];
+            } else {
+                $pegawais = [];
+                // Bisa juga kirim flash message error
+                session()->flash('error', 'Gagal mengambil data Sppd dari API.');
+            }
+            
+        } catch (\Exception $e) {
+            $pegawais = [];
+            session()->flash('error', 'Terjadi kesalahan saat mengambil data user: ' . $e->getMessage());
+        }
+        return view('pages.sppd.create', compact('pegawais'));
     }
 
     public function preview($id)

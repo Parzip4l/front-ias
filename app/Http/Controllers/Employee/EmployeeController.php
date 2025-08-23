@@ -262,8 +262,6 @@ class EmployeeController extends Controller
         }
     }
 
-
-
     public function destroy(Request $request)
     {
         $request->validate([
