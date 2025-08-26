@@ -149,7 +149,7 @@
                             <a href="{{route('flow.index')}}" class="side-nav-link">Approval Layer Sppd</a>
                         </li>
                         <li class="side-nav-item">
-                            <a href="#" class="side-nav-link">Lokasi</a>
+                            <a href="#" class="side-nav-link">Approval Setting</a>
                         </li>
                     </ul>
                 </div>

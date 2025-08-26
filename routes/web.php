@@ -107,7 +107,8 @@ Route::group(['prefix' => '/', 'middleware' => 'jwt.session'], function () {
         Route::prefix('approval')->group(function () {
             Route::get('/list', [ApprovalController::class, 'index'])->name('flow.index');
             Route::post('/store', [ApprovalController::class, 'store'])->name('flow.store');
-            Route::put('/update/{id}', [ApprovalController::class, 'update'])->name('flow.update');
+            Route::get('/{id}/edit-flow', [ApprovalController::class, 'edit'])->name('flow.edit');
+            Route::put('/update', [ApprovalController::class, 'update'])->name('flow.update');
             Route::get('/{id}/details', [ApprovalController::class, 'show'])->name('flow.single');
             Route::get('/final-step/{id}', [ApprovalController::class, 'isFinal'])->name('flow.final');
             Route::post('/delete', [ApprovalController::class, 'destroy'])->name('flow.delete');
@@ -117,6 +118,11 @@ Route::group(['prefix' => '/', 'middleware' => 'jwt.session'], function () {
             Route::post('/delete-steps', [ApprovalController::class, 'deleteStep'])->name('steps.delete');
             Route::get('/flow/{flowId}/steps/{stepId}/edit', [ApprovalController::class, 'editStep'])->name('steps.edit');
             Route::put('/flow/{flowId}/steps/{stepId}', [ApprovalController::class, 'updateStep'])->name('steps.update');
+
+            // by Amount Flow
+            Route::post('/store-amount-flow', [ApprovalController::class, 'storeAmount'])->name('amountflow.store');
+            Route::post('/amount-flow/delete/{id}', [ApprovalController::class, 'deleteAmountStep'])->name('amount-step.delete');
+            Route::post('/store-amount-step', [ApprovalController::class, 'storeStepAmount'])->name('amountstep.store');
 
         });
     });

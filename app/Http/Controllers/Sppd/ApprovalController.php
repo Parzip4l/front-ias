@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Validator;
 
 class ApprovalController extends Controller
 {
@@ -104,7 +105,7 @@ class ApprovalController extends Controller
         }
     }
 
-    public function show($id)
+    public function edit($id)
     {
         $baseUrl = rtrim(env('SPPD_API_URL'), '/');
         $token = Session::get('jwt_token');
@@ -137,6 +138,18 @@ class ApprovalController extends Controller
             }
 
             $position = $positionResponse->json('data') ?? [];
+
+            // Company
+            $companyResponse = Http::withToken($token)
+                ->accept('application/json')
+                ->get($baseUrl . '/company/list/');
+
+            if ($companyResponse->status() == 401) {
+                Session::forget('jwt_token');
+                return redirect()->route('login')->with('error', 'Sesi habis, silakan login ulang.');
+            }
+
+            $companies = $companyResponse->json('data') ?? [];
 
             // Divisi
             $divisionResponse = Http::withToken($token)
@@ -172,8 +185,82 @@ class ApprovalController extends Controller
         } catch (\Exception $e) {
             return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
-        return view('pages.company.approval.single', compact('flow', 'steps', 'position', 'divisions', 'users'));
+        return view('pages.company.approval.editflow', compact('flow', 'steps', 'position', 'divisions', 'users','companies'));
     }
+
+    public function show($id)
+    {
+        $baseUrl = rtrim(env('SPPD_API_URL'), '/');
+        $token = Session::get('jwt_token');
+
+        if (!$token) {
+            return redirect()->route('login')->with('error', 'Token belum tersedia, silakan login dulu.');
+        }
+
+        try {
+            // Ambil detail flow
+            $flowResponse = Http::withToken($token)
+                ->accept('application/json')
+                ->get("{$baseUrl}/approval/flow/single/{$id}");
+
+            if ($flowResponse->status() == 401) {
+                Session::forget('jwt_token');
+                return redirect()->route('login')->with('error', 'Sesi habis, silakan login ulang.');
+            }
+
+            $flow = $flowResponse->json('data') ?? [];
+
+            // Ambil daftar step hierarchy jika tipe 'hierarchy'
+            $steps = [];
+            if(isset($flow['approval_type']) && $flow['approval_type'] === 'hirarki') {
+                $stepsResponse = Http::withToken($token)
+                    ->accept('application/json')
+                    ->get("{$baseUrl}/approval/steps/all-step/{$id}");
+
+                $steps = $stepsResponse->json('data') ?? [];
+            }
+
+            // Ambil amount flow & step jika tipe 'nominal'
+            $amountFlows = [];
+
+            if(isset($flow['approval_type']) && $flow['approval_type'] === 'nominal') {
+                $amountFlowResponse = Http::withToken($token)
+                    ->accept('application/json')
+                    ->get("{$baseUrl}/approval/amount-flow/by-flow/{$flow['id']}");
+
+                // Ambil array langsung dari response
+                $amountFlowsData = $amountFlowResponse->successful() ? $amountFlowResponse->json() : [];
+
+                // Loop untuk ambil steps tiap amount flow
+                foreach($amountFlowsData as $af) {
+                    $stepsResponse = Http::withToken($token)
+                        ->accept('application/json')
+                        ->get("{$baseUrl}/approval/amount-step/by-flow/{$af['id']}");
+
+                    // langsung ambil response tanpa ['data']
+                    $af['steps'] = $stepsResponse->successful() ? $stepsResponse->json() ?? [] : [];
+                    $amountFlows[] = $af;
+                }
+            }
+            // Ambil posisi, divisi, user
+            $position = Http::withToken($token)->accept('application/json')->get("{$baseUrl}/posisi/list/")->json('data') ?? [];
+            $divisions = Http::withToken($token)->accept('application/json')->get("{$baseUrl}/divisi/list/")->json('data') ?? [];
+            $users = Http::withToken($token)->accept('application/json')->get("{$baseUrl}/user/user-list/")->json('data') ?? [];
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+
+        return view('pages.company.approval.single', compact(
+            'flow',
+            'steps',
+            'amountFlows',
+            'position',
+            'divisions',
+            'users'
+        ));
+    }
+
 
     public function destroy(Request $request)
     {
@@ -389,9 +476,12 @@ class ApprovalController extends Controller
             'name'       => 'required|string|max:255',
             'company_id' => 'required|integer',
             'is_active'  => 'nullable|boolean',
+            'approval_type' => 'nullable|string', 
+            'requester_position_id' => 'nullable|integer',
+            'id'  => 'required|integer',
         ]);
 
-        $apiUrl = rtrim(env('SPPD_API_URL'), '/') . '/approval/flow/update/' . $request->id;
+        $apiUrl = rtrim(env('SPPD_API_URL'), '/') . '/approval/flow/update/';
         $token = Session::get('jwt_token');
 
         // Cek token
@@ -403,10 +493,13 @@ class ApprovalController extends Controller
             // Kirim PUT request ke API
             $response = Http::withToken($token)
                 ->accept('application/json')
-                ->put($apiUrl, [
+                ->post($apiUrl, [
+                    'id'         => $validated['id'],
                     'name'       => $validated['name'],
                     'company_id' => $validated['company_id'],
                     'is_active'  => $request->input('is_active', 1),
+                    'approval_type' => $validated['approval_type'],
+                    'requester_position_id' => $validated['requester_position_id'],
                 ]);
 
             if ($response->status() == 401) {
@@ -416,7 +509,7 @@ class ApprovalController extends Controller
             }
 
             if ($response->successful()) {
-                return redirect()->route('flow.index')->with('success', 'Data berhasil diperbarui.');
+                return redirect()->back()->with('success', 'Data berhasil diperbarui.');
             } else {
                 $errorMessage = $response->json('message') ?? 'Gagal memperbarui data.';
                 return back()->withInput()->with('error', $errorMessage);
@@ -463,6 +556,83 @@ class ApprovalController extends Controller
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Terjadi kesalahan: ' . $e->getMessage()], 500);
         }
+    }
+
+
+    public function storeAmount(Request $request)
+    {
+        $validated = $request->validate([
+            'approval_flow_id' => 'required',
+            'min_amount' => 'required|integer',
+            'max_amount' => 'required|integer',
+        ]);
+
+        $apiUrl = rtrim(env('SPPD_API_URL'), '/') . "/approval/amount-flow/store";
+        $token = Session::get('jwt_token');
+
+        $response = Http::withToken($token)
+            ->accept('application/json')
+            ->post($apiUrl, $validated);
+
+        if ($response->successful()) {
+            return back()->with('success', 'Data berhasil ditambahkan');
+        }
+        return back()->with('error', $response->json('message') ?? 'Gagal menambahkan step');
+    }
+
+    public function deleteAmountStep($id)
+    {
+        $apiUrl = rtrim(env('SPPD_API_URL'), '/') . "/approval/amount-step/delete/{$id}";
+        $token = Session::get('jwt_token');
+
+        if (!$token) {
+            return redirect()->route('login')->with('error', 'Token belum tersedia, silakan login dulu.');
+        }
+
+        try {
+            $response = Http::withToken($token)
+                ->accept('application/json')
+                ->post($apiUrl); // id sudah di URL, tidak perlu body
+
+            if ($response->status() == 401) {
+                Session::forget('jwt_token');
+                return redirect()->route('login')->with('error', 'Sesi habis, silakan login ulang.');
+            }
+
+            if ($response->successful()) {
+                return back()->with('success', 'Step berhasil dihapus.');
+            } else {
+                $errorMessage = $response->json('message') ?? 'Gagal menghapus step.';
+                return back()->with('error', $errorMessage);
+            }
+        } catch (\Exception $e) {
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    public function storeStepAmount(Request $request)
+    {
+        $validated = $request->validate([
+            'approval_amount_flow_id' => 'required',
+            'step_order'     => 'required|integer|min:1',
+            'division_id'    => 'required',
+            'position_id'    => 'required',
+            'user_id'        => 'required',
+            'is_final'       => 'required',
+        ]);
+
+        $apiUrl = rtrim(env('SPPD_API_URL'), '/') . "/approval/amount-step/store";
+        $token = Session::get('jwt_token');
+
+        $response = Http::withToken($token)
+            ->accept('application/json')
+            ->post($apiUrl, $validated);
+
+        if ($response->successful()) {
+            return back()->with('success', 'Step Amount Flow berhasil ditambahkan');
+        }
+
+        return back()->with('error', $response->json('message') ?? 'Gagal menambahkan Step Amount Flow');
     }
 
 }

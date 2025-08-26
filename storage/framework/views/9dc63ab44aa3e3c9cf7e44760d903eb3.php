@@ -30,7 +30,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header border-bottom border-dashed d-flex justify-content-between">
-                    <h5 class="mb-0">Data Persetujuan</h5>
+                    <h5 class="mb-0 align-self-center">Data Persetujuan</h5>
                     <a href="#" class="btn btn-sm btn-primary" data-bs-toggle="modal"
                             data-bs-target="#modal-create-flow">Buat Data Baru</a>
                 </div>
@@ -40,6 +40,7 @@
                           <tr>
                               <th>#</th>
                               <th>Nama Alur Persetujuan</th>
+                              <th>Approval Type</th>
                               <th>Perusahaan</th>
                               <th>Posisi Pemohon</th>
                               <th>Aktif Status</th>
@@ -52,6 +53,7 @@
                           <tr>
                                 <td><?php echo e($index + 1); ?></td>
                                 <td><?php echo e($item['name'] ?? '-'); ?></td>
+                                <td><?php echo e($item['approval_type'] ?? '-'); ?></td>
                                 <td><?php echo e($item['company']['name'] ?? '-'); ?></td>
                                 <td><?php echo e($item['requester_position']['name'] ?? '-'); ?></td>
                                 <td>
