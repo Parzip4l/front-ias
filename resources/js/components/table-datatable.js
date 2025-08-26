@@ -27,21 +27,6 @@ import 'datatables.net-select/js/dataTables.select';
 $(document).ready(function () {
     "use strict";
 
-    // Default Datatable
-    $('#basic-datatable').DataTable({
-        keys: true,
-
-        "language": {
-            "paginate": {
-                "previous": "<i class='ti ti-chevron-left'>",
-                "next": "<i class='ti ti-chevron-right'>"
-            }
-        },
-        "drawCallback": function () {
-            $('.dataTables_paginate > .pagination').addClass('pagination-rounded');
-        }
-    });
-
     // Buttons examples
     var table = $('#datatable-buttons').DataTable({
         lengthChange: false,

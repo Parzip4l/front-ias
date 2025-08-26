@@ -97,4 +97,9 @@ class SppdController extends Controller
             return redirect()->back()->with('error', 'Terjadi kesalahan saat mengambil data: ' . $e->getMessage());
         }
     }
+
+    public function schedulesaya()
+    {
+        return view('apps.calendar');
+    }
 }

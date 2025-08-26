@@ -86,8 +86,12 @@ Route::group(['prefix' => '/', 'middleware' => 'jwt.session'], function () {
             Route::get('/create', [EmployeeController::class, 'create'])->name('employee.create');
             Route::post('/store', [EmployeeController::class, 'store'])->name('employee.store');
             Route::get('/{id}/edit', [EmployeeController::class, 'edit'])->name('employee.edit');
+            Route::get('/{id}/profile', [EmployeeController::class, 'show'])->name('employee.show');
             Route::put('/update/{id}', [EmployeeController::class, 'update'])->name('employee.update');
             Route::post('/delete', [EmployeeController::class, 'destroy'])->name('employee.delete');
+            // Export Import
+            Route::get('/export-template', [EmployeeController::class, 'exportTemplate'])->name('employee.export-template');
+            Route::post('/import', [EmployeeController::class, 'import'])->name('employee.import');
         });
     });
 
@@ -96,6 +100,7 @@ Route::group(['prefix' => '/', 'middleware' => 'jwt.session'], function () {
         Route::get('/list-data', [SppdController::class, 'index'])->name('sppd.index');
         Route::get('/pengajuan-sppd', [SppdController::class, 'create'])->name('sppd.create');
         Route::get('/preview/{id}', [SppdController::class, 'preview'])->name('sppd.previews');
+        Route::get('/myschedule', [SppdController::class, 'schedulesaya'])->name('sppd.schedule');
         // Route::post('/store', [SppdController::class, 'storeDivisi'])->name('divisi.store');
         // Route::put('/update', [SppdController::class, 'updateDivisi'])->name('divisi.update');
         // Route::post('/delete', [SppdController::class, 'destroyDivisi'])->name('divisi.delete');
@@ -110,6 +115,8 @@ Route::group(['prefix' => '/', 'middleware' => 'jwt.session'], function () {
             // Steps
             Route::post('/store-steps', [ApprovalController::class, 'addStep'])->name('steps.store');
             Route::post('/delete-steps', [ApprovalController::class, 'deleteStep'])->name('steps.delete');
+            Route::get('/flow/{flowId}/steps/{stepId}/edit', [ApprovalController::class, 'editStep'])->name('steps.edit');
+            Route::put('/flow/{flowId}/steps/{stepId}', [ApprovalController::class, 'updateStep'])->name('steps.update');
 
         });
     });
@@ -129,6 +136,10 @@ Route::group(['prefix' => '/', 'middleware' => 'jwt.session'], function () {
         Route::get('/{id}/details', [CompanyController::class, 'single'])->name('company.single');
         Route::put('/update', [CompanyController::class, 'update'])->name('company.update');
         Route::post('/delete', [CompanyController::class, 'destroy'])->name('company.delete');
+
+        Route::get('/export', [CompanyController::class, 'export'])->name('company.export');
+        Route::post('/import', [CompanyController::class, 'import'])->name('company.import');
+        Route::get('/export-template', [CompanyController::class, 'exportTemplate'])->name('company.export-template');
     });
 
     // Finance

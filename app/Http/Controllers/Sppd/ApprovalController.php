@@ -236,25 +236,115 @@ class ApprovalController extends Controller
         return back()->with('error', $response->json('message') ?? 'Gagal menambahkan step');
     }
 
+    public function editStep($flowId, $stepId)
+    {
+        $baseUrl = rtrim(env('SPPD_API_URL'), '/');
+        $token = Session::get('jwt_token');
+
+        if (!$token) {
+            return redirect()->route('login')->with('error', 'Token belum tersedia, silakan login dulu.');
+        }
+
+        try {
+            // Ambil detail flow
+            $flowResponse = Http::withToken($token)
+                ->accept('application/json')
+                ->get($baseUrl . '/approval/flow/single/' . $flowId);
+
+            if ($flowResponse->status() == 401) {
+                Session::forget('jwt_token');
+                return redirect()->route('login')->with('error', 'Sesi habis, silakan login ulang.');
+            }
+            $flow = $flowResponse->json('data') ?? [];
+
+            // Ambil detail step tunggal
+            $stepResponse = Http::withToken($token)
+                ->accept('application/json')
+                ->get($baseUrl . '/approval/steps/single/' . $stepId);
+
+            if ($stepResponse->status() == 401) {
+                Session::forget('jwt_token');
+                return redirect()->route('login')->with('error', 'Sesi habis, silakan login ulang.');
+            }
+            $step = $stepResponse->json('data') ?? [];
+
+            // Ambil daftar division
+            $divisionResponse = Http::withToken($token)
+                ->accept('application/json')
+                ->get($baseUrl . '/divisi/list');
+
+            $divisions = $divisionResponse->json('data') ?? [];
+
+            // Ambil daftar posisi
+            $positionResponse = Http::withToken($token)
+                ->accept('application/json')
+                ->get($baseUrl . '/posisi/list');
+
+            $positions = $positionResponse->json('data') ?? [];
+
+            // Ambil daftar user
+            $userResponse = Http::withToken($token)
+                ->accept('application/json')
+                ->get($baseUrl . '/user/user-list');
+
+            $users = $userResponse->json('data') ?? [];
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+
+        return view('pages.company.approval.edit', compact('flow', 'step', 'divisions', 'positions', 'users'));
+    }
+
     public function updateStep(Request $request, $flowId, $stepId)
     {
         $validated = $request->validate([
-            'position' => 'required|string|max:255',
-            'order' => 'required|integer',
+            'step_order'       => 'required|integer',
+            'division_id'      => 'required|integer',
+            'position_id'      => 'required|integer',
+            'user_id'          => 'required|integer',
+            'is_final'         => 'required|boolean',
+            'approval_flow_id' => 'required|integer',
+            'id'               => 'required|integer',
         ]);
 
-        $apiUrl = rtrim(env('SPPD_API_URL'), '/') . "/approval/flow/{$flowId}/steps/{$stepId}";
+        $apiUrl = rtrim(env('SPPD_API_URL'), '/') . "/approval/steps/update/";
         $token = Session::get('jwt_token');
 
-        $response = Http::withToken($token)
-            ->accept('application/json')
-            ->put($apiUrl, $validated);
-
-        if ($response->successful()) {
-            return back()->with('success', 'Step berhasil diperbarui');
+        if (!$token) {
+            return redirect()->route('login')->with('error', 'Token belum tersedia, silakan login dulu.');
         }
-        return back()->with('error', $response->json('message') ?? 'Gagal memperbarui step');
+
+        try {
+            $response = Http::withToken($token)
+                ->accept('application/json')
+                ->post($apiUrl, [
+                    'id'                => $validated['id'],
+                    'step_order'              => $validated['step_order'],
+                    'division_id'        => $validated['division_id'],
+                    'user_id'   => $validated['user_id'],
+                    'position_id'       => $validated['position_id'],
+                    'is_final'       => $validated['is_final'],
+                    'approval_flow_id' => $validated['approval_flow_id'],
+                ]);
+
+            if ($response->status() == 401) {
+                Session::forget('jwt_token');
+                return redirect()->route('login')->with('error', 'Sesi habis, silakan login ulang.');
+            }
+
+            if ($response->successful()) {
+                return back()->with('success', 'Step berhasil diperbarui');
+            }
+
+            $errorMessage = $response->json('message') ?? 'Gagal memperbarui step';
+            return back()->with('error', $errorMessage);
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
     }
+
 
     public function deleteStep(Request $request)
     {

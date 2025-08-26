@@ -1,5 +1,3 @@
-
-
 <?php $__env->startSection('css'); ?>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.5/css/jquery.dataTables.min.css" />
@@ -68,12 +66,32 @@
     <div class="row">
         <div class="col-12">
             <div class="card">
-                <div class="card-header border-bottom border-dashed d-flex justify-content-between">
+                <div class="card-header border-bottom border-dashed d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Data Karyawan</h5>
-                    <a href="<?php echo e(route('employee.create')); ?>" class="btn btn-sm btn-primary">Buat Karyawan Baru</a>
+                    <div class="d-flex gap-2">
+                        <!-- Tamplate -->
+                        <a href="<?php echo e(route('employee.export-template')); ?>" class="btn btn-primary btn-sm">
+                            <i class="ti ti-file me-1"></i> Download Template Import
+                        </a>
+
+                        <!-- Tombol Export -->
+                        <a href="<?php echo e(route('company.export')); ?>" class="btn btn-success btn-sm">
+                            <i class="ti ti-download me-1"></i> Export
+                        </a>
+
+                        <!-- Tombol Import -->
+                        <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#modal-import-company">
+                            <i class="ti ti-upload me-1"></i> Import
+                        </button>
+
+                        <!-- Tombol Create -->
+                        <a href="<?php echo e(route('employee.create')); ?>" class="btn btn-primary btn-sm">
+                            <i class="ti ti-plus me-1"></i> Buat Data Baru
+                        </a>
+                    </div>
                 </div>
                 <div class="card-body">
-                    <table id="basic-datatable" class="table table-striped dt-responsive nowrap w-100">
+                    <table id="tableKaryawan" class="table table-striped dt-responsive nowrap w-100">
                         <thead>
                           <tr>
                               <th>No Karyawan</th>
@@ -95,7 +113,7 @@
                               <td><?php echo e($employee['division']['name'] ?? '-'); ?></td>
                               <td><?php echo e($employee['position']['name'] ?? '-'); ?></td>
                               <td>
-                                <a href="#" 
+                                <a href="<?php echo e(route('employee.show', $employee['id'])); ?>" 
                                     class="btn btn-sm btn-primary">
                                     <i class="ti ti-eye"></i>
                                 </a>
@@ -112,6 +130,33 @@
                 </div> <!-- end card body-->
             </div> <!-- end card -->
 
+            <div class="modal fade" id="modal-import-company" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-md">
+                    <div class="modal-content">
+                        <form action="<?php echo e(route('employee.import')); ?>" method="POST" enctype="multipart/form-data">
+                            <?php echo csrf_field(); ?>
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="importModalLabel">Import Data Karyawan</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p class="text-muted">Upload file Excel (.xlsx / .csv) sesuai template yang tersedia.</p>
+                                <div class="mb-3">
+                                    <label for="importFile" class="form-label">Pilih File</label>
+                                    <input type="file" name="file" id="importFile" class="form-control" accept=".xlsx,.csv" required>
+                                </div>
+                                <a href="<?php echo e(route('employee.export-template')); ?>" class="text-primary small">
+                                    <i class="ti ti-file"></i> Download Template Import
+                                </a>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-info w-100">Import</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
 
         </div><!-- end col-->
     </div> <!-- end row-->
@@ -119,6 +164,7 @@
 <?php $__env->startSection('scripts'); ?>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
     <?php echo app('Illuminate\Foundation\Vite')(['resources/js/components/table-datatable.js']); ?>
 
@@ -158,9 +204,13 @@
     <script>
         $(document).ready(function () {
             // Inisialisasi DataTable
-            let table = $('#basic-datatable').DataTable({
-                destroy: true,
-            });
+            if ($.fn.DataTable.isDataTable('#tableKaryawan')) {
+                table = $('#tableKaryawan').DataTable();
+            } else {
+                table = $('#tableKaryawan').DataTable({
+                    responsive: true
+                });
+            }
 
             // Inisialisasi select2
             $('.select2').select2({ width: '100%' });

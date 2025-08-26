@@ -27,9 +27,24 @@
     <div class="row">
         <div class="col-12">
             <div class="card">
-                <div class="card-header border-bottom border-dashed d-flex justify-content-between">
+                <div class="card-header border-bottom border-dashed d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Data Perusahaan</h5>
-                    <a href="{{route('company.create')}}" class="btn btn-sm btn-primary">Buat Data Baru</a>
+                    <div class="d-flex gap-2">
+                        <!-- Tombol Export -->
+                        <a href="{{ route('company.export') }}" class="btn btn-success btn-sm">
+                            <i class="ti ti-download me-1"></i> Export
+                        </a>
+
+                        <!-- Tombol Import -->
+                        <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#modal-import-company">
+                            <i class="ti ti-upload me-1"></i> Import
+                        </button>
+
+                        <!-- Tombol Create -->
+                        <a href="{{ route('company.create') }}" class="btn btn-primary btn-sm">
+                            <i class="ti ti-plus me-1"></i> Buat Data Baru
+                        </a>
+                    </div>
                 </div>
                 <div class="card-body">
                     <table id="basic-datatable" class="table table-striped dt-responsive nowrap w-100">
@@ -126,6 +141,35 @@
                 </div>
             </div>
 
+            <!-- Modal -->
+            <div class="modal fade" id="modal-import-company" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-md">
+                    <div class="modal-content">
+                        <form action="{{ route('company.import') }}" method="POST" enctype="multipart/form-data">
+                            @csrf
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="importModalLabel">Import Data Perusahaan</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p class="text-muted">Upload file Excel (.xlsx / .csv) sesuai template yang tersedia.</p>
+                                <div class="mb-3">
+                                    <label for="importFile" class="form-label">Pilih File</label>
+                                    <input type="file" name="file" id="importFile" class="form-control" accept=".xlsx,.csv" required>
+                                </div>
+                                <a href="{{ route('company.export-template') }}" class="text-primary small">
+                                    <i class="ti ti-file"></i> Download Template Import
+                                </a>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-info w-100">Import</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+
         </div><!-- end col-->
     </div> <!-- end row-->
 @endsection
@@ -151,7 +195,7 @@
                 if (result.isConfirmed) {
                     const form = document.createElement('form');
                     form.method = 'POST';
-                    form.action = `/company/type/delete`;
+                    form.action = `/company/delete`;
                     const csrfInput = document.createElement('input');
                     csrfInput.type = 'hidden';
                     csrfInput.name = '_token';

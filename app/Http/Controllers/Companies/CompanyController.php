@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
+use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Collection;
 
 class CompanyController extends Controller
 {
@@ -323,7 +325,7 @@ class CompanyController extends Controller
             'id' => 'required|integer',
         ]);
 
-        $apiUrl = rtrim(env('SPPD_API_URL'), '/') . '/posisi/delete';
+        $apiUrl = rtrim(env('SPPD_API_URL'), '/') . '/company/delete';
         $token = Session::get('jwt_token');
 
         if (!$token) {
@@ -343,13 +345,119 @@ class CompanyController extends Controller
             }
 
             if ($response->successful()) {
-                return redirect()->route('posisi.index')->with('success', 'jabatan berhasil dihapus.');
+                return redirect()->route('company.index')->with('success', 'Data berhasil dihapus.');
             } else {
-                $errorMessage = $response->json('message') ?? 'Gagal menghapus jabatan.';
+                $errorMessage = $response->json('message') ?? 'Gagal menghapus data.';
                 return back()->with('error', $errorMessage);
             }
         } catch (\Exception $e) {
             return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
+
+    public function export()
+    {
+        $apiUrl = rtrim(env('SPPD_API_URL'), '/') . '/company/export-data';
+        $token  = Session::get('jwt_token');
+
+        if (!$token) {
+            return redirect()->route('login')->with('error', 'Token belum tersedia, silakan login dulu.');
+        }
+
+        try {
+            $response = Http::withToken($token)
+                ->accept('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+                ->get($apiUrl);
+
+            if ($response->status() == 401) {
+                Session::forget('jwt_token');
+                return redirect()->route('login')->with('error', 'Sesi habis, silakan login ulang.');
+            }
+
+            if ($response->successful()) {
+                $filename = 'companies_' . now()->format('Ymd_His') . '.xlsx';
+                return response($response->body(), 200)
+                    ->header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+                    ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+            } else {
+                return back()->with('error', 'Gagal export data perusahaan.');
+            }
+        } catch (\Exception $e) {
+            return back()->with('error', 'Terjadi kesalahan saat export: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Import company list dari Excel ke backend API
+     */
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,csv|max:2048',
+        ]);
+
+        $apiUrl = rtrim(env('SPPD_API_URL'), '/') . '/company/import';
+        $token  = Session::get('jwt_token');
+
+        if (!$token) {
+            return redirect()->route('login')->with('error', 'Token belum tersedia, silakan login dulu.');
+        }
+
+        try {
+            $httpRequest = Http::withToken($token)->accept('application/json');
+
+            if ($request->hasFile('file')) {
+                $httpRequest->attach(
+                    'file',
+                    file_get_contents($request->file('file')->getRealPath()),
+                    $request->file('file')->getClientOriginalName()
+                );
+            }
+
+            $response = $httpRequest->post($apiUrl);
+
+            if ($response->status() == 401) {
+                Session::forget('jwt_token');
+                return redirect()->route('login')->with('error', 'Sesi habis, silakan login ulang.');
+            }
+
+            if ($response->successful()) {
+                return redirect()->route('company.index')->with('success', 'Data perusahaan berhasil diimport.');
+            } else {
+                $errorMessage = $response->json('message') ?? 'Gagal import data perusahaan.';
+                return back()->with('error', $errorMessage);
+            }
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Terjadi kesalahan saat import: ' . $e->getMessage());
+        }
+    }
+
+    public function exportTemplate()
+    {
+        $token   = Session::get('jwt_token');
+        $baseUrl = rtrim(env('SPPD_API_URL'), '/');
+
+        if (!$token) {
+            return redirect()->route('login')->with('error', 'Token belum tersedia, silakan login dulu.');
+        }
+
+        try {
+            // Ambil daftar company types dari API
+            $response = \Illuminate\Support\Facades\Http::withToken($token)
+                ->accept('application/json')
+                ->get($baseUrl . '/company-type/list');
+
+            $types = $response->successful() ? $response->json()['data'] ?? [] : [];
+
+        } catch (\Exception $e) {
+            $types = [];
+        }
+
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\CompanyTemplateExport($types),
+            'template_company_import.xlsx'
+        );
+    }
+
 }

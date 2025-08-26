@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
 
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\Employee\EmployeeTemplateExport;
+
 class EmployeeController extends Controller
 {
     public function index()
@@ -120,6 +123,15 @@ class EmployeeController extends Controller
             'position_id'       => 'required',
             'employment_status' => 'required|string',
             'grade_level'       => 'nullable|string|max:20',
+            'gender'            => 'nullable|in:male,female,other',
+            'date_of_birth'     => 'nullable|date',
+            'place_of_birth'    => 'nullable|string|max:100',
+            'marital_status'    => 'nullable|in:single,married,divorced,widowed',
+            'national_id'       => 'nullable|digits:16',
+            'tax_number'        => 'nullable|string|max:30',
+            'phone_number'      => 'nullable|string|max:20',
+            'address'           => 'nullable|string|max:255',
+            'kontak_darurat'    => 'nullable|string|max:100',
         ]);
 
         $apiUrl = rtrim(env('SPPD_API_URL'), '/') . '/karyawan/store';
@@ -142,6 +154,15 @@ class EmployeeController extends Controller
                     'position_id' => $validated['position_id'],
                     'employment_status' => $validated['employment_status'],
                     'grade_level' => $validated['grade_level'],
+                    'gender'            => $validated['gender'],
+                    'date_of_birth'     => $validated['date_of_birth'],
+                    'place_of_birth'    => $validated['place_of_birth'],
+                    'marital_status'    => $validated['marital_status'],
+                    'national_id'       => $validated['national_id'],
+                    'tax_number'        => $validated['tax_number'],
+                    'phone_number'      => $validated['phone_number'],
+                    'address'           => $validated['address'],
+                    'kontak_darurat'    => $validated['kontak_darurat'],
                 ]);
 
             if ($response->status() == 401) {
@@ -220,6 +241,15 @@ class EmployeeController extends Controller
             'position_id'       => 'required',
             'employment_status' => 'required|string',
             'grade_level'       => 'nullable|string|max:20',
+            'gender'            => 'nullable|in:male,female,other',
+            'date_of_birth'     => 'nullable|date',
+            'place_of_birth'    => 'nullable|string|max:100',
+            'marital_status'    => 'nullable|in:single,married,divorced,widowed',
+            'national_id'       => 'nullable|digits:16',
+            'tax_number'        => 'nullable|string|max:30',
+            'phone_number'      => 'nullable|string|max:20',
+            'address'           => 'nullable|string|max:255',
+            'kontak_darurat'    => 'nullable|string|max:100',
         ]);
 
         $apiUrl = rtrim(env('SPPD_API_URL'), '/') . "/karyawan/update";
@@ -243,6 +273,16 @@ class EmployeeController extends Controller
                     'position_id'       => $validated['position_id'],
                     'employment_status' => $validated['employment_status'],
                     'grade_level'       => $validated['grade_level'],
+
+                    'gender'            => $validated['gender'],
+                    'date_of_birth'     => $validated['date_of_birth'],
+                    'place_of_birth'    => $validated['place_of_birth'],
+                    'marital_status'    => $validated['marital_status'],
+                    'national_id'       => $validated['national_id'],
+                    'tax_number'        => $validated['tax_number'],
+                    'phone_number'      => $validated['phone_number'],
+                    'address'           => $validated['address'],
+                    'kontak_darurat'    => $validated['kontak_darurat'],
                 ]);
 
             if ($response->status() == 401) {
@@ -260,6 +300,21 @@ class EmployeeController extends Controller
         } catch (\Exception $e) {
             return back()->withInput()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
+    }
+
+    public function show($id)
+    {
+        $token = Session::get('jwt_token');
+        $apiUrl = rtrim(env('SPPD_API_URL'), '/') . "/karyawan/single/$id";
+
+        $response = Http::withToken($token)->accept('application/json')->get($apiUrl);
+
+        if ($response->successful()) {
+            $employee = $response->json('data');
+            return view('pages.usermanagement.employee.single', compact('employee'));
+        }
+
+        return redirect()->route('employee.index')->with('error', 'Gagal memuat data karyawan.');
     }
 
     public function destroy(Request $request)
@@ -297,4 +352,86 @@ class EmployeeController extends Controller
             return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
+
+    public function exportTemplate()
+    {
+        $token   = Session::get('jwt_token');
+        $baseUrl = rtrim(env('SPPD_API_URL'), '/');
+
+        if (!$token) {
+            return redirect()->route('login')->with('error', 'Token belum tersedia, silakan login dulu.');
+        }
+
+        try {
+            // Ambil data companies
+            $companiesRes = \Illuminate\Support\Facades\Http::withToken($token)
+                ->accept('application/json')
+                ->get($baseUrl . '/company/list');
+            $companies = $companiesRes->successful() ? ($companiesRes->json()['data'] ?? []) : [];
+
+            // Ambil data divisions
+            $divisionsRes = \Illuminate\Support\Facades\Http::withToken($token)
+                ->accept('application/json')
+                ->get($baseUrl . '/divisi/list');
+            $divisions = $divisionsRes->successful() ? ($divisionsRes->json()['data'] ?? []) : [];
+
+            // Ambil data positions
+            $positionsRes = \Illuminate\Support\Facades\Http::withToken($token)
+                ->accept('application/json')
+                ->get($baseUrl . '/posisi/list');
+            $positions = $positionsRes->successful() ? ($positionsRes->json()['data'] ?? []) : [];
+
+        } catch (\Exception $e) {
+            $companies = $divisions = $positions = [];
+        }
+
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\Employee\EmployeeTemplateExport($companies, $divisions, $positions),
+            'template_employee_import.xlsx'
+        );
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,csv|max:2048',
+        ]);
+
+        $apiUrl = rtrim(env('SPPD_API_URL'), '/') . '/karyawan/import';
+        $token  = Session::get('jwt_token');
+
+        if (!$token) {
+            return redirect()->route('login')->with('error', 'Token belum tersedia, silakan login dulu.');
+        }
+
+        try {
+            $httpRequest = Http::withToken($token)->accept('application/json');
+
+            if ($request->hasFile('file')) {
+                $httpRequest->attach(
+                    'file',
+                    file_get_contents($request->file('file')->getRealPath()),
+                    $request->file('file')->getClientOriginalName()
+                );
+            }
+
+            $response = $httpRequest->post($apiUrl);
+
+            if ($response->status() == 401) {
+                Session::forget('jwt_token');
+                return redirect()->route('login')->with('error', 'Sesi habis, silakan login ulang.');
+            }
+
+            if ($response->successful()) {
+                return redirect()->route('employee.index')->with('success', 'Data karyawan berhasil diimport.');
+            } else {
+                $errorMessage = $response->json('message') ?? 'Gagal import data karyawan.';
+                return back()->with('error', $errorMessage);
+            }
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Terjadi kesalahan saat import: ' . $e->getMessage());
+        }
+    }
+
 }

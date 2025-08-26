@@ -119,11 +119,15 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <button class="btn btn-sm btn-warning" 
-                                        onclick="openEditStepModal(<?php echo e($step['id']); ?>, <?php echo e($step['step_order']); ?>, <?php echo e($step['is_final']); ?>)">
-                                        <i class="ti ti-pencil"></i>
+                                        <a href="<?php echo e(route('steps.edit', [$flow['id'], $step['id']])); ?>" 
+                                            class="btn btn-sm btn-warning">
+                                                <i class="ti ti-pencil"></i>
+                                            </a>
+
+                                        <button class="btn btn-sm btn-danger" 
+                                            onclick="confirmDelete(<?php echo e($step['id']); ?>)">
+                                            <i class="ti ti-trash"></i>
                                         </button>
-                                        <button class="btn btn-sm btn-danger" onclick="confirmDelete(<?php echo e($step['id']); ?>)"><i class="ti ti-trash"></i></button>
                                     </td>
                                 </tr>
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>

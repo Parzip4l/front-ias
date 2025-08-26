@@ -116,11 +116,15 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <button class="btn btn-sm btn-warning" 
-                                        onclick="openEditStepModal({{ $step['id'] }}, {{ $step['step_order'] }}, {{ $step['is_final'] }})">
-                                        <i class="ti ti-pencil"></i>
+                                        <a href="{{ route('steps.edit', [$flow['id'], $step['id']]) }}" 
+                                            class="btn btn-sm btn-warning">
+                                                <i class="ti ti-pencil"></i>
+                                            </a>
+
+                                        <button class="btn btn-sm btn-danger" 
+                                            onclick="confirmDelete({{ $step['id'] }})">
+                                            <i class="ti ti-trash"></i>
                                         </button>
-                                        <button class="btn btn-sm btn-danger" onclick="confirmDelete({{ $step['id'] }})"><i class="ti ti-trash"></i></button>
                                     </td>
                                 </tr>
                                 @endforeach
