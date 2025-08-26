@@ -501,7 +501,7 @@ class ApprovalController extends Controller
             'id'  => 'required|integer',
         ]);
 
-        $apiUrl = rtrim(env('SPPD_API_URL'), '/') . '/approval/flow/update/';
+        $apiUrl = rtrim(env('SPPD_API_URL'), '/') . '/approval/flow/update';
         $token = Session::get('jwt_token');
 
         // Cek token
