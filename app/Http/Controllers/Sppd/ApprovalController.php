@@ -21,6 +21,7 @@ class ApprovalController extends Controller
         
         $flow = [];
         $company = [];
+        $position =[];
 
         try {
             $companyResponse = Http::withToken($token)
@@ -34,6 +35,21 @@ class ApprovalController extends Controller
 
             if ($companyResponse->successful()) {
                 $company = $companyResponse->json()['data'] ?? [];
+            } else {
+                session()->flash('error', 'Gagal mengambil data posisi.');
+            }
+
+            $positionResponse = Http::withToken($token)
+                ->accept('application/json')
+                ->get($baseUrl . '/posisi/list');
+
+            if ($positionResponse->status() == 401) {
+                Session::forget('jwt_token');
+                return redirect()->route('login')->with('error', 'Sesi habis, silakan login ulang.');
+            }
+
+            if ($positionResponse->successful()) {
+                $position = $positionResponse->json()['data'] ?? [];
             } else {
                 session()->flash('error', 'Gagal mengambil data posisi.');
             }
@@ -57,7 +73,7 @@ class ApprovalController extends Controller
             // Tangani error exception, redirect balik dengan pesan error
             return back()->withInput()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
-        return view('pages.company.approval.index', compact('flow','company'));
+        return view('pages.company.approval.index', compact('flow','company','position'));
     }
 
     public function store(Request $request)
@@ -66,6 +82,8 @@ class ApprovalController extends Controller
         $validated = $request->validate([
             'name' => 'required',
             'company_id' => 'required',
+            'requester_position_id' => 'required',
+            'approval_type' => 'required',
         ]);
 
         $apiUrl = rtrim(env('SPPD_API_URL'), '/') . '/approval/flow/store';
@@ -84,6 +102,8 @@ class ApprovalController extends Controller
                     'name' => $validated['name'],
                     'company_id' => $validated['company_id'],
                     'is_active' => 1,
+                    'requester_position_id' => $validated['requester_position_id'],
+                    'approval_type' => $validated['approval_type'],
                 ]);
 
             if ($response->status() == 401) {

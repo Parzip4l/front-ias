@@ -95,6 +95,25 @@
                                     <input type="text" name="name" class="form-control" placeholder="eg; Alur 1" required>
                                 </div>
                                 <div class="mb-3">
+                                    <label for="simpleinput" class="form-label">Type Approval</label>
+                                    <select class="form-select" name="approval_type">
+                                        <option value="hirarki">Hirarki</option>
+                                        <option value="nominal">Nominal</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="simpleinput" class="form-label">Posisi Pemohon</label>
+                                    <select name="requester_position_id" class="form-select select2">
+                                        <option value="">-- Pilih Posisi --</option>
+                                        <?php $__currentLoopData = $position; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $p): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($p['id']); ?>">
+                                                <?php echo e($p['name']); ?>
+
+                                            </option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
                                     <label for="simpleinput" class="form-label">Perusahaan</label>
                                     <select name="company_id" id="" class="form-select select2" required>
                                         <?php $__currentLoopData = $company; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $company): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
