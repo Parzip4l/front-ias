@@ -101,9 +101,13 @@ Route::group(['prefix' => '/', 'middleware' => 'jwt.session'], function () {
         Route::get('/pengajuan-sppd', [SppdController::class, 'create'])->name('sppd.create');
         Route::get('/preview/{id}', [SppdController::class, 'preview'])->name('sppd.previews');
         Route::get('/myschedule', [SppdController::class, 'schedulesaya'])->name('sppd.schedule');
-        // Route::post('/store', [SppdController::class, 'storeDivisi'])->name('divisi.store');
+        Route::post('/store', [SppdController::class, 'store'])->name('sppd.store');
+
+        
         // Route::put('/update', [SppdController::class, 'updateDivisi'])->name('divisi.update');
         // Route::post('/delete', [SppdController::class, 'destroyDivisi'])->name('divisi.delete');
+
+
         Route::prefix('approval')->group(function () {
             Route::get('/list', [ApprovalController::class, 'index'])->name('flow.index');
             Route::post('/store', [ApprovalController::class, 'store'])->name('flow.store');

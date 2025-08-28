@@ -40,31 +40,31 @@ class SppdController extends Controller
 
     public function create()
     {
-        $apiUrl = rtrim(env('SPPD_API_URL'), '/') . '/karyawan/list';
-        $token = Session::get('jwt_token');
+        // $apiUrl = rtrim(env('SPPD_API_URL'), '/') . '/karyawan/list';
+        // $token = Session::get('jwt_token');
 
-        if (!$token) {
-            return redirect()->route('login')->with('error', 'Token belum tersedia, silakan login dulu.');
-        }
+        // if (!$token) {
+        //     return redirect()->route('login')->with('error', 'Token belum tersedia, silakan login dulu.');
+        // }
         
-        try {
-            $response = Http::withToken($token)
-                ->accept('application/json')
-                ->get($apiUrl);
-            if ($response->successful()) {
-                // Ambil data user dari API response
-                $pegawais = $response->json()['data'] ?? [];
-            } else {
-                $pegawais = [];
-                // Bisa juga kirim flash message error
-                session()->flash('error', 'Gagal mengambil data Sppd dari API.');
-            }
+        // try {
+        //     $response = Http::withToken($token)
+        //         ->accept('application/json')
+        //         ->get($apiUrl);
+        //     if ($response->successful()) {
+        //         // Ambil data user dari API response
+        //         $pegawais = $response->json()['data'] ?? [];
+        //     } else {
+        //         $pegawais = [];
+        //         // Bisa juga kirim flash message error
+        //         session()->flash('error', 'Gagal mengambil data Sppd dari API.');
+        //     }
             
-        } catch (\Exception $e) {
-            $pegawais = [];
-            session()->flash('error', 'Terjadi kesalahan saat mengambil data user: ' . $e->getMessage());
-        }
-        return view('pages.sppd.create', compact('pegawais'));
+        // } catch (\Exception $e) {
+        //     $pegawais = [];
+        //     session()->flash('error', 'Terjadi kesalahan saat mengambil data user: ' . $e->getMessage());
+        // }
+        return view('pages.sppd.create');
     }
 
     public function preview($id)
@@ -97,6 +97,57 @@ class SppdController extends Controller
             return redirect()->back()->with('error', 'Terjadi kesalahan saat mengambil data: ' . $e->getMessage());
         }
     }
+
+    public function store(Request $request)
+    {
+        // Validasi input
+        $validated = $request->validate([
+            'userid'               => 'required',
+            'tujuan'                => 'required|string|max:255',
+            'lokasi_tujuan'         => 'required|string|max:255',
+            'tanggal_berangkat'     => 'required|date|after_or_equal:today',
+            'tanggal_pulang'        => 'required|date|after_or_equal:tanggal_berangkat',
+            'transportasi'          => 'nullable|string|max:255',
+            'biaya_estimasi'        => 'nullable|numeric|min:0',
+            'expenses'              => 'nullable|array',
+            'expenses.*.kategori'   => 'required_with:expenses|string|max:100',
+            'expenses.*.deskripsi'  => 'nullable|string|max:255',
+            'expenses.*.jumlah'     => 'nullable|numeric|min:0',
+            'expenses.*.bukti_file' => 'nullable|string',
+        ]);
+
+        $apiUrl = rtrim(env('SPPD_API_URL'), '/') . '/sppd/store';
+        $token  = Session::get('jwt_token');
+
+        // Cek token, kalau tidak ada redirect login
+        if (!$token) {
+            return redirect()->route('login')->with('error', 'Token belum tersedia, silakan login dulu.');
+        }
+
+        try {
+            // Kirim request ke API
+            $response = Http::withToken($token)
+                ->accept('application/json')
+                ->post($apiUrl, $validated);
+
+            if ($response->status() == 401) {
+                // Token expired atau tidak valid
+                Session::forget('jwt_token');
+                return redirect()->route('login')->with('error', 'Sesi habis, silakan login ulang.');
+            }
+
+            if ($response->successful()) {
+                return redirect()->route('sppd.index')->with('success', 'SPPD berhasil dibuat.');
+            } else {
+                $errorMessage = $response->json('message') ?? 'Gagal membuat SPPD.';
+                return back()->withInput()->with('error', $errorMessage);
+            }
+        } catch (\Exception $e) {
+            return back()->withInput()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+
 
     public function schedulesaya()
     {

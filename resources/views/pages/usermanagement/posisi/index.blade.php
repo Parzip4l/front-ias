@@ -39,23 +39,25 @@
                           <tr>
                               <th>#</th>
                               <th>Jabatan</th>
+                              <th>Perusahaan</th>
                               <th>Aksi</th>
                           </tr>
                          </thead>
 
 
                         <tbody>
-                          @foreach ($posisi as $index => $posisi)
+                          @foreach ($posisi as $index => $p)
                           <tr>
                               <td>{{ $index + 1 }}</td>
-                              <td>{{ $posisi['name'] ?? '-' }}</td>
+                              <td>{{ $p['name'] ?? '-' }}</td>
+                              <td>{{ $p['company']['name'] ?? '-' }}</td>
                               <td>
                                 <a href="javascript:void(0)" 
                                     class="btn btn-sm btn-warning" 
-                                    onclick="openEditModal({{ $posisi['id'] }}, '{{ addslashes($posisi['name']) }}')">
+                                    onclick="openEditModal({{ $p['id'] }}, '{{ addslashes($p['name']) }}')">
                                     Edit
                                 </a>
-                                <button class="btn btn-sm btn-danger" onclick="confirmDelete({{ $posisi['id'] }}, '{{ addslashes($posisi['name']) }}')">Hapus</button>
+                                <button class="btn btn-sm btn-danger" onclick="confirmDelete({{ $p['id'] }}, '{{ addslashes($p['name']) }}')">Hapus</button>
                               </td>
                           </tr>
                           @endforeach
@@ -79,6 +81,16 @@
                                 <div class="mb-3">
                                     <label for="simpleinput" class="form-label">Jabatan</label>
                                     <input type="text" name="name" class="form-control" placeholder="Roles Name" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="simpleinput" class="form-label">Perusahaan</label>
+                                    <select name="company_id" class="form-control" id="">
+                                        <option value="">--Pilih Perusahaan--</option>
+                                        @foreach($companies as $index => $c)
+                                        <option value="{{$c['id']}}">{{$c['name']}}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
                                 
                                 <button class="btn btn-primary w-100" type="submit">Simpan</button>
@@ -107,6 +119,18 @@
                                 <div class="mb-3">
                                     <label for="edit-role-name" class="form-label">Jabatan</label>
                                     <input type="text" name="name" id="edit-role-name" class="form-control" placeholder="Nama Jabatan" required />
+                                </div>
+                                <div class="mb-3">
+                                    <label for="simpleinput" class="form-label">Perusahaan</label>
+                                    <select name="company_id" class="form-control" id="">
+                                        <option value="">--Pilih Perusahaan--</option>
+                                        @foreach($companies as $index => $c)
+                                            <option value="{{ $c['id'] }}" 
+                                                {{ isset($data) && $data->company_id == $c['id'] ? 'selected' : '' }}>
+                                                {{ $c['name'] }}
+                                            </option>
+                                        @endforeach
+                                    </select>
                                 </div>
                             </div>
 

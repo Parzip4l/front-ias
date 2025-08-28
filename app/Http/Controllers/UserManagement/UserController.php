@@ -318,6 +318,7 @@ class UserController extends Controller
 
         $divisi = [];
         $users = [];
+        $company = [];
 
         try {
             // ====== Ambil daftar divisi ======
@@ -347,10 +348,20 @@ class UserController extends Controller
                 session()->flash('error', 'Gagal mengambil data user.');
             }
 
+            $companyResponse = Http::withToken($token)
+                ->accept('application/json')
+                ->get($baseUrl . '/company/list');
+
+            if ($companyResponse->successful()) {
+                $companies = $companyResponse->json()['data'] ?? [];
+            } else {
+                session()->flash('error', 'Gagal mengambil data user.');
+            }
+
         } catch (\Exception $e) {
             session()->flash('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
-        return view('pages.usermanagement.divisi.index', compact('divisi', 'users'));
+        return view('pages.usermanagement.divisi.index', compact('divisi', 'users','companies'));
     }
 
     // 2. SImpan Roles
@@ -360,6 +371,7 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:25',
             'head_id' => 'required|integer|max_digits:3',
+            'company_id' => 'required',
         ]);
 
         $apiUrl = rtrim(env('SPPD_API_URL'), '/') . '/divisi/store';
@@ -377,6 +389,7 @@ class UserController extends Controller
                 ->post($apiUrl, [
                     'name' => $validated['name'],
                     'head_id' => $validated['head_id'],
+                    'company_id' => $validated['company_id'],
                 ]);
 
             if ($response->status() == 401) {
@@ -405,6 +418,7 @@ class UserController extends Controller
             'id' => 'required|integer',
             'name' => 'required|string|max:25',
             'head_id' => 'required|integer|max_digits:3',
+            'company_id' => 'required',
         ]);
 
         $apiUrl = rtrim(env('SPPD_API_URL'), '/') . '/divisi/update';
@@ -421,6 +435,7 @@ class UserController extends Controller
                     'id' => $validated['id'],
                     'name' => $validated['name'],
                     'head_id' => $validated['head_id'],
+                    'company_id' => $validated['company_id'],
                 ]);
 
             if ($response->status() == 401) {

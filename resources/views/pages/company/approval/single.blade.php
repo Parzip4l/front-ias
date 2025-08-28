@@ -269,6 +269,63 @@
     </div>
 </div>
 
+<div class="modal fade" id="addStepModal">
+    <div class="modal-dialog">
+        <form method="POST" action="{{route('steps.store')}}" class="modal-content">
+            @csrf
+            <div class="modal-header">
+                <h5 class="modal-title">Tambah Tahapan Approval</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" name="approval_flow_id" id="approval_flow_id" value="{{$flow['id'] }}">
+                <div class="mb-3">
+                    <label class="form-label">Urutan Step</label>
+                    <input type="number" name="step_order" class="form-control" min="1" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Divisi</label>
+                    <select name="division_id" class="form-select select2">
+                        <option value="">-- Pilih Divisi --</option>
+                        @foreach($divisions as $d)
+                            <option value="{{$d['id']}}">{{$d['name']}}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Posisi</label>
+                    <select name="position_id" class="form-select select2">
+                        <option value="">-- Pilih Posisi --</option>
+                        @foreach($position as $p)
+                            <option value="{{$p['id']}}">{{$p['name']}}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">User</label>
+                    <select name="user_id" class="form-select select2">
+                        <option value="">-- Pilih User --</option>
+                        @foreach($users as $u)
+                            <option value="{{$u['id']}}">{{$u['name']}}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Final Step?</label>
+                    <select class="form-select" name="is_final">
+                        <option value="0">Tidak</option>
+                        <option value="1">Ya</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                <button type="submit" class="btn btn-primary">Simpan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- Modal Tambah Step untuk Amount Flow -->
 <div class="modal fade" id="addStepAmountModal">
     <div class="modal-dialog">

@@ -93,14 +93,14 @@
                     </ul>
                 </div>
             </li>
-
+            @if(session('user.role') == 'admin')
             <li class="side-nav-item">
                 <a href="{{route('employee.index')}}" class="side-nav-link">
                     <span class="menu-icon"><i class="ti ti-users"></i></span>
                     <span class="menu-text"> Karyawan </span>
                 </a>
             </li>
-
+            @endif
             <li class="side-nav-item">
                 <a href="{{route('sppd.schedule')}}" class="side-nav-link">
                     <span class="menu-icon"><i class="ti ti-calendar"></i></span>

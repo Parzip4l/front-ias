@@ -40,6 +40,7 @@
                               <th>#</th>
                               <th>Divisi</th>
                               <th>Kepala Divisi</th>
+                              <th>Perusahaan</th>
                               <th>Aksi</th>
                           </tr>
                          </thead>
@@ -51,6 +52,7 @@
                               <td>{{ $index + 1 }}</td>
                               <td>{{ $divisi['name'] ?? '-' }}</td>
                               <td>{{ collect($users)->firstWhere('id', $divisi['head_id'])['name'] ?? '-' }}</td>
+                              <td>{{ $divisi['company']['name'] ?? '-' }}</td>
                               <td>
                                 <a href="javascript:void(0)" 
                                     class="btn btn-sm btn-warning" 
@@ -90,6 +92,17 @@
                                         @endforeach
                                     </select>
                                 </div>
+
+                                <div class="mb-3">
+                                    <label for="simpleinput" class="form-label">Perusahaan</label>
+                                    <select name="company_id" class="form-control" id="">
+                                        <option value="">--Pilih Perusahaan--</option>
+                                        @foreach($companies as $index => $c)
+                                        <option value="{{$c['id']}}">{{$c['name']}}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
                                 <button class="btn btn-primary w-100" type="submit">Simpan</button>
                             </form>
                         </div>
@@ -122,6 +135,18 @@
                                     <select name="head_id" id="edit-head-id" class="form-select select2" required>
                                         @foreach($users as $user)
                                             <option value="{{ $user['id'] }}">{{ $user['name'] }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="simpleinput" class="form-label">Perusahaan</label>
+                                    <select name="company_id" class="form-control" id="">
+                                        <option value="">--Pilih Perusahaan--</option>
+                                        @foreach($companies as $index => $c)
+                                            <option value="{{ $c['id'] }}" 
+                                                {{ isset($data) && $data->company_id == $c['id'] ? 'selected' : '' }}>
+                                                {{ $c['name'] }}
+                                            </option>
                                         @endforeach
                                     </select>
                                 </div>

@@ -42,6 +42,7 @@
                               <th>#</th>
                               <th>Divisi</th>
                               <th>Kepala Divisi</th>
+                              <th>Perusahaan</th>
                               <th>Aksi</th>
                           </tr>
                          </thead>
@@ -53,6 +54,7 @@
                               <td><?php echo e($index + 1); ?></td>
                               <td><?php echo e($divisi['name'] ?? '-'); ?></td>
                               <td><?php echo e(collect($users)->firstWhere('id', $divisi['head_id'])['name'] ?? '-'); ?></td>
+                              <td><?php echo e($divisi['company']['name'] ?? '-'); ?></td>
                               <td>
                                 <a href="javascript:void(0)" 
                                     class="btn btn-sm btn-warning" 
@@ -92,6 +94,17 @@
                                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </select>
                                 </div>
+
+                                <div class="mb-3">
+                                    <label for="simpleinput" class="form-label">Perusahaan</label>
+                                    <select name="company_id" class="form-control" id="">
+                                        <option value="">--Pilih Perusahaan--</option>
+                                        <?php $__currentLoopData = $companies; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $c): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($c['id']); ?>"><?php echo e($c['name']); ?></option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                    </select>
+                                </div>
+
                                 <button class="btn btn-primary w-100" type="submit">Simpan</button>
                             </form>
                         </div>
@@ -124,6 +137,19 @@
                                     <select name="head_id" id="edit-head-id" class="form-select select2" required>
                                         <?php $__currentLoopData = $users; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $user): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                             <option value="<?php echo e($user['id']); ?>"><?php echo e($user['name']); ?></option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="simpleinput" class="form-label">Perusahaan</label>
+                                    <select name="company_id" class="form-control" id="">
+                                        <option value="">--Pilih Perusahaan--</option>
+                                        <?php $__currentLoopData = $companies; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $c): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($c['id']); ?>" 
+                                                <?php echo e(isset($data) && $data->company_id == $c['id'] ? 'selected' : ''); ?>>
+                                                <?php echo e($c['name']); ?>
+
+                                            </option>
                                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </select>
                                 </div>

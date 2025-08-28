@@ -31,9 +31,8 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header border-bottom border-dashed d-flex justify-content-between">
-                    <h5 class="mb-0">Divisi Data</h5>
-                    <a href="#" class="btn btn-sm btn-primary" data-bs-toggle="modal"
-                            data-bs-target="#modal-create-role">Buat Divisi Baru</a>
+                    <h5 class="mb-0 align-self-center">SPPD Data</h5>
+                    <a href="<?php echo e(route('sppd.create')); ?>" class="btn btn-sm btn-primary">Buat Pengajuan SPPD</a>
                 </div>
                 <div class="card-body">
                     <table id="basic-datatable" class="table table-striped dt-responsive nowrap w-100">

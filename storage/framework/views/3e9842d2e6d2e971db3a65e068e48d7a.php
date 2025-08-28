@@ -271,6 +271,63 @@
     </div>
 </div>
 
+<div class="modal fade" id="addStepModal">
+    <div class="modal-dialog">
+        <form method="POST" action="<?php echo e(route('steps.store')); ?>" class="modal-content">
+            <?php echo csrf_field(); ?>
+            <div class="modal-header">
+                <h5 class="modal-title">Tambah Tahapan Approval</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" name="approval_flow_id" id="approval_flow_id" value="<?php echo e($flow['id']); ?>">
+                <div class="mb-3">
+                    <label class="form-label">Urutan Step</label>
+                    <input type="number" name="step_order" class="form-control" min="1" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Divisi</label>
+                    <select name="division_id" class="form-select select2">
+                        <option value="">-- Pilih Divisi --</option>
+                        <?php $__currentLoopData = $divisions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $d): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <option value="<?php echo e($d['id']); ?>"><?php echo e($d['name']); ?></option>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Posisi</label>
+                    <select name="position_id" class="form-select select2">
+                        <option value="">-- Pilih Posisi --</option>
+                        <?php $__currentLoopData = $position; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $p): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <option value="<?php echo e($p['id']); ?>"><?php echo e($p['name']); ?></option>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">User</label>
+                    <select name="user_id" class="form-select select2">
+                        <option value="">-- Pilih User --</option>
+                        <?php $__currentLoopData = $users; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $u): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <option value="<?php echo e($u['id']); ?>"><?php echo e($u['name']); ?></option>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Final Step?</label>
+                    <select class="form-select" name="is_final">
+                        <option value="0">Tidak</option>
+                        <option value="1">Ya</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                <button type="submit" class="btn btn-primary">Simpan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- Modal Tambah Step untuk Amount Flow -->
 <div class="modal fade" id="addStepAmountModal">
     <div class="modal-dialog">

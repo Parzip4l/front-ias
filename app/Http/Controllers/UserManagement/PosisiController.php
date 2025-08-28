@@ -9,42 +9,65 @@ use Illuminate\Support\Facades\Session;
 
 class PosisiController extends Controller
 {
+
     public function index()
     {
-        $apiUrl = rtrim(env('SPPD_API_URL'), '/') . '/posisi/list';
+        $baseUrl = rtrim(env('SPPD_API_URL'), '/');
         $token = Session::get('jwt_token');
 
         if (!$token) {
             return redirect()->route('login')->with('error', 'Token belum tersedia, silakan login dulu.');
         }
         
+        $posisi = [];
+        $companies = [];
+
         try {
-            $response = Http::withToken($token)
+            $posisiResponse = Http::withToken($token)
                 ->accept('application/json')
-                ->get($apiUrl);
+                ->get($baseUrl . '/posisi/list');
 
-            if ($response->successful()) {
-                // Ambil data user dari API response
-                $posisi = $response->json()['data'] ?? [];
-            } else {
-                $posisi = [];
-                // Bisa juga kirim flash message error
-                session()->flash('error', 'Gagal mengambil data posisi dari API.');
+            if ($posisiResponse->status() == 401) {
+                Session::forget('jwt_token');
+                return redirect()->route('login')->with('error', 'Sesi habis, silakan login ulang.');
             }
-            
-        } catch (\Exception $e) {
-            $posisi = [];
-            session()->flash('error', 'Terjadi kesalahan saat mengambil data posisi: ' . $e->getMessage());
-        }
 
-        return view('pages.usermanagement.posisi.index', compact('posisi'));
+            if ($posisiResponse->successful()) {
+                $posisi = $posisiResponse->json()['data'] ?? [];
+            } else {
+                session()->flash('error', 'Gagal mengambil data posisi.');
+            }
+
+            // ====== Ambil daftar Categoey ======
+            $companyResponse = Http::withToken($token)
+                ->accept('application/json')
+                ->get($baseUrl . '/company/list');
+
+            if ($companyResponse->status() == 401) {
+                Session::forget('jwt_token');
+                return redirect()->route('login')->with('error', 'Sesi habis, silakan login ulang.');
+            }
+
+            if ($companyResponse->successful()) {
+                $companies = $companyResponse->json()['data'] ?? [];
+            } else {
+                session()->flash('error', 'Gagal mengambil data user.');
+            }
+
+        } catch (\Exception $e) {
+            // Tangani error exception, redirect balik dengan pesan error
+            return back()->withInput()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+         return view('pages.usermanagement.posisi.index', compact('posisi','companies'));
     }
+    
 
     public function store(Request $request)
     {
         // Validasi input 'name' wajib dan string maksimal 255 karakter
         $validated = $request->validate([
             'name' => 'required|string|max:25',
+            'company_id' => 'required',
         ]);
 
         $apiUrl = rtrim(env('SPPD_API_URL'), '/') . '/posisi/store';
@@ -61,6 +84,7 @@ class PosisiController extends Controller
                 ->accept('application/json')
                 ->post($apiUrl, [
                     'name' => $validated['name'],
+                    'company_id' => $validated['company_id'],
                 ]);
 
             if ($response->status() == 401) {
@@ -87,6 +111,7 @@ class PosisiController extends Controller
         $validated = $request->validate([
             'id' => 'required|integer',
             'name' => 'required|string|max:25',
+            'company_id' => 'required|string|max:25',
         ]);
 
         $apiUrl = rtrim(env('SPPD_API_URL'), '/') . '/posisi/update';
@@ -102,6 +127,7 @@ class PosisiController extends Controller
                 ->post($apiUrl, [
                     'id' => $validated['id'],
                     'name' => $validated['name'],
+                    'company_id' => $validated['company_id'],
                 ]);
 
             if ($response->status() == 401) {

@@ -41,23 +41,25 @@
                           <tr>
                               <th>#</th>
                               <th>Jabatan</th>
+                              <th>Perusahaan</th>
                               <th>Aksi</th>
                           </tr>
                          </thead>
 
 
                         <tbody>
-                          <?php $__currentLoopData = $posisi; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $posisi): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                          <?php $__currentLoopData = $posisi; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $p): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                           <tr>
                               <td><?php echo e($index + 1); ?></td>
-                              <td><?php echo e($posisi['name'] ?? '-'); ?></td>
+                              <td><?php echo e($p['name'] ?? '-'); ?></td>
+                              <td><?php echo e($p['company']['name'] ?? '-'); ?></td>
                               <td>
                                 <a href="javascript:void(0)" 
                                     class="btn btn-sm btn-warning" 
-                                    onclick="openEditModal(<?php echo e($posisi['id']); ?>, '<?php echo e(addslashes($posisi['name'])); ?>')">
+                                    onclick="openEditModal(<?php echo e($p['id']); ?>, '<?php echo e(addslashes($p['name'])); ?>')">
                                     Edit
                                 </a>
-                                <button class="btn btn-sm btn-danger" onclick="confirmDelete(<?php echo e($posisi['id']); ?>, '<?php echo e(addslashes($posisi['name'])); ?>')">Hapus</button>
+                                <button class="btn btn-sm btn-danger" onclick="confirmDelete(<?php echo e($p['id']); ?>, '<?php echo e(addslashes($p['name'])); ?>')">Hapus</button>
                               </td>
                           </tr>
                           <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
@@ -81,6 +83,16 @@
                                 <div class="mb-3">
                                     <label for="simpleinput" class="form-label">Jabatan</label>
                                     <input type="text" name="name" class="form-control" placeholder="Roles Name" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="simpleinput" class="form-label">Perusahaan</label>
+                                    <select name="company_id" class="form-control" id="">
+                                        <option value="">--Pilih Perusahaan--</option>
+                                        <?php $__currentLoopData = $companies; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $c): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($c['id']); ?>"><?php echo e($c['name']); ?></option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                    </select>
                                 </div>
                                 
                                 <button class="btn btn-primary w-100" type="submit">Simpan</button>
@@ -109,6 +121,19 @@
                                 <div class="mb-3">
                                     <label for="edit-role-name" class="form-label">Jabatan</label>
                                     <input type="text" name="name" id="edit-role-name" class="form-control" placeholder="Nama Jabatan" required />
+                                </div>
+                                <div class="mb-3">
+                                    <label for="simpleinput" class="form-label">Perusahaan</label>
+                                    <select name="company_id" class="form-control" id="">
+                                        <option value="">--Pilih Perusahaan--</option>
+                                        <?php $__currentLoopData = $companies; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $c): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($c['id']); ?>" 
+                                                <?php echo e(isset($data) && $data->company_id == $c['id'] ? 'selected' : ''); ?>>
+                                                <?php echo e($c['name']); ?>
+
+                                            </option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                    </select>
                                 </div>
                             </div>
 
