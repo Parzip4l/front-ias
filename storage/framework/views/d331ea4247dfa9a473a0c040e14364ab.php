@@ -53,6 +53,11 @@
                             </a>
                         </li>
                         <li class="side-nav-item">
+                             <a href="<?php echo e(route ('sppd.listapprove')); ?>" class="side-nav-link">
+                                <span class="menu-text">Approval SPPD</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
                             <a href="<?php echo e(route ('sppd.create')); ?>" class="side-nav-link">
                                 <span class="menu-text">Ajukan SPPD</span>
                             </a>

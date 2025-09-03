@@ -113,15 +113,15 @@
                               <td>{{ $employee['division']['name'] ?? '-' }}</td>
                               <td>{{ $employee['position']['name'] ?? '-' }}</td>
                               <td>
-                                <a href="{{ route('employee.show', $employee['id']) }}" 
+                                <a href="{{ route('employee.show', hid($employee['id'])) }}" 
                                     class="btn btn-sm btn-primary">
                                     <i class="ti ti-eye"></i>
                                 </a>
-                                <a href="{{ route('employee.edit', $employee['id']) }}" 
+                                <a href="{{ route('employee.edit', hid($employee['id'])) }}" 
                                     class="btn btn-sm btn-warning">
                                     <i class="ti ti-edit"></i>
                                 </a>
-                                <button class="btn btn-sm btn-danger" onclick="confirmDelete({{ $employee['id'] }}, '{{ addslashes($employee['name']) }}')"><i class="ti ti-trash"></i></button>
+                                    <button class="btn btn-sm btn-danger" onclick="confirmDelete({{ json_encode(hid($employee['id'])) }}, '{{ addslashes($employee['name']) }}')"><i class="ti ti-trash"></i></button>
                               </td>
                           </tr>
                           @endforeach

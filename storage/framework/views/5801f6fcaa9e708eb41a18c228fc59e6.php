@@ -61,16 +61,16 @@
                     <div class="form-step active" id="step-1">
                         <h5 class="mb-3">Informasi Umum</h5>
                         <div class="row g-3">
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <label class="form-label">Nama Pegawai</label>
                                 <input type="text" class="form-control" value="<?php echo e(session('user.name')); ?>" readonly>
                                 <input type="hidden" name="userid" value="<?php echo e(session('user.id')); ?>">
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-3">
                                 <label class="form-label">Tujuan</label>
                                 <input type="text" class="form-control" name="tujuan" placeholder="Masukkan kota tujuan">
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-3">
                                 <label class="form-label">Lokasi Tujuan</label>
                                 <input type="text" class="form-control" name="lokasi_tujuan" placeholder="Masukkan lokasi tujuan detail1">
                             </div>
@@ -81,6 +81,10 @@
                             <div class="col-md-3">
                                 <label class="form-label">Tanggal Pulang</label>
                                 <input type="date" class="form-control" name="tanggal_pulang" id="tanggal_pulang">
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label">Keperluan</label>
+                                <textarea name="keperluan" class="form-control" id="" rows="5"></textarea>
                             </div>
                         </div>
                         <div class="mt-3 text-end">
@@ -202,8 +206,17 @@
 
                     <!-- Step 5: Preview -->
                     <div class="form-step" id="step-5">
-                        <h5 class="mb-3">Preview</h5>
+                        <div class="form-group mb-2">
+                            <label for="" class="form-label">Pilih Metode Pembayaran</label>
+                            <select name="digital_payment" id="" class="form-control">
+                                <option value="">- - Pilih Metode Pembayaran - -</option>
+                                <option value="digital_payment">Digital Payment</option>
+                                <option value="reimbrusment">Reimbursement</option>
+                            </select>
+                        </div>
+                        <h5 class="mb-3">Preview SPPD</h5>
                         <div id="previewContent" class="border rounded p-3 bg-light"></div>
+                        
                         <div class="mt-3 d-flex justify-content-between">
                             <button type="button" class="btn btn-secondary prev-step">Kembali</button>
                             <button type="submit" class="btn btn-success">Submit</button>

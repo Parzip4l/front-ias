@@ -56,13 +56,18 @@
                               <td><?php echo e(collect($users)->firstWhere('id', $divisi['head_id'])['name'] ?? '-'); ?></td>
                               <td><?php echo e($divisi['company']['name'] ?? '-'); ?></td>
                               <td>
-                                <a href="javascript:void(0)" 
+                                    <a href="javascript:void(0)" 
                                     class="btn btn-sm btn-warning" 
-                                    onclick="openEditModal(<?php echo e($divisi['id']); ?>, '<?php echo e(addslashes($divisi['name'])); ?>', '<?php echo e($divisi['head_id']); ?>')">
+                                    onclick="openEditModal(<?php echo e(json_encode(hid($divisi['id']))); ?>, <?php echo e(json_encode($divisi['name'])); ?>, <?php echo e(json_encode($divisi['head_id'])); ?>)">
                                     Edit
-                                </a>
-                                <button class="btn btn-sm btn-danger" onclick="confirmDelete(<?php echo e($divisi['id']); ?>, '<?php echo e(addslashes($divisi['name'])); ?>')">Hapus</button>
-                              </td>
+                                    </a>
+
+                                    <button class="btn btn-sm btn-danger" 
+                                            onclick="confirmDelete(<?php echo e(json_encode(hid($divisi['id']))); ?>, <?php echo e(json_encode($divisi['name'])); ?>)">
+                                        Hapus
+                                    </button>
+                                </td>
+
                           </tr>
                           <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                       </tbody>
@@ -84,7 +89,7 @@
                                 <?php echo csrf_field(); ?>
                                 <div class="mb-3">
                                     <label for="simpleinput" class="form-label">Divisi</label>
-                                    <input type="text" name="name" class="form-control" placeholder="Roles Name" required>
+                                    <input type="text" name="name" class="form-control" placeholder="Divisi Name" required>
                                 </div>
                                 <div class="mb-3">
                                     <label for="simpleinput" class="form-label">Kepala Divisi</label>
@@ -96,11 +101,14 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label for="simpleinput" class="form-label">Perusahaan</label>
-                                    <select name="company_id" class="form-control" id="">
+                                    <label for="company_id" class="form-label">Perusahaan</label>
+                                    <select name="company_id" class="form-control" id="company_id">
                                         <option value="">--Pilih Perusahaan--</option>
-                                        <?php $__currentLoopData = $companies; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $c): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                        <option value="<?php echo e($c['id']); ?>"><?php echo e($c['name']); ?></option>
+                                        <?php $__currentLoopData = $companies; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $c): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($c['id']); ?>" <?php echo e($divisi['company_id'] == $c['id'] ? 'selected' : ''); ?>>
+                                                <?php echo e($c['name']); ?>
+
+                                            </option>
                                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </select>
                                 </div>

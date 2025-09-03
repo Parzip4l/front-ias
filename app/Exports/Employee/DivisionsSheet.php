@@ -19,7 +19,7 @@ class DivisionsSheet implements FromCollection
         $data = collect([['id', 'name']]);
 
         foreach ($this->divisions as $d) {
-            $data->push([$d['id'], $d['name']]);
+            $data->push([hid($d['id']), $d['name']]);
         }
 
         return $data;

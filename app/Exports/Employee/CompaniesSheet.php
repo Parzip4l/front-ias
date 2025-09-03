@@ -19,7 +19,7 @@ class CompaniesSheet implements FromCollection
         $data = collect([['id', 'name']]);
 
         foreach ($this->companies as $c) {
-            $data->push([$c['id'], $c['name']]);
+            $data->push([hid($c['id']), $c['name']]);
         }
 
         return $data;

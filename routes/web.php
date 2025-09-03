@@ -98,6 +98,7 @@ Route::group(['prefix' => '/', 'middleware' => 'jwt.session'], function () {
     // Sppd
     Route::prefix('sppd')->group(function () {
         Route::get('/list-data', [SppdController::class, 'index'])->name('sppd.index');
+        Route::get('/need-approval', [SppdController::class, 'needApproval'])->name('sppd.listapprove');
         Route::get('/pengajuan-sppd', [SppdController::class, 'create'])->name('sppd.create');
         Route::get('/preview/{id}', [SppdController::class, 'preview'])->name('sppd.previews');
         Route::get('/myschedule', [SppdController::class, 'schedulesaya'])->name('sppd.schedule');
@@ -105,7 +106,7 @@ Route::group(['prefix' => '/', 'middleware' => 'jwt.session'], function () {
 
         
         // Route::put('/update', [SppdController::class, 'updateDivisi'])->name('divisi.update');
-        // Route::post('/delete', [SppdController::class, 'destroyDivisi'])->name('divisi.delete');
+        Route::post('/delete', [SppdController::class, 'destroy'])->name('sppd.delete');
 
 
         Route::prefix('approval')->group(function () {

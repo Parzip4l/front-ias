@@ -113,15 +113,15 @@
                               <td><?php echo e($employee['division']['name'] ?? '-'); ?></td>
                               <td><?php echo e($employee['position']['name'] ?? '-'); ?></td>
                               <td>
-                                <a href="<?php echo e(route('employee.show', $employee['id'])); ?>" 
+                                <a href="<?php echo e(route('employee.show', hid($employee['id']))); ?>" 
                                     class="btn btn-sm btn-primary">
                                     <i class="ti ti-eye"></i>
                                 </a>
-                                <a href="<?php echo e(route('employee.edit', $employee['id'])); ?>" 
+                                <a href="<?php echo e(route('employee.edit', hid($employee['id']))); ?>" 
                                     class="btn btn-sm btn-warning">
                                     <i class="ti ti-edit"></i>
                                 </a>
-                                <button class="btn btn-sm btn-danger" onclick="confirmDelete(<?php echo e($employee['id']); ?>, '<?php echo e(addslashes($employee['name'])); ?>')"><i class="ti ti-trash"></i></button>
+                                    <button class="btn btn-sm btn-danger" onclick="confirmDelete(<?php echo e(json_encode(hid($employee['id']))); ?>, '<?php echo e(addslashes($employee['name'])); ?>')"><i class="ti ti-trash"></i></button>
                               </td>
                           </tr>
                           <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>

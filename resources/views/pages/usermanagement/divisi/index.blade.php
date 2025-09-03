@@ -54,13 +54,18 @@
                               <td>{{ collect($users)->firstWhere('id', $divisi['head_id'])['name'] ?? '-' }}</td>
                               <td>{{ $divisi['company']['name'] ?? '-' }}</td>
                               <td>
-                                <a href="javascript:void(0)" 
+                                    <a href="javascript:void(0)" 
                                     class="btn btn-sm btn-warning" 
-                                    onclick="openEditModal({{ $divisi['id'] }}, '{{ addslashes($divisi['name']) }}', '{{ $divisi['head_id'] }}')">
+                                    onclick="openEditModal({{ json_encode(hid($divisi['id'])) }}, {{ json_encode($divisi['name']) }}, {{ json_encode($divisi['head_id']) }})">
                                     Edit
-                                </a>
-                                <button class="btn btn-sm btn-danger" onclick="confirmDelete({{ $divisi['id'] }}, '{{ addslashes($divisi['name']) }}')">Hapus</button>
-                              </td>
+                                    </a>
+
+                                    <button class="btn btn-sm btn-danger" 
+                                            onclick="confirmDelete({{ json_encode(hid($divisi['id'])) }}, {{ json_encode($divisi['name']) }})">
+                                        Hapus
+                                    </button>
+                                </td>
+
                           </tr>
                           @endforeach
                       </tbody>
@@ -82,7 +87,7 @@
                                 @csrf
                                 <div class="mb-3">
                                     <label for="simpleinput" class="form-label">Divisi</label>
-                                    <input type="text" name="name" class="form-control" placeholder="Roles Name" required>
+                                    <input type="text" name="name" class="form-control" placeholder="Divisi Name" required>
                                 </div>
                                 <div class="mb-3">
                                     <label for="simpleinput" class="form-label">Kepala Divisi</label>
@@ -94,11 +99,13 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label for="simpleinput" class="form-label">Perusahaan</label>
-                                    <select name="company_id" class="form-control" id="">
+                                    <label for="company_id" class="form-label">Perusahaan</label>
+                                    <select name="company_id" class="form-control" id="company_id">
                                         <option value="">--Pilih Perusahaan--</option>
-                                        @foreach($companies as $index => $c)
-                                        <option value="{{$c['id']}}">{{$c['name']}}</option>
+                                        @foreach($companies as $c)
+                                            <option value="{{ $c['id'] }}" {{ $divisi['company_id'] == $c['id'] ? 'selected' : '' }}>
+                                                {{ $c['name'] }}
+                                            </option>
                                         @endforeach
                                     </select>
                                 </div>

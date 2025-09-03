@@ -320,7 +320,7 @@ class EmployeeController extends Controller
     public function destroy(Request $request)
     {
         $request->validate([
-            'id' => 'required|integer',
+            'id' => 'required|string', // hash
         ]);
 
         $apiUrl = rtrim(env('SPPD_API_URL'), '/') . '/karyawan/delete';
@@ -331,19 +331,18 @@ class EmployeeController extends Controller
         }
 
         try {
-            // Kirim POST dengan form-data id ke API
+            // kirim hash langsung ke API
             $response = Http::withToken($token)
                 ->accept('application/json')
                 ->post($apiUrl, ['id' => $request->id]);
 
             if ($response->status() == 401) {
-                // Token expired atau tidak valid
-                Session::forget('jwt_token'); // hapus token dari session
+                Session::forget('jwt_token');
                 return redirect()->route('login')->with('error', 'Sesi habis, silakan login ulang.');
             }
 
             if ($response->successful()) {
-                return redirect()->route('employee.index')->with('success', 'data berhasil dihapus.');
+                return redirect()->route('employee.index')->with('success', 'Data berhasil dihapus.');
             } else {
                 $errorMessage = $response->json('message') ?? 'Gagal menghapus data.';
                 return back()->with('error', $errorMessage);
@@ -352,6 +351,7 @@ class EmployeeController extends Controller
             return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
+
 
     public function exportTemplate()
     {

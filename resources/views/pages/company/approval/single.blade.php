@@ -124,7 +124,15 @@
                                             </div>
                                         </td>
                                         <td>
-                                            <button class="btn btn-sm btn-warning" onclick="openEditStepModal('{{ $step['id'] }}','{{ $step['position']['name'] ?? '' }}','{{ $step['step_order'] }}')">
+                                            <button class="btn btn-sm btn-warning" 
+                                                onclick="openEditStepHirarki({
+                                                    id: '{{ $step['id'] }}',
+                                                    step_order: '{{ $step['step_order'] }}',
+                                                    division_id: '{{ $step['division_id'] ?? '' }}',
+                                                    position_id: '{{ $step['position_id'] ?? '' }}',
+                                                    user_id: '{{ $step['user_id'] ?? '' }}',
+                                                    is_final: '{{ $step['is_final'] }}'
+                                                })">
                                                 <i class="ti ti-pencil"></i>
                                             </button>
                                             <button class="btn btn-sm btn-danger" onclick="confirmDelete({{ $step['id'] }})">
@@ -269,62 +277,7 @@
     </div>
 </div>
 
-<div class="modal fade" id="addStepModal">
-    <div class="modal-dialog">
-        <form method="POST" action="{{route('steps.store')}}" class="modal-content">
-            @csrf
-            <div class="modal-header">
-                <h5 class="modal-title">Tambah Tahapan Approval</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <input type="hidden" name="approval_flow_id" id="approval_flow_id" value="{{$flow['id'] }}">
-                <div class="mb-3">
-                    <label class="form-label">Urutan Step</label>
-                    <input type="number" name="step_order" class="form-control" min="1" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Divisi</label>
-                    <select name="division_id" class="form-select select2">
-                        <option value="">-- Pilih Divisi --</option>
-                        @foreach($divisions as $d)
-                            <option value="{{$d['id']}}">{{$d['name']}}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Posisi</label>
-                    <select name="position_id" class="form-select select2">
-                        <option value="">-- Pilih Posisi --</option>
-                        @foreach($position as $p)
-                            <option value="{{$p['id']}}">{{$p['name']}}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">User</label>
-                    <select name="user_id" class="form-select select2">
-                        <option value="">-- Pilih User --</option>
-                        @foreach($users as $u)
-                            <option value="{{$u['id']}}">{{$u['name']}}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Final Step?</label>
-                    <select class="form-select" name="is_final">
-                        <option value="0">Tidak</option>
-                        <option value="1">Ya</option>
-                    </select>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
-                <button type="submit" class="btn btn-primary">Simpan</button>
-            </div>
-        </form>
-    </div>
-</div>
+
 
 <!-- Modal Tambah Step untuk Amount Flow -->
 <div class="modal fade" id="addStepAmountModal">
@@ -413,7 +366,7 @@
     </div>
 </div>
 
-<!-- Edit Step -->
+<!-- Modal Edit Step Amount -->
 <div class="modal fade" id="editStepAmountModal">
     <div class="modal-dialog">
         <form id="editStepAmountForm" class="modal-content">
@@ -458,6 +411,128 @@
                 <div class="mb-3">
                     <label class="form-label">Final Step?</label>
                     <select name="is_final" id="editStepFinal" class="form-select">
+                        <option value="0">Tidak</option>
+                        <option value="1">Ya</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                <button type="submit" class="btn btn-primary">Simpan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<!-- Modal add Step Hirarki -->
+<div class="modal fade" id="addStepModal">
+    <div class="modal-dialog">
+        <form method="POST" action="{{route('steps.store')}}" class="modal-content">
+            @csrf
+            <div class="modal-header">
+                <h5 class="modal-title">Tambah Tahapan Approval</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" name="approval_flow_id" id="approval_flow_id" value="{{$flow['id'] }}">
+                <div class="mb-3">
+                    <label class="form-label">Urutan Step</label>
+                    <input type="number" name="step_order" class="form-control" min="1" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Divisi</label>
+                    <select name="division_id" class="form-select select2">
+                        <option value="">-- Pilih Divisi --</option>
+                        @foreach($divisions as $d)
+                            <option value="{{$d['id']}}">{{$d['name']}}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Posisi</label>
+                    <select name="position_id" class="form-select select2">
+                        <option value="">-- Pilih Posisi --</option>
+                        @foreach($position as $p)
+                            <option value="{{$p['id']}}">{{$p['name']}}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">User</label>
+                    <select name="user_id" class="form-select select2">
+                        <option value="">-- Pilih User --</option>
+                        @foreach($users as $u)
+                            <option value="{{$u['id']}}">{{$u['name']}}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Final Step?</label>
+                    <select class="form-select" name="is_final">
+                        <option value="0">Tidak</option>
+                        <option value="1">Ya</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                <button type="submit" class="btn btn-primary">Simpan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Edit Step Hirarki -->
+<div class="modal fade" id="editStepModal">
+    <div class="modal-dialog">
+        <form id="editStepForm" class="modal-content">
+            @csrf
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Step Hirarki</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editStepIdHirarki" name="step_id">
+
+                <div class="mb-3">
+                    <label class="form-label">Urutan Step</label>
+                    <input type="number" class="form-control" id="editStepOrderHirarki" name="step_order" min="1" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Divisi</label>
+                    <select id="editStepDivisionHirarki" name="division_id" class="form-select select2">
+                        <option value="">-- Pilih Divisi --</option>
+                        @foreach($divisions as $d)
+                            <option value="{{ $d['id'] }}">{{ $d['name'] }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Posisi</label>
+                    <select id="editStepPositionHirarki" name="position_id" class="form-select select2">
+                        <option value="">-- Pilih Posisi --</option>
+                        @foreach($position as $p)
+                            <option value="{{ $p['id'] }}">{{ $p['name'] }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">User</label>
+                    <select id="editStepUserHirarki" name="user_id" class="form-select select2">
+                        <option value="">-- Pilih User --</option>
+                        @foreach($users as $u)
+                            <option value="{{ $u['id'] }}">{{ $u['name'] }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Final Step?</label>
+                    <select id="editStepFinalHirarki" name="is_final" class="form-select">
                         <option value="0">Tidak</option>
                         <option value="1">Ya</option>
                     </select>
@@ -517,61 +592,152 @@ $(function () {
 });
 </script>
 <script>
-const API_BASE_URL = "{{ env('SPPD_API_URL') }}";
-const TOKEN = "{{ Session::get('jwt_token') }}";
+    const API_BASE_URL = "{{ env('SPPD_API_URL') }}";
+    const TOKEN = "{{ Session::get('jwt_token') }}";
+    const FLOW_ID = "{{ $flow['id'] }}";
 
-document.addEventListener("DOMContentLoaded", function() {
-    document.querySelectorAll(".toggle-final").forEach(function(switcher) {
-        switcher.addEventListener("change", function() {
-            let stepId = this.dataset.id;
-            let isFinal = this.checked ? 1 : 0;
-            fetch(`${API_BASE_URL}/approval/steps/final-step/${stepId}`, {
-                method: "POST",
+    // Helper Select2
+    function setSelect2Value($el, value) {
+        if (!value) return;
+        if ($el.find(`option[value="${value}"]`).length) {
+            $el.val(value).trigger("change");
+        } else {
+            let newOption = new Option("Loading...", value, true, true);
+            $el.append(newOption).trigger('change');
+        }
+    }
+
+    // === Final Step Hirarki ===
+    document.addEventListener("DOMContentLoaded", function() {
+        document.querySelectorAll(".toggle-final").forEach(function(switcher) {
+            switcher.addEventListener("change", function() {
+                let stepId = this.dataset.id;
+                let isFinal = this.checked ? 1 : 0;
+                fetch(`${API_BASE_URL}/approval/steps/final-step/${stepId}`, {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${TOKEN}`,
+                        "Content-Type": "application/json",
+                        "Accept": "application/json"
+                    },
+                    body: JSON.stringify({ is_final: isFinal })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if(!data.success) { 
+                        alert("❌ Gagal update"); 
+                        this.checked = !isFinal; 
+                    }
+                })
+                .catch(err => { 
+                    console.error(err); 
+                    alert("⚠️ Error koneksi ke API"); 
+                    this.checked = !isFinal; 
+                });
+            });
+        });
+    });
+
+    // === Delete Approval Steps ===
+    function confirmDelete(id) {
+        Swal.fire({
+            title: `Hapus Data Ini ?`,
+            text: "Data yang sudah dihapus tidak bisa dikembalikan!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Ya, hapus!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if(result.isConfirmed){
+                const form = document.createElement('form');
+                form.method='POST'; 
+                form.action='/sppd/approval/delete-steps';
+
+                const csrf = document.createElement('input'); 
+                csrf.type='hidden'; csrf.name='_token'; csrf.value='{{ csrf_token() }}';
+
+                const idInput = document.createElement('input'); 
+                idInput.type='hidden'; idInput.name='id'; idInput.value=id;
+
+                form.appendChild(csrf); 
+                form.appendChild(idInput); 
+                document.body.appendChild(form); 
+                form.submit();
+            }
+        });
+    }
+
+    // === Edit Step Hirarki ===
+    function openEditStepModal(step) {
+        // isi field hidden/text
+        $('#editStepIdHirarki').val(step.id);
+        $('#editStepOrderHirarki').val(step.step_order);
+        $('#editStepFinalHirarki').val(step.is_final ? '1' : '0');
+
+        const modalEl = document.getElementById('editStepModal');
+        const modal = new bootstrap.Modal(modalEl);
+
+        // Pastikan select2 sudah render
+        $(modalEl).off('shown.bs.modal').on('shown.bs.modal', function () {
+            setTimeout(() => {
+                setSelect2Value($('#editStepDivisionHirarki'), step.division_id);
+                setSelect2Value($('#editStepPositionHirarki'), step.position_id);
+                setSelect2Value($('#editStepUserHirarki'), step.user_id);
+            }, 100);
+        });
+
+        modal.show();
+    }
+
+    // Submit form edit
+    document.addEventListener('DOMContentLoaded', function () {
+        $('#editStepForm').submit(function (e) {
+            e.preventDefault();
+
+            const payload = {
+                id: $('#editStepIdHirarki').val(),
+                approval_flow_id: FLOW_ID,
+                step_order: $('#editStepOrderHirarki').val(),
+                division_id: $('#editStepDivisionHirarki').val(),
+                position_id: $('#editStepPositionHirarki').val(),
+                user_id: $('#editStepUserHirarki').val(),
+                is_final: $('#editStepFinalHirarki').val()
+            };
+
+            fetch(`${API_BASE_URL}/approval/steps/update`, {
+                method: 'POST',
                 headers: {
                     "Authorization": `Bearer ${TOKEN}`,
                     "Content-Type": "application/json",
                     "Accept": "application/json"
                 },
-                body: JSON.stringify({ is_final: isFinal })
+                body: JSON.stringify(payload)
             })
             .then(res => res.json())
             .then(data => {
-                if(!data.success) { alert("❌ Gagal update"); this.checked = !isFinal; }
+                console.log("Respon API:", data);
+                if (data.message && data.message.toLowerCase().includes("berhasil")) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil!',
+                        text: data.message,
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => location.reload());
+                } else {
+                    Swal.fire('Error', data.message || 'Gagal update step.', 'error');
+                }
             })
-            .catch(err => { console.error(err); alert("⚠️ Error koneksi ke API"); this.checked = !isFinal; });
+            .catch(err => {
+                console.error(err);
+                Swal.fire('Error', 'Terjadi kesalahan koneksi ke API.', 'error');
+            });
         });
     });
-});
-
-function confirmDelete(id) {
-    Swal.fire({
-        title: `Hapus Data Ini ?`,
-        text: "Data yang sudah dihapus tidak bisa dikembalikan!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Ya, hapus!',
-        cancelButtonText: 'Batal'
-    }).then((result) => {
-        if(result.isConfirmed){
-            const form = document.createElement('form');
-            form.method='POST'; form.action='/sppd/approval/delete-steps';
-            const csrf = document.createElement('input'); csrf.type='hidden'; csrf.name='_token'; csrf.value='{{ csrf_token() }}';
-            const idInput = document.createElement('input'); idInput.type='hidden'; idInput.name='id'; idInput.value=id;
-            form.appendChild(csrf); form.appendChild(idInput); document.body.appendChild(form); form.submit();
-        }
-    });
-}
-
-function openEditStepModal(id, name, order){
-    let form = document.getElementById('editStepForm');
-    form.action = `/approval/flow/{{ $flow['id'] }}/steps/${id}`;
-    document.getElementById('editStepName').value = name;
-    document.getElementById('editStepOrder').value = order;
-    new bootstrap.Modal(document.getElementById('editStepModal')).show();
-}
 </script>
+
 
 <script>
 
@@ -771,4 +937,5 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
 </script>
+
 @endsection

@@ -29,8 +29,10 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header border-bottom border-dashed d-flex justify-content-between">
-                    <h5 class="mb-0 align-self-center">SPPD Data</h5>
+                    <h5 class="mb-0 align-self-center">{{ $pageTitle ?? 'Daftar SPPD' }}</h5>
+                    @empty($pageTitle)
                     <a href="{{route('sppd.create')}}" class="btn btn-sm btn-primary">Buat Pengajuan SPPD</a>
+                    @endempty
                 </div>
                 <div class="card-body">
                     <table id="basic-datatable" class="table table-striped dt-responsive nowrap w-100">
@@ -62,7 +64,7 @@
                             </td>
                             <td>
                                 <!-- Lihat Details -->
-                                <a href="{{ route('sppd.previews', $sppd['id']) }}" class="btn btn-sm btn-primary" title="Edit">
+                                <a href="{{ route('sppd.previews', hid($sppd['id'])) }}" class="btn btn-sm btn-primary" title="Edit">
                                     <i class="ti ti-eye"></i>
                                 </a>
 
@@ -72,7 +74,7 @@
                                 </a>
 
                                 <!-- Hapus -->
-                                <button class="btn btn-sm btn-danger" onclick="confirmDelete({{ $sppd['id'] }})" title="Hapus">
+                                <button class="btn btn-sm btn-danger" onclick="confirmDelete({{ json_encode(hid($sppd['id'])) }},'{{ $sppd['nomor_sppd'] }}')" title="Hapus">
                                     <i class="ti ti-trash"></i>
                                 </button>
                             </td>
@@ -100,9 +102,9 @@
     @vite(['resources/js/components/table-datatable.js'])
     {{-- fungsi confirmDelete dan openEditModal tetap di bawah --}}
     <script>
-        function confirmDelete(id, name) {
+        function confirmDelete(id, nomor_sppd) {
             Swal.fire({
-                title: `Hapus role "${name}"?`,
+                title: `Hapus data SPPD "${nomor_sppd}"?`,
                 text: "Data yang sudah dihapus tidak bisa dikembalikan!",
                 icon: 'warning',
                 showCancelButton: true,
@@ -114,7 +116,7 @@
                 if (result.isConfirmed) {
                     const form = document.createElement('form');
                     form.method = 'POST';
-                    form.action = `/user-management/divisi/delete`;
+                    form.action = `/sppd/delete`;
                     const csrfInput = document.createElement('input');
                     csrfInput.type = 'hidden';
                     csrfInput.name = '_token';

@@ -33,7 +33,7 @@
                     <h5 class="mb-0">Edit Data Karyawan</h5>
                 </div>
                 <div class="card-body">
-                    <form action="<?php echo e(route('employee.update', $employee['id'])); ?>" method="POST">
+                    <form action="<?php echo e(route('employee.update', hid($employee['id']))); ?>" method="POST">
                         <?php echo csrf_field(); ?>
                         <?php echo method_field('PUT'); ?>
 
@@ -44,7 +44,7 @@
                                     <label class="form-label">Nama Lengkap</label>
                                     <input type="text" class="form-control" name="name"
                                         value="<?php echo e(old('name', $employee['name'])); ?>" required>
-                                        <input type="hidden" name="id" value="<?php echo e($employee['id']); ?>">
+                                        <input type="hidden" name="id" value="<?php echo e(hid($employee['id'])); ?>">
                                 </div>
                             </div>
                             <div class="col-md-4">

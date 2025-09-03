@@ -19,7 +19,7 @@ class PositionsSheet implements FromCollection
         $data = collect([['id', 'name']]);
 
         foreach ($this->positions as $p) {
-            $data->push([$p['id'], $p['name']]);
+            $data->push([hid($p['id']), $p['name']]);
         }
 
         return $data;

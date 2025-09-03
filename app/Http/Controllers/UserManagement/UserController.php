@@ -459,7 +459,7 @@ class UserController extends Controller
     public function destroyDivisi(Request $request)
     {
         $request->validate([
-            'id' => 'required|integer',
+            'id' => 'required|string',
         ]);
 
         $apiUrl = rtrim(env('SPPD_API_URL'), '/') . '/divisi/delete';
