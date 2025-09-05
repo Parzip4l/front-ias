@@ -1,8 +1,10 @@
 <?php $__env->startSection('css'); ?>
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<meta name="sppd-api-url" content="<?php echo e(env('SPPD_API_URL')); ?>">
 <style>
-    .stepper { display:flex; justify-content:space-between; margin-bottom:1.5rem; }
-    .stepper .step { flex:1; text-align:center; padding:10px; border-radius:20px; font-weight:600; font-size:14px; background:#f1f3f5; margin:0 5px; transition:.3s; }
+    .stepper { display:flex; justify-content:space-between; margin-bottom:1.5rem; flex-wrap:wrap; }
+    .stepper .step { flex:1; text-align:center; padding:8px; border-radius:20px; font-weight:600; font-size:13px; background:#f1f3f5; margin:3px; transition:.3s; }
     .stepper .step.active { background:#0d6efd; color:#fff; }
     .form-step { display:none; }
     .form-step.active { display:block; }
@@ -10,6 +12,16 @@
     .addon-card:hover { background:#f8f9fa; box-shadow:0 3px 6px rgba(0,0,0,0.1); }
     .addon-card.selected { border:2px solid #0d6efd; background:#e7f1ff; }
     .addon-card input[type="checkbox"] { display:none; }
+
+    /* Flight card responsive */
+    .flight-card { border-radius:12px; }
+    .flight-card .card-body { flex-wrap:wrap; gap:10px; }
+    .flight-card .col-time { min-width:70px; }
+    .flight-card .col-duration { min-width:100px; }
+    @media(max-width:768px){
+        .flight-card .card-body { flex-direction:column; align-items:flex-start; }
+        .flight-card .text-end { align-self:flex-end; }
+    }
 </style>
 <?php $__env->stopSection(); ?>
 
@@ -95,66 +107,79 @@
                     <!-- Step 2: Pesawat -->
                     <div class="form-step" id="step-2">
                         <h5 class="mb-3">Pesawat</h5>
-                        <input type="hidden" name="transportasi" id="transportasi">
-                        <input type="hidden" name="biaya_estimasi" id="biaya_estimasi">
-                        <div class="flight-list">
-                            <?php $__currentLoopData = [
-                                ['maskapai'=>'AirAsia Indonesia','from'=>'CGK','to'=>'SIN','depart'=>'08:30','arrive'=>'11:20','durasi'=>'1j 50m','harga'=>1143000,'bagasi'=>1,'wifi'=>true],
-                                ['maskapai'=>'Pelita Air','from'=>'CGK','to'=>'SIN','depart'=>'07:10','arrive'=>'10:00','durasi'=>'1j 50m','harga'=>1195400,'bagasi'=>20,'wifi'=>false],
-                                ['maskapai'=>'Citilink','from'=>'CGK','to'=>'SIN','depart'=>'06:20','arrive'=>'09:10','durasi'=>'1j 50m','harga'=>1202600,'bagasi'=>0,'wifi'=>false],
-                            ]; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $f): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                            <div class="card mb-3 shadow-sm flight-card" data-nama="<?php echo e($f['maskapai']); ?>" data-harga="<?php echo e($f['harga']); ?>">
-                                <div class="card-body d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <h6 class="fw-bold"><?php echo e($f['maskapai']); ?></h6>
-                                        <div class="d-flex align-items-center">
-                                            <span class="me-2"><?php echo e($f['depart']); ?> - <?php echo e($f['arrive']); ?></span>
-                                            <span class="text-muted"><?php echo e($f['durasi']); ?> • <?php echo e($f['from']); ?> → <?php echo e($f['to']); ?></span>
-                                        </div>
-                                        <small>
-                                            <?php if($f['bagasi']>0): ?> 🧳 <?php echo e($f['bagasi']); ?>kg <?php endif; ?>
-                                            <?php if($f['wifi']): ?> 📶 WiFi <?php endif; ?>
-                                        </small>
-                                    </div>
-                                    <div class="text-end">
-                                        <div class="fw-bold text-danger">Rp <?php echo e(number_format($f['harga'],0,',','.')); ?></div>
-                                        <button type="button" class="btn btn-sm btn-primary pilih-pesawat mt-2">Pilih</button>
-                                    </div>
+                        <input type="hidden" name="transportasi_pergi" id="transportasi_pergi">
+                        <input type="hidden" name="biaya_pergi" id="biaya_pergi">
+                        <input type="hidden" name="transportasi_pulang" id="transportasi_pulang">
+                        <input type="hidden" name="biaya_pulang" id="biaya_pulang">
+
+                        
+                        <div class="card mb-3 p-3 shadow-sm">
+                            <div class="row g-2">
+                                <div class="col-md-5">
+                                    <label for="origin" class="form-label">Bandara Asal</label>
+                                    <select class="form-control select2" id="origin">
+                                        <option value="">Pilih Bandara</option>
+                                        <option value="CGK">Jakarta (Soekarno-Hatta)</option>
+                                        <option value="HLP">Jakarta (Halim Perdanakusuma)</option>
+                                        <option value="SUB">Surabaya (Juanda)</option>
+                                        <option value="DPS">Denpasar (Ngurah Rai)</option>
+                                        <option value="UPG">Makassar (Sultan Hasanuddin)</option>
+                                        <option value="YIA">Yogyakarta (YIA)</option>
+                                        <option value="KNO">Medan (Kualanamu)</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-5">
+                                    <label for="destination" class="form-label">Bandara Tujuan</label>
+                                    <select class="form-control select2" id="destination">
+                                        <option value="">Pilih Bandara</option>
+                                        <option value="CGK">Jakarta (Soekarno-Hatta)</option>
+                                        <option value="HLP">Jakarta (Halim Perdanakusuma)</option>
+                                        <option value="SUB">Surabaya (Juanda)</option>
+                                        <option value="DPS">Denpasar (Ngurah Rai)</option>
+                                        <option value="UPG">Makassar (Sultan Hasanuddin)</option>
+                                        <option value="YIA">Yogyakarta (YIA)</option>
+                                        <option value="KNO">Medan (Kualanamu)</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="adults" class="form-label">Penumpang</label>
+                                    <input type="number" class="form-control" id="adults" value="1" min="1">
                                 </div>
                             </div>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            <div class="row g-2 mt-2">
+                                <div class="col-md-12 d-flex align-items-end">
+                                    <button type="button" class="btn btn-primary w-100" id="btnCariPesawat">Cari Penerbangan</button>
+                                </div>
+                            </div>
                         </div>
+
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="fw-bold">Penerbangan Pergi</h6>
+                                <div class="flight-list" id="flightListPergi"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="fw-bold">Penerbangan Pulang</h6>
+                                <div class="flight-list" id="flightListPulang"></div>
+                            </div>
+                        </div>
+
                         <div id="pesawat-preview" class="alert alert-info mt-3 d-none"></div>
+
                         <div class="mt-3 d-flex justify-content-between">
                             <button type="button" class="btn btn-secondary prev-step">Kembali</button>
                             <button type="button" class="btn btn-primary next-step">Lanjut</button>
                         </div>
                     </div>
 
+
                     <!-- Step 3: Hotel -->
                     <div class="form-step" id="step-3">
-                        <h5 class="mb-3">Hotel</h5>
-                        <div class="hotel-list">
-                            <?php $__currentLoopData = [
-                                ['nama'=>'Hotel Mulia Senayan','lokasi'=>'Jakarta','harga'=>950000,'bintang'=>5,'fasilitas'=>'Kolam renang, Gym, Spa'],
-                                ['nama'=>'Ibis Styles','lokasi'=>'Jakarta','harga'=>550000,'bintang'=>3,'fasilitas'=>'Restoran, Meeting Room'],
-                                ['nama'=>'RedDoorz Plus','lokasi'=>'Jakarta','harga'=>250000,'bintang'=>2,'fasilitas'=>'AC, WiFi Gratis'],
-                            ]; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $h): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                            <div class="card mb-3 shadow-sm hotel-card" data-nama="<?php echo e($h['nama']); ?>" data-harga="<?php echo e($h['harga']); ?>">
-                                <div class="card-body d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <h6 class="fw-bold"><?php echo e($h['nama']); ?> ⭐<?php echo e($h['bintang']); ?></h6>
-                                        <div class="text-muted"><?php echo e($h['lokasi']); ?></div>
-                                        <small><?php echo e($h['fasilitas']); ?></small>
-                                    </div>
-                                    <div class="text-end">
-                                        <div class="fw-bold text-danger">Rp <?php echo e(number_format($h['harga'],0,',','.')); ?>/mlm</div>
-                                        <button type="button" class="btn btn-sm btn-primary pilih-hotel mt-2">Pilih</button>
-                                    </div>
-                                </div>
-                            </div>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                        </div>
+                        <h5 class="mb-3">Pilih Hotel (By Map)</h5>
+                        <div id="map" style="height:400px;"></div>
+
+                        <div class="hotel-list mt-3"></div>
 
                         <!-- Hidden untuk expenses hotel -->
                         <input type="hidden" name="expenses[0][kategori]" value="Hotel">
@@ -233,6 +258,96 @@
 <?php $__env->startSection('scripts'); ?>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="<?php echo e(asset('js/flight.js')); ?>"></script>
+<script>
+    $(document).ready(function(){
+        const BASE_URL = document.querySelector('meta[name="sppd-api-url"]').content;
+
+        var map = L.map('map').setView([-6.2, 106.816666], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        var marker = L.marker([-6.2, 106.816666], {draggable:true}).addTo(map);
+
+        function loadHotels(lat, lng) {
+            $(".hotel-list").html(`<div class="text-center p-3">Loading hotel...</div>`);
+
+            $.ajax({
+                url: BASE_URL + "/hotels/geo",
+                method: "GET",
+                data: {
+                    latitude: lat,
+                    longitude: lng,
+                    radius: 5,
+                    adults: 1,
+                    checkIn: "2025-09-10",
+                    checkOut: "2025-09-12"
+                },
+                success: function(res){
+                    $(".hotel-list").empty();
+
+                    if(res.data && res.data.length > 0){
+                        res.data.forEach(function(item){
+                            let hotel = item.hotel;
+                            let offer = item.offers[0]; 
+                            let harga = offer?.price?.total ?? "0";
+
+                            let card = `
+                                <div class="card mb-3 shadow-sm hotel-card" 
+                                    data-nama="${hotel.name}" 
+                                    data-harga="${harga}">
+                                    <div class="card-body d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="fw-bold">${hotel.name}</h6>
+                                            <div class="text-muted">${hotel.cityCode}</div>
+                                            <small>${hotel.latitude}, ${hotel.longitude}</small>
+                                        </div>
+                                        <div class="text-end">
+                                            <div class="fw-bold text-danger">Rp ${parseInt(harga).toLocaleString("id-ID")}</div>
+                                            <button type="button" class="btn btn-sm btn-primary pilih-hotel mt-2">Pilih</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                            $(".hotel-list").append(card);
+                        });
+                    } else {
+                        $(".hotel-list").html(`<div class="alert alert-warning">Hotel tidak ditemukan</div>`);
+                    }
+                },
+                error: function(err){
+                    console.error(err);
+                    $(".hotel-list").html(`<div class="alert alert-danger">Gagal mengambil data hotel</div>`);
+                }
+            });
+        }
+
+        loadHotels(-6.2, 106.816666);
+
+        marker.on("dragend", function(e){
+            var pos = marker.getLatLng();
+            loadHotels(pos.lat, pos.lng);
+        });
+
+        $(document).on("click", ".pilih-hotel", function(){
+            let nama = $(this).closest(".hotel-card").data("nama");
+            let harga = $(this).closest(".hotel-card").data("harga");
+
+            $("#hotel_nama").val(nama);
+            $("#hotel_harga").val(harga);
+
+            $("#hotel-preview").removeClass("d-none").html(`
+                <b>${nama}</b><br>
+                Harga: Rp ${parseInt(harga).toLocaleString("id-ID")}
+            `);
+        });
+    });
+    </script>
+
+
+
 <script>
 $(function(){
     let currentStep = 1;

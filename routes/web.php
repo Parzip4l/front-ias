@@ -17,6 +17,7 @@ use App\Http\Controllers\Companies\CompanyType;
 use App\Http\Controllers\Companies\CompanyController;
 
 use App\Http\Controllers\Sppd\SppdController;
+use App\Http\Controllers\Sppd\SppdPaymentController;
 use App\Http\Controllers\Sppd\ApprovalController;
 use App\Http\Controllers\Finance\MitraSaldoController;
 
@@ -103,6 +104,9 @@ Route::group(['prefix' => '/', 'middleware' => 'jwt.session'], function () {
         Route::get('/preview/{id}', [SppdController::class, 'preview'])->name('sppd.previews');
         Route::get('/myschedule', [SppdController::class, 'schedulesaya'])->name('sppd.schedule');
         Route::post('/store', [SppdController::class, 'store'])->name('sppd.store');
+
+        // Payment
+        Route::post('/sppd/{id}/pay', [SppdPaymentController::class, 'create'])->name('sppd.pay');
 
         
         // Route::put('/update', [SppdController::class, 'updateDivisi'])->name('divisi.update');

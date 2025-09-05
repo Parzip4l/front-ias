@@ -21,7 +21,7 @@
 <?php echo $__env->make('layouts.partials.page-title', ['subtitle' => 'SPPD', 'title' => 'Preview SPPD'], \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 
 <div class="row">
-    <div class="col-8">
+    <div class="col-md-8">
         <div class="card shadow-sm">
             <div class="card-body">
                 
@@ -34,29 +34,44 @@
                         <h3 class="fw-bold fs-20 m-0">SPPD: <?php echo e($sppd['nomor_sppd'] ?? '-'); ?></h3>
                     </div>
                 </div>
-
                 
-                <div class="row mb-3">
+                <div class="row mb-4">
                     <div class="col-md-4 mb-2">
                         <h5 class="fw-semibold fs-14">Diberikan Kepada:</h5>
                         <p class="mb-1"><?php echo e($sppd['user']['name'] ?? '-'); ?></p>
-                        <p class="text-muted mb-0"><?php echo e($sppd['lokasi_tujuan'] ?? '-'); ?></p>
+                        <h5 class="fw-semibold fs-14">NIK:</h5>
+                        <p class="mb-1"><?php echo e($sppd['user']['employee']['employee_number'] ?? '-'); ?></p>
+                        <h5 class="fw-semibold fs-14">Divisi & Jabatan :</h5>
+                        <p class="mb-1"><?php echo e($sppd['user']['employee']['division']['name'] ?? '-'); ?> - <?php echo e($sppd['user']['employee']['position']['name'] ?? '-'); ?></p>
                     </div>
 
-                    <div class="col-md-4 mb-2">
+                    <div class="col-md-5 mb-2">
                         <h5 class="fw-semibold fs-14">Tujuan Perjalanan:</h5>
-                        <p class="mb-1"><?php echo e($sppd['tujuan'] ?? '-'); ?></p>
-                        <p class="text-muted mb-0">
-                            Berangkat: <?php echo e(!empty($sppd['tanggal_berangkat']) ? \Carbon\Carbon::parse($sppd['tanggal_berangkat'])->translatedFormat('d F Y') : '-'); ?>
+                        <p class="mb-1"><?php echo e($sppd['tujuan'] ?? '-'); ?> - <?php echo e($sppd['lokasi_tujuan'] ?? '-'); ?></p>
+                        <h5 class="fw-semibold fs-14">Keperluan Perjalanan:</h5>
+                        <p class="text-muted">
+                            <?php echo e($sppd['keperluan'] ?? '-'); ?>
 
                         </p>
+                        <?php 
+                            $start = !empty($sppd['tanggal_berangkat']) ? \Carbon\Carbon::parse($sppd['tanggal_berangkat']) : null;
+                            $end   = !empty($sppd['tanggal_pulang']) ? \Carbon\Carbon::parse($sppd['tanggal_pulang']) : null;
+                            $days  = ($start && $end) ? $start->diffInDays($end) + 1 : null;
+                        ?>
+                        <h5 class="fw-semibold fs-14">Periode Perjalanan:</h5>
                         <p class="text-muted mb-0">
-                            Kembali: <?php echo e(!empty($sppd['tanggal_pulang']) ? \Carbon\Carbon::parse($sppd['tanggal_pulang'])->translatedFormat('d F Y') : '-'); ?>
+                            <?php echo e($start ? $start->translatedFormat('d F Y') : '-'); ?>
 
+                            →
+                            <?php echo e($end ? $end->translatedFormat('d F Y') : '-'); ?>
+
+                            <?php if($days): ?>
+                                (<?php echo e($days); ?> hari)
+                            <?php endif; ?>
                         </p>
                     </div>
 
-                    <div class="col-md-4 text-center text-md-end">
+                    <div class="col-md-3 text-center text-md-end">
                         <img src="/images/png/qr-code.png" alt="QR Code" height="100">
                     </div>
                 </div>
@@ -86,7 +101,7 @@
                 ?>
 
                 <div class="table-responsive border-top border-dashed mt-3 pt-3">
-                    <table class="table table-bordered table-striped mb-0">
+                    <!-- <table class="table table-bordered table-striped mb-0">
                         <thead class="table-light text-center">
                             <tr>
                                 <th>#</th>
@@ -135,7 +150,7 @@
                                 <th class="text-end fw-bold fs-5">Rp<?php echo e(number_format($total,0,',','.')); ?></th>
                             </tr>
                         </tfoot>
-                    </table>
+                    </table> -->
                     
                 </div>
 
@@ -155,13 +170,14 @@
                         <tbody>
                             <?php 
                                 $no = 1;
+                                $total = collect($expense)->sum('jumlah');
                             ?>
                             <?php $__currentLoopData = $expense; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $ex): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <tr>
                                 <td class="text-center"><?php echo e($no++); ?></td>
                                 <td><?php echo e($ex['kategori']); ?></td>
                                 <td><?php echo e($ex['deskripsi']); ?></td>
-                                <td class="text-end"><?php echo e($ex['jumlah']); ?></td>
+                                <td class="text-end">Rp<?php echo e(number_format($ex['jumlah'], 0, ',', '.')); ?></td>
                             </tr>
                             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </tbody>
@@ -198,28 +214,13 @@
             <div class="card-body">
                 <ul class="list-group list-group-flush">
                     <?php $__currentLoopData = $approval; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $a): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                        <?php
-                            $isCurrentUser = $a['approver_id'] == $currentUserId;
-                            $isPendingPrev = $index > 0 && ($approval[$index-1]['status'] === 'Pending');
-                            $disabled = !$isCurrentUser || $isPendingPrev;
-                        ?>
-
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             <div>
-                                <strong>Approver <?php echo e($index+1); ?></strong> 
-                                <span class="text-muted">(<?php echo e($a['role']); ?>)</span><br>
-
-                                
-                                <?php if(isset($a['approver'])): ?>
-                                    <small>
-                                        <?php echo e($a['approver']['name'] ?? '-'); ?>
-
-                                        <?php if(isset($a['approver']['employee']['division']['name'])): ?>
-                                            — <?php echo e($a['approver']['employee']['division']['name']); ?>
-
-                                        <?php endif; ?>
-                                    </small><br>
-                                <?php endif; ?>
+                                <strong><?php echo e($a['approver']['name']); ?></strong>
+                                <span class="text-muted">
+                                    (<?php echo e($a['approver']['employee']['division']['name'] ?? '-'); ?> - 
+                                    <?php echo e($a['approver']['employee']['position']['name'] ?? '-'); ?>)
+                                </span><br>
 
                                 <small>Status: 
                                     <span class="<?php if($a['status']=='Approved'): ?> text-success 
@@ -233,32 +234,88 @@
                                     <p class="mb-0 small text-muted"><?php echo e($a['catatan']); ?></p>
                                 <?php endif; ?>
                             </div>
-
-                            <div class="d-flex gap-2">
-                                <form class="approval-form approve-form" method="POST">
-                                    <?php echo csrf_field(); ?>
-                                    <input type="hidden" name="approval_id" value="<?php echo e($a['id']); ?>">
-                                    <button type="submit" class="btn btn-sm btn-success"
-                                        <?php if($disabled): ?> disabled <?php endif; ?>>
-                                        Approve
-                                    </button>
-                                </form>
-                                <form class="approval-form reject-form" method="POST">
-                                    <?php echo csrf_field(); ?>
-                                    <input type="hidden" name="approval_id" value="<?php echo e($a['id']); ?>">
-                                    <button type="submit" class="btn btn-sm btn-danger"
-                                        <?php if($disabled): ?> disabled <?php endif; ?>>
-                                        Reject
-                                    </button>
-                                </form>
-                            </div>
                         </li>
-
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </ul>
+
+                <?php
+                    // cari approval step yang sesuai user sekarang
+                    $userApproval = collect($approval)->firstWhere('approver_id', $currentUserId);
+
+                    // cek indexnya
+                    $userIndex = $userApproval ? collect($approval)->search(fn($ap) => $ap['id'] == $userApproval['id']) : null;
+
+                    // validasi apakah boleh approve (semua step sebelum dia sudah Approved)
+                    $canApprove = false;
+                    if ($userApproval && $userApproval['status'] == 'Pending') {
+                        $canApprove = true;
+                        for ($i = 0; $i < $userIndex; $i++) {
+                            if ($approval[$i]['status'] != 'Approved') {
+                                $canApprove = false;
+                                break;
+                            }
+                        }
+                    }
+                ?>
+
+                <div class="d-flex justify-content-end gap-2 mt-3">
+                    <form class="approval-form approve-form" method="POST">
+                        <?php echo csrf_field(); ?>
+                        <input type="hidden" name="approval_id" value="<?php echo e($userApproval['id'] ?? ''); ?>">
+                        <button type="submit" class="btn btn-sm btn-success" <?php if(!$canApprove): ?> disabled <?php endif; ?>>
+                            Approve
+                        </button>
+                    </form>
+                    <form class="approval-form reject-form" method="POST">
+                        <?php echo csrf_field(); ?>
+                        <input type="hidden" name="approval_id" value="<?php echo e($userApproval['id'] ?? ''); ?>">
+                        <button type="submit" class="btn btn-sm btn-danger" <?php if(!$canApprove): ?> disabled <?php endif; ?>>
+                            Reject
+                        </button>
+                    </form>
+                </div>
+
                 <input type="hidden" id="sppd-id" value="<?php echo e($sppd['id']); ?>">
             </div>
+
         </div>
+        <div class="card mb-2">
+            <div class="card-header border-bottom border-dashed">
+                <h5 class="mb-0">Payment</h5>
+            </div>
+            <div class="card-body text-center">
+                <?php if(!empty($payment)): ?>
+                    <p>Status Pembayaran:
+                        <span class="badge 
+                            <?php if($payment['status'] === 'PENDING'): ?> bg-warning 
+                            <?php elseif($payment['status'] === 'PAID'): ?> bg-success 
+                            <?php else: ?> bg-secondary <?php endif; ?>">
+                            <?php echo e(strtoupper($payment['status'])); ?>
+
+                        </span>
+                    </p>
+
+                    <?php if($payment['status'] === 'PENDING'): ?>
+                        <a href="<?php echo e($payment['invoice_url']); ?>" target="_blank" class="btn btn-primary">
+                            <i class="ti ti-credit-card me-1"></i> Bayar Sekarang
+                        </a>
+                    <?php elseif($payment['status'] === 'PAID'): ?>
+                        <p class="text-success fw-bold">Pembayaran berhasil</p>
+                    <?php endif; ?>
+                <?php else: ?>
+                    <form action="<?php echo e(route('sppd.pay', $sppd['id'])); ?>" method="POST">
+                        <?php echo csrf_field(); ?>
+                        <input type="hidden" name="amount" value="<?php echo e($total); ?>">
+                        <button type="submit" class="btn btn-success">
+                            Bayar via Xendit
+                        </button>
+                    </form>
+                <?php endif; ?>
+            </div>
+        </div>
+
+
+
         <div class="card">
             <div class="card-header border-bottom border-dashed">
                 <h5 class="mb-0">History</h5>
@@ -328,7 +385,9 @@
             if (data.success) {
                 // Refresh daftar approval atau update UI
                 showSuccessAlert('Status berhasil diupdate');
-                refreshApprovalList(); // Fungsi untuk refresh daftar approval
+                setTimeout(() => {
+                    location.reload(); // reload otomatis
+                }, 1500);; // Fungsi untuk refresh daftar approval
             } else {
                 showErrorAlert(data.message || 'Terjadi kesalahan');
                 button.innerHTML = originalText;

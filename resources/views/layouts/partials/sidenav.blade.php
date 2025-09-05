@@ -119,7 +119,7 @@
             <li class="side-nav-item">
                 <a href="{{ route ('finance.saldo-mitra') }}" class="side-nav-link">
                     <span class="menu-icon"><i class="ti ti-credit-card"></i></span>
-                    <span class="menu-text"> Saldo Mitra </span>
+                    <span class="menu-text"> Payment SPPD </span>
                 </a>
             </li>
             <li class="side-nav-item">

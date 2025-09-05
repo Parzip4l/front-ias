@@ -123,6 +123,7 @@ class SppdController extends Controller
                 $history = $response->json()['history'] ?? [];
                 $approval = $response->json()['approval'] ?? [];
                 $expense = $response->json()['expense'] ?? [];
+                $payment = $response->json()['payment'] ?? [];
                 $currentUserId = session('user.id');
 
                 if (!$sppd) {
@@ -130,7 +131,7 @@ class SppdController extends Controller
                 }
 
                 // Langsung oper $sppd ke Blade
-                return view('pages.sppd.preview', compact('sppd','history','approval','currentUserId','expense'));
+                return view('pages.sppd.preview', compact('sppd','history','approval','currentUserId','expense','payment'));
             } else {
                 return redirect()->back()->with('error', 'Gagal mengambil data SPPD dari API.');
             }

@@ -21,7 +21,7 @@
 @include('layouts.partials.page-title', ['subtitle' => 'SPPD', 'title' => 'Preview SPPD'])
 
 <div class="row">
-    <div class="col-8">
+    <div class="col-md-8">
         <div class="card shadow-sm">
             <div class="card-body">
                 {{-- Header --}}
@@ -34,27 +34,41 @@
                         <h3 class="fw-bold fs-20 m-0">SPPD: {{ $sppd['nomor_sppd'] ?? '-' }}</h3>
                     </div>
                 </div>
-
                 {{-- Info Pegawai & Perjalanan --}}
-                <div class="row mb-3">
+                <div class="row mb-4">
                     <div class="col-md-4 mb-2">
                         <h5 class="fw-semibold fs-14">Diberikan Kepada:</h5>
                         <p class="mb-1">{{ $sppd['user']['name'] ?? '-' }}</p>
-                        <p class="text-muted mb-0">{{ $sppd['lokasi_tujuan'] ?? '-' }}</p>
+                        <h5 class="fw-semibold fs-14">NIK:</h5>
+                        <p class="mb-1">{{ $sppd['user']['employee']['employee_number'] ?? '-' }}</p>
+                        <h5 class="fw-semibold fs-14">Divisi & Jabatan :</h5>
+                        <p class="mb-1">{{ $sppd['user']['employee']['division']['name'] ?? '-' }} - {{ $sppd['user']['employee']['position']['name'] ?? '-' }}</p>
                     </div>
 
-                    <div class="col-md-4 mb-2">
+                    <div class="col-md-5 mb-2">
                         <h5 class="fw-semibold fs-14">Tujuan Perjalanan:</h5>
-                        <p class="mb-1">{{ $sppd['tujuan'] ?? '-' }}</p>
-                        <p class="text-muted mb-0">
-                            Berangkat: {{ !empty($sppd['tanggal_berangkat']) ? \Carbon\Carbon::parse($sppd['tanggal_berangkat'])->translatedFormat('d F Y') : '-' }}
+                        <p class="mb-1">{{ $sppd['tujuan'] ?? '-' }} - {{ $sppd['lokasi_tujuan'] ?? '-' }}</p>
+                        <h5 class="fw-semibold fs-14">Keperluan Perjalanan:</h5>
+                        <p class="text-muted">
+                            {{ $sppd['keperluan'] ?? '-' }}
                         </p>
+                        @php 
+                            $start = !empty($sppd['tanggal_berangkat']) ? \Carbon\Carbon::parse($sppd['tanggal_berangkat']) : null;
+                            $end   = !empty($sppd['tanggal_pulang']) ? \Carbon\Carbon::parse($sppd['tanggal_pulang']) : null;
+                            $days  = ($start && $end) ? $start->diffInDays($end) + 1 : null;
+                        @endphp
+                        <h5 class="fw-semibold fs-14">Periode Perjalanan:</h5>
                         <p class="text-muted mb-0">
-                            Kembali: {{ !empty($sppd['tanggal_pulang']) ? \Carbon\Carbon::parse($sppd['tanggal_pulang'])->translatedFormat('d F Y') : '-' }}
+                            {{ $start ? $start->translatedFormat('d F Y') : '-' }}
+                            →
+                            {{ $end ? $end->translatedFormat('d F Y') : '-' }}
+                            @if($days)
+                                ({{ $days }} hari)
+                            @endif
                         </p>
                     </div>
 
-                    <div class="col-md-4 text-center text-md-end">
+                    <div class="col-md-3 text-center text-md-end">
                         <img src="/images/png/qr-code.png" alt="QR Code" height="100">
                     </div>
                 </div>
@@ -84,7 +98,7 @@
                 @endphp
 
                 <div class="table-responsive border-top border-dashed mt-3 pt-3">
-                    <table class="table table-bordered table-striped mb-0">
+                    <!-- <table class="table table-bordered table-striped mb-0">
                         <thead class="table-light text-center">
                             <tr>
                                 <th>#</th>
@@ -133,7 +147,7 @@
                                 <th class="text-end fw-bold fs-5">Rp{{ number_format($total,0,',','.') }}</th>
                             </tr>
                         </tfoot>
-                    </table>
+                    </table> -->
                     
                 </div>
 
@@ -153,13 +167,14 @@
                         <tbody>
                             @php 
                                 $no = 1;
+                                $total = collect($expense)->sum('jumlah');
                             @endphp
                             @foreach($expense as $ex)
                             <tr>
                                 <td class="text-center">{{$no++}}</td>
                                 <td>{{$ex['kategori']}}</td>
                                 <td>{{$ex['deskripsi']}}</td>
-                                <td class="text-end">{{$ex['jumlah']}}</td>
+                                <td class="text-end">Rp{{ number_format($ex['jumlah'], 0, ',', '.') }}</td>
                             </tr>
                             @endforeach
                         </tbody>
@@ -196,26 +211,13 @@
             <div class="card-body">
                 <ul class="list-group list-group-flush">
                     @foreach($approval as $index => $a)
-                        @php
-                            $isCurrentUser = $a['approver_id'] == $currentUserId;
-                            $isPendingPrev = $index > 0 && ($approval[$index-1]['status'] === 'Pending');
-                            $disabled = !$isCurrentUser || $isPendingPrev;
-                        @endphp
-
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             <div>
-                                <strong>Approver {{ $index+1 }}</strong> 
-                                <span class="text-muted">({{ $a['role'] }})</span><br>
-
-                                {{-- Nama Approver + Divisi --}}
-                                @if(isset($a['approver']))
-                                    <small>
-                                        {{ $a['approver']['name'] ?? '-' }}
-                                        @if(isset($a['approver']['employee']['division']['name']))
-                                            — {{ $a['approver']['employee']['division']['name'] }}
-                                        @endif
-                                    </small><br>
-                                @endif
+                                <strong>{{ $a['approver']['name'] }}</strong>
+                                <span class="text-muted">
+                                    ({{ $a['approver']['employee']['division']['name'] ?? '-' }} - 
+                                    {{ $a['approver']['employee']['position']['name'] ?? '-' }})
+                                </span><br>
 
                                 <small>Status: 
                                     <span class="@if($a['status']=='Approved') text-success 
@@ -228,32 +230,87 @@
                                     <p class="mb-0 small text-muted">{{ $a['catatan'] }}</p>
                                 @endif
                             </div>
-
-                            <div class="d-flex gap-2">
-                                <form class="approval-form approve-form" method="POST">
-                                    @csrf
-                                    <input type="hidden" name="approval_id" value="{{ $a['id'] }}">
-                                    <button type="submit" class="btn btn-sm btn-success"
-                                        @if($disabled) disabled @endif>
-                                        Approve
-                                    </button>
-                                </form>
-                                <form class="approval-form reject-form" method="POST">
-                                    @csrf
-                                    <input type="hidden" name="approval_id" value="{{ $a['id'] }}">
-                                    <button type="submit" class="btn btn-sm btn-danger"
-                                        @if($disabled) disabled @endif>
-                                        Reject
-                                    </button>
-                                </form>
-                            </div>
                         </li>
-
                     @endforeach
                 </ul>
+
+                @php
+                    // cari approval step yang sesuai user sekarang
+                    $userApproval = collect($approval)->firstWhere('approver_id', $currentUserId);
+
+                    // cek indexnya
+                    $userIndex = $userApproval ? collect($approval)->search(fn($ap) => $ap['id'] == $userApproval['id']) : null;
+
+                    // validasi apakah boleh approve (semua step sebelum dia sudah Approved)
+                    $canApprove = false;
+                    if ($userApproval && $userApproval['status'] == 'Pending') {
+                        $canApprove = true;
+                        for ($i = 0; $i < $userIndex; $i++) {
+                            if ($approval[$i]['status'] != 'Approved') {
+                                $canApprove = false;
+                                break;
+                            }
+                        }
+                    }
+                @endphp
+
+                <div class="d-flex justify-content-end gap-2 mt-3">
+                    <form class="approval-form approve-form" method="POST">
+                        @csrf
+                        <input type="hidden" name="approval_id" value="{{ $userApproval['id'] ?? '' }}">
+                        <button type="submit" class="btn btn-sm btn-success" @if(!$canApprove) disabled @endif>
+                            Approve
+                        </button>
+                    </form>
+                    <form class="approval-form reject-form" method="POST">
+                        @csrf
+                        <input type="hidden" name="approval_id" value="{{ $userApproval['id'] ?? '' }}">
+                        <button type="submit" class="btn btn-sm btn-danger" @if(!$canApprove) disabled @endif>
+                            Reject
+                        </button>
+                    </form>
+                </div>
+
                 <input type="hidden" id="sppd-id" value="{{ $sppd['id'] }}">
             </div>
+
         </div>
+        <div class="card mb-2">
+            <div class="card-header border-bottom border-dashed">
+                <h5 class="mb-0">Payment</h5>
+            </div>
+            <div class="card-body text-center">
+                @if(!empty($payment))
+                    <p>Status Pembayaran:
+                        <span class="badge 
+                            @if($payment['status'] === 'PENDING') bg-warning 
+                            @elseif($payment['status'] === 'PAID') bg-success 
+                            @else bg-secondary @endif">
+                            {{ strtoupper($payment['status']) }}
+                        </span>
+                    </p>
+
+                    @if($payment['status'] === 'PENDING')
+                        <a href="{{ $payment['invoice_url'] }}" target="_blank" class="btn btn-primary">
+                            <i class="ti ti-credit-card me-1"></i> Bayar Sekarang
+                        </a>
+                    @elseif($payment['status'] === 'PAID')
+                        <p class="text-success fw-bold">Pembayaran berhasil</p>
+                    @endif
+                @else
+                    <form action="{{ route('sppd.pay', $sppd['id']) }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="amount" value="{{ $total }}">
+                        <button type="submit" class="btn btn-success">
+                            Bayar via Xendit
+                        </button>
+                    </form>
+                @endif
+            </div>
+        </div>
+
+
+
         <div class="card">
             <div class="card-header border-bottom border-dashed">
                 <h5 class="mb-0">History</h5>
@@ -320,7 +377,9 @@
             if (data.success) {
                 // Refresh daftar approval atau update UI
                 showSuccessAlert('Status berhasil diupdate');
-                refreshApprovalList(); // Fungsi untuk refresh daftar approval
+                setTimeout(() => {
+                    location.reload(); // reload otomatis
+                }, 1500);; // Fungsi untuk refresh daftar approval
             } else {
                 showErrorAlert(data.message || 'Terjadi kesalahan');
                 button.innerHTML = originalText;
