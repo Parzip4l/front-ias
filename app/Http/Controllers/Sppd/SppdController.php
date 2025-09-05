@@ -105,40 +105,49 @@ class SppdController extends Controller
     }
 
     public function preview($id)
-    {
-        $apiUrl = rtrim(env('SPPD_API_URL'), '/') . "/sppd/details/{$id}";
-        $token = Session::get('jwt_token');
+{
+    $token = Session::get('jwt_token');
 
-        if (!$token) {
-            return redirect()->route('login')->with('error', 'Token belum tersedia, silakan login dulu.');
-        }
-
-        try {
-            $response = Http::withToken($token)
-                ->accept('application/json')
-                ->get($apiUrl);
-
-            if ($response->successful()) {
-                $sppd    = $response->json()['data'] ?? null;
-                $history = $response->json()['history'] ?? [];
-                $approval = $response->json()['approval'] ?? [];
-                $expense = $response->json()['expense'] ?? [];
-                $payment = $response->json()['payment'] ?? [];
-                $currentUserId = session('user.id');
-
-                if (!$sppd) {
-                    return redirect()->back()->with('error', 'Data SPPD tidak ditemukan.');
-                }
-
-                // Langsung oper $sppd ke Blade
-                return view('pages.sppd.preview', compact('sppd','history','approval','currentUserId','expense','payment'));
-            } else {
-                return redirect()->back()->with('error', 'Gagal mengambil data SPPD dari API.');
-            }
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Terjadi kesalahan saat mengambil data: ' . $e->getMessage());
-        }
+    if (!$token) {
+        return redirect()->route('login')->with('error', 'Token belum tersedia, silakan login dulu.');
     }
+
+    try {
+        // decode ID kalau perlu
+        $realId = function_exists('decode_id') ? decode_id($id) : $id;
+
+        $apiUrl = rtrim(env('SPPD_API_URL'), '/') . "/sppd/details/{$realId}";
+
+        $response = Http::withToken($token)
+            ->accept('application/json')
+            ->get($apiUrl);
+
+        if ($response->successful()) {
+            $data = $response->json();
+
+            $sppd     = $data['data'] ?? null;
+            $history  = $data['history'] ?? ($data['data']['history'] ?? []);
+            $approval = $data['approval'] ?? ($data['data']['approval'] ?? []);
+            $expense  = $data['expense'] ?? ($data['data']['expense'] ?? []);
+            $payment  = $data['payment'] ?? ($data['data']['payment'] ?? []);
+
+            $currentUserId = session('user.id');
+
+            if (!$sppd) {
+                return redirect()->back()->with('error', 'Data SPPD tidak ditemukan.');
+            }
+
+            return view('pages.sppd.preview', compact(
+                'sppd','history','approval','currentUserId','expense','payment'
+            ));
+        } else {
+            return redirect()->back()->with('error', 'Gagal mengambil data SPPD dari API. Status: '.$response->status());
+        }
+    } catch (\Exception $e) {
+        return redirect()->back()->with('error', 'Terjadi kesalahan saat mengambil data: ' . $e->getMessage());
+    }
+}
+
 
     public function store(Request $request)
     {
