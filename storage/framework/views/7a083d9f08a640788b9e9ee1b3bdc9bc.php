@@ -279,6 +279,7 @@
             </div>
 
         </div>
+        
         <div class="card mb-2">
             <div class="card-header border-bottom border-dashed">
                 <h5 class="mb-0">Payment</h5>
@@ -303,6 +304,7 @@
                         <p class="text-success fw-bold">Pembayaran berhasil</p>
                     <?php endif; ?>
                 <?php else: ?>
+                    <?php if(session('user.role') == 'finance'): ?>
                     <form action="<?php echo e(route('sppd.pay', $sppd['id'])); ?>" method="POST">
                         <?php echo csrf_field(); ?>
                         <input type="hidden" name="amount" value="<?php echo e($total); ?>">
@@ -310,10 +312,12 @@
                             Bayar via Xendit
                         </button>
                     </form>
+                    <?php else: ?>
+                        <p>Pembayaran Belum dilakukan</p>
+                    <?php endif; ?>
                 <?php endif; ?>
             </div>
         </div>
-
 
 
         <div class="card">

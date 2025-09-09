@@ -63,10 +63,11 @@
                     <!-- Progress -->
                     <div class="stepper mb-4">
                         <div class="step active">1. Informasi Umum</div>
-                        <div class="step">2. Pesawat</div>
-                        <div class="step">3. Hotel</div>
-                        <div class="step">4. Addons</div>
-                        <div class="step">5. Preview</div>
+                        <div class="step">2. Informasi Tujuan</div>
+                        <div class="step">3. Pesawat</div>
+                        <div class="step">4. Hotel</div>
+                        <div class="step">5. Addons</div>
+                        <div class="step">6. Preview</div>
                     </div>
 
                     <!-- Step 1: Informasi Umum -->
@@ -78,19 +79,15 @@
                                 <input type="text" class="form-control" value="{{ session('user.name') }}" readonly>
                                 <input type="hidden" name="userid" value="{{ session('user.id') }}">
                             </div>
-                            <div class="col-md-3">
-                                <label class="form-label">Tujuan</label>
-                                <input type="text" class="form-control" name="tujuan" placeholder="Masukkan kota tujuan">
+                            <div class="col-md-4">
+                                <label class="form-label">Surat Tugas Perjalanan Dinas</label>
+                                <input type="file" class="form-control" value="" name="surat_tugas">
                             </div>
-                            <div class="col-md-3">
-                                <label class="form-label">Lokasi Tujuan</label>
-                                <input type="text" class="form-control" name="lokasi_tujuan" placeholder="Masukkan lokasi tujuan detail1">
-                            </div>
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <label class="form-label">Tanggal Berangkat</label>
                                 <input type="date" class="form-control" name="tanggal_berangkat" id="tanggal_berangkat">
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <label class="form-label">Tanggal Pulang</label>
                                 <input type="date" class="form-control" name="tanggal_pulang" id="tanggal_pulang">
                             </div>
@@ -104,8 +101,48 @@
                         </div>
                     </div>
 
-                    <!-- Step 2: Pesawat -->
+                    <!-- Informasi Tujuan -->
                     <div class="form-step" id="step-2">
+                        <h5 class="mb-3">Informasi Tujuan</h5>
+
+                        <div class="row g-2">
+                            <div class="col-md-3">
+                                <label class="form-label">Provinsi</label>
+                                <select name="province_id" id="province" class="form-select">
+                                    <option value="">-- Pilih Provinsi --</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Kabupaten / Kota</label>
+                                <select name="regency_id" id="regency" class="form-select">
+                                    <option value="">-- Pilih Kabupaten/Kota --</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Kecamatan</label>
+                                <select name="district_id" id="district" class="form-select">
+                                    <option value="">-- Pilih Kecamatan --</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Desa / Kelurahan</label>
+                                <select name="village_id" id="village" class="form-select">
+                                    <option value="">-- Pilih Desa/Kelurahan --</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div id="map" style="height: 400px; margin-top: 20px; display:none;"></div>
+
+                        <div class="mt-3 d-flex justify-content-between">
+                            <button type="button" class="btn btn-secondary prev-step">Kembali</button>
+                            <button type="button" class="btn btn-primary next-step">Lanjut</button>
+                        </div>
+                    </div>
+
+
+                    <!-- Step 2: Pesawat -->
+                    <div class="form-step" id="step-3">
                         <h5 class="mb-3">Pesawat</h5>
                         <input type="hidden" name="transportasi_pergi" id="transportasi_pergi">
                         <input type="hidden" name="biaya_pergi" id="biaya_pergi">
@@ -175,9 +212,8 @@
 
 
                     <!-- Step 3: Hotel -->
-                    <div class="form-step" id="step-3">
+                    <div class="form-step" id="step-4">
                         <h5 class="mb-3">Pilih Hotel (By Map)</h5>
-                        <div id="map" style="height:400px;"></div>
 
                         <div class="hotel-list mt-3"></div>
 
@@ -194,7 +230,7 @@
                     </div>
 
                     <!-- Step 4: Addons -->
-                    <div class="form-step" id="step-4">
+                    <div class="form-step" id="step-5">
                         <h5 class="mb-3">Tambahan Layanan</h5>
                         <div class="row" id="addon-list">
                             @foreach([
@@ -230,7 +266,7 @@
                     </div>
 
                     <!-- Step 5: Preview -->
-                    <div class="form-step" id="step-5">
+                    <div class="form-step" id="step-6">
                         <div class="form-group mb-2">
                             <label for="" class="form-label">Pilih Metode Pembayaran</label>
                             <select name="digital_payment" id="" class="form-control">
@@ -256,10 +292,11 @@
 @endsection
 
 @section('scripts')
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<script src="{{ asset('js/flight.js') }}"></script>
+<script src="{{ asset('js/flight.js') }}"></script>|
+<script src="{{ asset('js/wilayah.js') }}"></script>
 <script>
     $(document).ready(function(){
         const BASE_URL = document.querySelector('meta[name="sppd-api-url"]').content;
@@ -361,7 +398,7 @@ $(function(){
         console.log("Current step:", step); // debug tampil step aktif
 
         // jika sudah step 5, tampilkan preview
-        if (step === 5) {
+        if (step === 6) {
             let tujuan = $("input[name='tujuan']").val();
             let lokasi = $("input[name='lokasi_tujuan']").val();
             let tglB = $("input[name='tanggal_berangkat']").val();

@@ -275,6 +275,7 @@
             </div>
 
         </div>
+        
         <div class="card mb-2">
             <div class="card-header border-bottom border-dashed">
                 <h5 class="mb-0">Payment</h5>
@@ -298,6 +299,7 @@
                         <p class="text-success fw-bold">Pembayaran berhasil</p>
                     @endif
                 @else
+                    @if(session('user.role') == 'finance')
                     <form action="{{ route('sppd.pay', $sppd['id']) }}" method="POST">
                         @csrf
                         <input type="hidden" name="amount" value="{{ $total }}">
@@ -305,10 +307,12 @@
                             Bayar via Xendit
                         </button>
                     </form>
+                    @else
+                        <p>Pembayaran Belum dilakukan</p>
+                    @endif
                 @endif
             </div>
         </div>
-
 
 
         <div class="card">
