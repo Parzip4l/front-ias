@@ -1,4 +1,4 @@
-@extends('layouts.vertical', ['title' => 'List Data SPPD'])
+@extends('layouts.vertical', ['title' => 'List Data SPPD Perlu Pembayaran'])
 
 @section('css')
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -8,7 +8,7 @@
 @section('content')
   @include('layouts.partials.page-title', [
       'subtitle' => 'Sppd',
-      'title' => 'List SPPD'
+      'title' => 'List SPPD Perlu Pembayaran'
   ])
 
     @if(session('success'))
@@ -31,7 +31,7 @@
                 <div class="card-header border-bottom border-dashed d-flex justify-content-between">
                     <h5 class="mb-0 align-self-center">{{ $pageTitle ?? 'Daftar SPPD' }}</h5>
                     @empty($pageTitle)
-                    <a href="{{route('sppd.create')}}" class="btn btn-sm btn-primary">Buat Pengajuan SPPD</a>
+                        <a href="{{route('sppd.create')}}" class="btn btn-sm btn-primary">Buat Pengajuan SPPD</a>
                     @endempty
                 </div>
                 <div class="card-body">

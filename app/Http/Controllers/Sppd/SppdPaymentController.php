@@ -25,7 +25,8 @@ class SppdPaymentController extends Controller
             $response = Http::withToken($token)
                 ->post($apiUrl, [
                     'sppd_id' => $sppdId,
-                    'amount' => $request->amount
+                    'amount' => $request->amount,
+                    'payment_type' => $request->payment_type
                 ]);
 
             if ($response->successful()) {

@@ -1,38 +1,40 @@
-@extends('layouts.vertical', ['title' => 'List Data SPPD'])
 
-@section('css')
+
+<?php $__env->startSection('css'); ?>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.5/css/jquery.dataTables.min.css" />
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('content')
-  @include('layouts.partials.page-title', [
+<?php $__env->startSection('content'); ?>
+  <?php echo $__env->make('layouts.partials.page-title', [
       'subtitle' => 'Sppd',
-      'title' => 'List SPPD'
-  ])
+      'title' => 'List SPPD Perlu Pembayaran'
+  ], \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 
-    @if(session('success'))
+    <?php if(session('success')): ?>
         <div class="alert alert-success alert-dismissible fade show" role="alert">
-            {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
+            <?php echo e(session('success')); ?>
 
-    @if(session('error'))
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            {{ session('error') }}
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
-    @endif
+    <?php endif; ?>
+
+    <?php if(session('error')): ?>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <?php echo e(session('error')); ?>
+
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <?php endif; ?>
 
     <div class="row">
         <div class="col-12">
             <div class="card">
                 <div class="card-header border-bottom border-dashed d-flex justify-content-between">
-                    <h5 class="mb-0 align-self-center">{{ $pageTitle ?? 'Daftar SPPD' }}</h5>
-                    @empty($pageTitle)
-                    <a href="{{route('sppd.create')}}" class="btn btn-sm btn-primary">Buat Pengajuan SPPD</a>
-                    @endempty
+                    <h5 class="mb-0 align-self-center"><?php echo e($pageTitle ?? 'Daftar SPPD'); ?></h5>
+                    <?php if(empty($pageTitle)): ?>
+                        <a href="<?php echo e(route('sppd.create')); ?>" class="btn btn-sm btn-primary">Buat Pengajuan SPPD</a>
+                    <?php endif; ?>
                 </div>
                 <div class="card-body">
                     <table id="basic-datatable" class="table table-striped dt-responsive nowrap w-100">
@@ -49,37 +51,38 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($sppds as $index => $sppd)
+                        <?php $__currentLoopData = $sppds; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $sppd): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <tr>
-                            <td>{{ $index + 1 }}</td>
-                            <td>{{ $sppd['nomor_sppd'] }}</td>
-                            <td>{{ $sppd['user']['name'] }}</td>
-                            <td>{{ $sppd['tujuan'] ?? '-' }}</td>
-                            <td>{{ $sppd['tanggal_berangkat'] ?? '-' }}</td>
-                            <td>{{ $sppd['tanggal_pulang'] ?? '-' }}</td>
+                            <td><?php echo e($index + 1); ?></td>
+                            <td><?php echo e($sppd['nomor_sppd']); ?></td>
+                            <td><?php echo e($sppd['user']['name']); ?></td>
+                            <td><?php echo e($sppd['tujuan'] ?? '-'); ?></td>
+                            <td><?php echo e($sppd['tanggal_berangkat'] ?? '-'); ?></td>
+                            <td><?php echo e($sppd['tanggal_pulang'] ?? '-'); ?></td>
                             <td>
-                                <span class="badge bg-{{ $sppd['status']=='Pending' ? 'warning' : ($sppd['status']=='Approved' ? 'success' : 'secondary') }}">
-                                    {{ $sppd['status'] }}
+                                <span class="badge bg-<?php echo e($sppd['status']=='Pending' ? 'warning' : ($sppd['status']=='Approved' ? 'success' : 'secondary')); ?>">
+                                    <?php echo e($sppd['status']); ?>
+
                                 </span>
                             </td>
                             <td>
                                 <!-- Lihat Details -->
-                                <a href="{{ route('sppd.previews', hid($sppd['id'])) }}" class="btn btn-sm btn-primary" title="Edit">
+                                <a href="<?php echo e(route('sppd.previews', hid($sppd['id']))); ?>" class="btn btn-sm btn-primary" title="Edit">
                                     <i class="ti ti-eye"></i>
                                 </a>
 
                                 <!-- Edit -->
-                                <a href="{{ route('sppd.create', $sppd['id']) }}" class="btn btn-sm btn-warning" title="Edit">
+                                <a href="<?php echo e(route('sppd.create', $sppd['id'])); ?>" class="btn btn-sm btn-warning" title="Edit">
                                     <i class="ti ti-pencil"></i>
                                 </a>
 
                                 <!-- Hapus -->
-                                <button class="btn btn-sm btn-danger" onclick="confirmDelete({{ json_encode(hid($sppd['id'])) }},'{{ $sppd['nomor_sppd'] }}')" title="Hapus">
+                                <button class="btn btn-sm btn-danger" onclick="confirmDelete(<?php echo e(json_encode(hid($sppd['id']))); ?>,'<?php echo e($sppd['nomor_sppd']); ?>')" title="Hapus">
                                     <i class="ti ti-trash"></i>
                                 </button>
                             </td>
                         </tr>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </tbody>
                 </table>
                 </div> <!-- end card body-->
@@ -94,13 +97,13 @@
 
         </div><!-- end col-->
     </div> <!-- end row-->
-@endsection
-@section('scripts')
+<?php $__env->stopSection(); ?>
+<?php $__env->startSection('scripts'); ?>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-    @vite(['resources/js/components/table-datatable.js'])
-    {{-- fungsi confirmDelete dan openEditModal tetap di bawah --}}
+    <?php echo app('Illuminate\Foundation\Vite')(['resources/js/components/table-datatable.js']); ?>
+    
     <script>
         function confirmDelete(id, nomor_sppd) {
             Swal.fire({
@@ -120,7 +123,7 @@
                     const csrfInput = document.createElement('input');
                     csrfInput.type = 'hidden';
                     csrfInput.name = '_token';
-                    csrfInput.value = '{{ csrf_token() }}';
+                    csrfInput.value = '<?php echo e(csrf_token()); ?>';
                     form.appendChild(csrfInput);
                     const idInput = document.createElement('input');
                     idInput.type = 'hidden';
@@ -133,5 +136,7 @@
             });
         }
     </script>
-@endsection
+<?php $__env->stopSection(); ?>
 
+
+<?php echo $__env->make('layouts.vertical', ['title' => 'List Data SPPD Perlu Pembayaran'], \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH D:\Muhamad Sobirin\project\front-ias2\resources\views/pages/sppd/payment/index.blade.php ENDPATH**/ ?>

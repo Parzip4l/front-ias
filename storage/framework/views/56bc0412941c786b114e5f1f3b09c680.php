@@ -42,8 +42,8 @@
                         <tr>
                             <th>#</th>
                             <th>Nomor SPPD</th>
+                            <th>Pemohon</th>
                             <th>Tujuan</th>
-                            <th>Lokasi</th>
                             <th>Tanggal Berangkat</th>
                             <th>Tanggal Pulang</th>
                             <th>Status</th>
@@ -55,8 +55,8 @@
                         <tr>
                             <td><?php echo e($index + 1); ?></td>
                             <td><?php echo e($sppd['nomor_sppd']); ?></td>
+                            <td><?php echo e($sppd['user']['name']); ?></td>
                             <td><?php echo e($sppd['tujuan'] ?? '-'); ?></td>
-                            <td><?php echo e($sppd['lokasi_tujuan'] ?? '-'); ?></td>
                             <td><?php echo e($sppd['tanggal_berangkat'] ?? '-'); ?></td>
                             <td><?php echo e($sppd['tanggal_pulang'] ?? '-'); ?></td>
                             <td>

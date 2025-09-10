@@ -55,7 +55,7 @@
                 </ul>
             </div>
         @endif
-        <form id="form-sppd" method="POST" action="{{route('sppd.store')}}">
+        <form id="form-sppd" method="POST" action="{{route('sppd.store')}}" enctype="multipart/form-data">
             @csrf
             <div class="card">
                 <div class="card-body">
@@ -81,7 +81,12 @@
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">Surat Tugas Perjalanan Dinas</label>
-                                <input type="file" class="form-control" value="" name="surat_tugas">
+                                <input 
+                                    type="file" 
+                                    class="form-control" 
+                                    name="surat_tugas" 
+                                    accept="application/pdf" 
+                                    onchange="validateFile(this)">
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">Tanggal Berangkat</label>
@@ -129,6 +134,10 @@
                                 <select name="village_id" id="village" class="form-select">
                                     <option value="">-- Pilih Desa/Kelurahan --</option>
                                 </select>
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label">Alamat Lengkap</label>
+                                <textarea name="full_address" class="form-control" id=""></textarea>
                             </div>
                         </div>
 
@@ -295,8 +304,9 @@
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="{{ asset('js/flight.js') }}"></script>|
+<script src="{{ asset('js/flight.js') }}"></script>
 <script src="{{ asset('js/wilayah.js') }}"></script>
+<script src="{{ asset('js/validatedfile.js') }}"></script>
 <script>
     $(document).ready(function(){
         const BASE_URL = document.querySelector('meta[name="sppd-api-url"]').content;
@@ -404,7 +414,7 @@ $(function(){
             let tglB = $("input[name='tanggal_berangkat']").val();
             let tglP = $("input[name='tanggal_pulang']").val();
             let trans = $("#transportasi").val();
-            let biaya = parseInt($("#biaya_estimasi").val() || 0); // harga sekali jalan
+            let biaya = parseInt($("#biaya_estimasi").val() || 0);
             let hotel = $("#hotel_nama").val();
             let hotelHarga = parseInt($("#hotel_harga").val() || 0);
 

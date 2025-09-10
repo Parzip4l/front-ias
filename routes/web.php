@@ -19,7 +19,7 @@ use App\Http\Controllers\Companies\CompanyController;
 use App\Http\Controllers\Sppd\SppdController;
 use App\Http\Controllers\Sppd\SppdPaymentController;
 use App\Http\Controllers\Sppd\ApprovalController;
-use App\Http\Controllers\Finance\MitraSaldoController;
+use App\Http\Controllers\Finance\FinanceController;
 
 require __DIR__ . '/auth.php';
 
@@ -100,6 +100,7 @@ Route::group(['prefix' => '/', 'middleware' => 'jwt.session'], function () {
     Route::prefix('sppd')->group(function () {
         Route::get('/list-data', [SppdController::class, 'index'])->name('sppd.index');
         Route::get('/need-approval', [SppdController::class, 'needApproval'])->name('sppd.listapprove');
+        Route::get('/need-payment', [SppdController::class, 'needPayment'])->name('sppd.listpayment');
         Route::get('/pengajuan-sppd', [SppdController::class, 'create'])->name('sppd.create');
         Route::get('/preview/{id}', [SppdController::class, 'preview'])->name('sppd.previews');
         Route::get('/myschedule', [SppdController::class, 'schedulesaya'])->name('sppd.schedule');
@@ -158,8 +159,10 @@ Route::group(['prefix' => '/', 'middleware' => 'jwt.session'], function () {
     });
 
     // Finance
-    Route::get('/finance/saldo-mitra', [MitraSaldoController::class, 'index'])
-    ->name('finance.saldo-mitra');
+    Route::prefix('finance')->group(function () {
+        Route::get('/report', [FinanceController::class, 'index'])->name('finance.report.index');
+    });
+    
 
     Route::get('/preview', [SppdController::class, 'preview'])->name('sppd.preview');
 

@@ -44,10 +44,9 @@
                         <h5 class="fw-semibold fs-14">Divisi & Jabatan :</h5>
                         <p class="mb-1">{{ $sppd['user']['employee']['division']['name'] ?? '-' }} - {{ $sppd['user']['employee']['position']['name'] ?? '-' }}</p>
                     </div>
-
                     <div class="col-md-5 mb-2">
                         <h5 class="fw-semibold fs-14">Tujuan Perjalanan:</h5>
-                        <p class="mb-1">{{ $sppd['tujuan'] ?? '-' }} - {{ $sppd['lokasi_tujuan'] ?? '-' }}</p>
+                        <p class="mb-1">{{ $tujuan[0]['province']['name'] ?? '-' }} - {{ $tujuan[0]['village']['name'] ?? '-' }}</p>
                         <h5 class="fw-semibold fs-14">Keperluan Perjalanan:</h5>
                         <p class="text-muted">
                             {{ $sppd['keperluan'] ?? '-' }}
@@ -97,61 +96,7 @@
                     $total = $hotel_price + $ticket_depart + $ticket_return + $addons_price + $transportasi;
                 @endphp
 
-                <div class="table-responsive border-top border-dashed mt-3 pt-3">
-                    <!-- <table class="table table-bordered table-striped mb-0">
-                        <thead class="table-light text-center">
-                            <tr>
-                                <th>#</th>
-                                <th class="text-start">Keterangan</th>
-                                <th class="text-start">Detail</th>
-                                <th class="text-end">Harga</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td class="text-center">1</td>
-                                <td class="fw-semibold">Hotel</td>
-                                <td>{{ $sppd['hotel'] ?? '-' }}</td>
-                                <td class="text-end">Rp{{ number_format($hotel_price,0,',','.') }}</td>
-                            </tr>
-                            <tr>
-                                <td class="text-center">2</td>
-                                <td class="fw-semibold">Transportasi</td>
-                                <td>{{ $sppd['transportasi'] ?? '-' }}</td>
-                                <td class="text-end">Rp{{ number_format($transportasi,0,',','.') }}</td>
-                            </tr>
-                            <tr>
-                                <td class="text-center">3</td>
-                                <td class="fw-semibold">Tiket Pergi</td>
-                                <td>{{ $sppd['departure_airport'] ?? '-' }} → {{ $sppd['arrival_airport'] ?? '-' }}</td>
-                                <td class="text-end">Rp{{ number_format($ticket_depart,0,',','.') }}</td>
-                            </tr>
-                            <tr>
-                                <td class="text-center">4</td>
-                                <td class="fw-semibold">Tiket Pulang</td>
-                                <td>{{ $sppd['return_departure_airport'] ?? '-' }} → {{ $sppd['return_arrival_airport'] ?? '-' }}</td>
-                                <td class="text-end">Rp{{ number_format($ticket_return,0,',','.') }}</td>
-                            </tr>
-                            @if(!empty($sppd['addons']))
-                                <tr>
-                                    <td class="text-center">5</td>
-                                    <td class="fw-semibold">Add-ons</td>
-                                    <td>{{ implode(', ', array_map(fn($a)=>$a['name'] ?? '', $sppd['addons'])) }}</td>
-                                    <td class="text-end">Rp{{ number_format($addons_price,0,',','.') }}</td>
-                                </tr>
-                            @endif
-                        </tbody>
-                        <tfoot class="table-light">
-                            <tr>
-                                <th colspan="3" class="text-end fw-bold fs-5">Total Keseluruhan</th>
-                                <th class="text-end fw-bold fs-5">Rp{{ number_format($total,0,',','.') }}</th>
-                            </tr>
-                        </tfoot>
-                    </table> -->
-                    
-                </div>
-
-                <div class="mt-2 mb-2">
+                <div class="mt-2 mb-2 border-top border-dashed">
                     <h5>Rincian Pengeluaran</h5>
                 </div>
                 <div class="table-responsive">
@@ -198,6 +143,24 @@
                     <a href="javascript:window.print()" class="btn btn-primary me-2"><i class="ti ti-printer me-1"></i> Print</a>
                     <a href="#" class="btn btn-info"><i class="ti ti-download me-1"></i> Download</a>
                 </div>
+            </div>
+        </div>
+
+        @php
+
+            $baseUrl = str_replace('/api', '', env('SPPD_API_URL'));
+            $fileUrl = $baseUrl . '/' . 'storage'. '/' . $file['file_path'];
+        @endphp
+        <div class="card">
+            <div class="card-header border-bottom border-dashed">
+                <h5 class="mb-0">Surat Tugas Perjalanan Dinas</h5>
+            </div>
+            <div class="card-body">
+                @if($fileUrl)
+                    <iframe src="{{ $fileUrl }}" width="100%" height="600px" style="border:none;"></iframe>
+                @else
+                    <p class="text-muted">Tidak ada file PDF untuk ditampilkan.</p>
+                @endif
             </div>
         </div>
     </div>
@@ -284,29 +247,68 @@
                 @if(!empty($payment))
                     <p>Status Pembayaran:
                         <span class="badge 
-                            @if($payment['status'] === 'PENDING') bg-warning 
-                            @elseif($payment['status'] === 'PAID') bg-success 
+                            @if($payment['payment_type'] === 'reimbursement') bg-info
+                            @elseif($payment['status'] === 'PENDING') bg-warning
+                            @elseif($payment['status'] === 'PAID') bg-success
                             @else bg-secondary @endif">
-                            {{ strtoupper($payment['status']) }}
+                            {{ strtoupper($payment['payment_type'] === 'reimbursement' ? 'REIMBURSEMENT' : $payment['status']) }}
                         </span>
                     </p>
 
                     @if($payment['status'] === 'PENDING')
-                        <a href="{{ $payment['invoice_url'] }}" target="_blank" class="btn btn-primary">
-                            <i class="ti ti-credit-card me-1"></i> Bayar Sekarang
-                        </a>
+                        @if(session('user.role') == 'finance')
+                            <a href="{{ $payment['invoice_url'] }}" target="_blank" class="btn btn-primary">
+                                <i class="ti ti-credit-card me-1"></i> Bayar Sekarang
+                            </a>
+                        @endif
                     @elseif($payment['status'] === 'PAID')
                         <p class="text-success fw-bold">Pembayaran berhasil</p>
                     @endif
                 @else
                     @if(session('user.role') == 'finance')
-                    <form action="{{ route('sppd.pay', $sppd['id']) }}" method="POST">
-                        @csrf
-                        <input type="hidden" name="amount" value="{{ $total }}">
-                        <button type="submit" class="btn btn-success">
-                            Bayar via Xendit
-                        </button>
-                    </form>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card shadow-sm border-primary mb-3 payment-option" onclick="selectPayment('digital')">
+                                    <div class="card-body text-center">
+                                        <i class="ti ti-credit-card fs-1 text-primary"></i>
+                                        <h5 class="mt-2">Digital Payment</h5>
+                                        <p class="text-muted">Bayar langsung via Xendit</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card shadow-sm border-success mb-3 payment-option" onclick="selectPayment('reimbursement')">
+                                    <div class="card-body text-center">
+                                        <i class="ti ti-wallet fs-1 text-success"></i>
+                                        <h5 class="mt-2">Invoicing</h5>
+                                        <p class="text-muted">Tagihan Oleh Pihak Travel</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- FORM Digital Payment --}}
+                        <div id="digital-payment-form" class="d-none mt-3">
+                            <form action="{{ route('sppd.pay', $sppd['id']) }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="amount" value="{{ $total }}">
+                                <button type="submit" class="btn btn-success">
+                                    Bayar via Xendit
+                                </button>
+                            </form>
+                        </div>
+
+                        {{-- FORM Reimbursement --}}
+                        <div id="reimbursement-form" class="d-none mt-3">
+                            <form action="{{ route('sppd.pay', $sppd['id']) }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="payment_type" value="invoicing">
+                                <input type="hidden" name="amount" value="{{ $total }}">
+                                <button type="submit" class="btn btn-outline-success">
+                                    Pilih Invoicing
+                                </button>
+                            </form>
+                        </div>
                     @else
                         <p>Pembayaran Belum dilakukan</p>
                     @endif
@@ -477,6 +479,18 @@
             title: 'Error',
             text: message
         });
+    }
+</script>
+<script>
+    function selectPayment(type) {
+        document.getElementById('digital-payment-form').classList.add('d-none');
+        document.getElementById('reimbursement-form').classList.add('d-none');
+
+        if(type === 'digital') {
+            document.getElementById('digital-payment-form').classList.remove('d-none');
+        } else if(type === 'reimbursement') {
+            document.getElementById('reimbursement-form').classList.remove('d-none');
+        }
     }
 </script>
 @endsection

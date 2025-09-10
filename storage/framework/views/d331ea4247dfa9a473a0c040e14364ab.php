@@ -114,21 +114,23 @@
             </li>
 
             <!-- Finance -->
-            <?php if(session('user.role') == 'admin'): ?>
+            <?php if(session('user.role') == 'admin' || session('user.role') == 'finance' ): ?>
             <li class="side-nav-title">Finance</li>
             <li class="side-nav-item">
-                <a href="<?php echo e(route ('finance.saldo-mitra')); ?>" class="side-nav-link">
+                <a href="<?php echo e(route ('sppd.listpayment')); ?>" class="side-nav-link">
                     <span class="menu-icon"><i class="ti ti-credit-card"></i></span>
                     <span class="menu-text"> Payment SPPD </span>
                 </a>
             </li>
             <li class="side-nav-item">
-                <a href="<?php echo e(route ('finance.saldo-mitra')); ?>" class="side-nav-link">
+                <a href="<?php echo e(route ('finance.report.index')); ?>" class="side-nav-link">
                     <span class="menu-icon"><i class="ti ti-file-invoice"></i></span>
                     <span class="menu-text"> Report </span>
                 </a>
             </li>
+            <?php endif; ?>
 
+            <?php if(session('user.role') == 'admin'): ?>
             <!-- Master Data -->
             <li class="side-nav-title mt-2">
                 Settings

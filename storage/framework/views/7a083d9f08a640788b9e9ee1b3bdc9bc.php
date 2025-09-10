@@ -44,10 +44,9 @@
                         <h5 class="fw-semibold fs-14">Divisi & Jabatan :</h5>
                         <p class="mb-1"><?php echo e($sppd['user']['employee']['division']['name'] ?? '-'); ?> - <?php echo e($sppd['user']['employee']['position']['name'] ?? '-'); ?></p>
                     </div>
-
                     <div class="col-md-5 mb-2">
                         <h5 class="fw-semibold fs-14">Tujuan Perjalanan:</h5>
-                        <p class="mb-1"><?php echo e($sppd['tujuan'] ?? '-'); ?> - <?php echo e($sppd['lokasi_tujuan'] ?? '-'); ?></p>
+                        <p class="mb-1"><?php echo e($tujuan[0]['province']['name'] ?? '-'); ?> - <?php echo e($tujuan[0]['village']['name'] ?? '-'); ?></p>
                         <h5 class="fw-semibold fs-14">Keperluan Perjalanan:</h5>
                         <p class="text-muted">
                             <?php echo e($sppd['keperluan'] ?? '-'); ?>
@@ -100,61 +99,7 @@
                     $total = $hotel_price + $ticket_depart + $ticket_return + $addons_price + $transportasi;
                 ?>
 
-                <div class="table-responsive border-top border-dashed mt-3 pt-3">
-                    <!-- <table class="table table-bordered table-striped mb-0">
-                        <thead class="table-light text-center">
-                            <tr>
-                                <th>#</th>
-                                <th class="text-start">Keterangan</th>
-                                <th class="text-start">Detail</th>
-                                <th class="text-end">Harga</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td class="text-center">1</td>
-                                <td class="fw-semibold">Hotel</td>
-                                <td><?php echo e($sppd['hotel'] ?? '-'); ?></td>
-                                <td class="text-end">Rp<?php echo e(number_format($hotel_price,0,',','.')); ?></td>
-                            </tr>
-                            <tr>
-                                <td class="text-center">2</td>
-                                <td class="fw-semibold">Transportasi</td>
-                                <td><?php echo e($sppd['transportasi'] ?? '-'); ?></td>
-                                <td class="text-end">Rp<?php echo e(number_format($transportasi,0,',','.')); ?></td>
-                            </tr>
-                            <tr>
-                                <td class="text-center">3</td>
-                                <td class="fw-semibold">Tiket Pergi</td>
-                                <td><?php echo e($sppd['departure_airport'] ?? '-'); ?> → <?php echo e($sppd['arrival_airport'] ?? '-'); ?></td>
-                                <td class="text-end">Rp<?php echo e(number_format($ticket_depart,0,',','.')); ?></td>
-                            </tr>
-                            <tr>
-                                <td class="text-center">4</td>
-                                <td class="fw-semibold">Tiket Pulang</td>
-                                <td><?php echo e($sppd['return_departure_airport'] ?? '-'); ?> → <?php echo e($sppd['return_arrival_airport'] ?? '-'); ?></td>
-                                <td class="text-end">Rp<?php echo e(number_format($ticket_return,0,',','.')); ?></td>
-                            </tr>
-                            <?php if(!empty($sppd['addons'])): ?>
-                                <tr>
-                                    <td class="text-center">5</td>
-                                    <td class="fw-semibold">Add-ons</td>
-                                    <td><?php echo e(implode(', ', array_map(fn($a)=>$a['name'] ?? '', $sppd['addons']))); ?></td>
-                                    <td class="text-end">Rp<?php echo e(number_format($addons_price,0,',','.')); ?></td>
-                                </tr>
-                            <?php endif; ?>
-                        </tbody>
-                        <tfoot class="table-light">
-                            <tr>
-                                <th colspan="3" class="text-end fw-bold fs-5">Total Keseluruhan</th>
-                                <th class="text-end fw-bold fs-5">Rp<?php echo e(number_format($total,0,',','.')); ?></th>
-                            </tr>
-                        </tfoot>
-                    </table> -->
-                    
-                </div>
-
-                <div class="mt-2 mb-2">
+                <div class="mt-2 mb-2 border-top border-dashed">
                     <h5>Rincian Pengeluaran</h5>
                 </div>
                 <div class="table-responsive">
@@ -201,6 +146,24 @@
                     <a href="javascript:window.print()" class="btn btn-primary me-2"><i class="ti ti-printer me-1"></i> Print</a>
                     <a href="#" class="btn btn-info"><i class="ti ti-download me-1"></i> Download</a>
                 </div>
+            </div>
+        </div>
+
+        <?php
+
+            $baseUrl = str_replace('/api', '', env('SPPD_API_URL'));
+            $fileUrl = $baseUrl . '/' . 'storage'. '/' . $file['file_path'];
+        ?>
+        <div class="card">
+            <div class="card-header border-bottom border-dashed">
+                <h5 class="mb-0">Surat Tugas Perjalanan Dinas</h5>
+            </div>
+            <div class="card-body">
+                <?php if($fileUrl): ?>
+                    <iframe src="<?php echo e($fileUrl); ?>" width="100%" height="600px" style="border:none;"></iframe>
+                <?php else: ?>
+                    <p class="text-muted">Tidak ada file PDF untuk ditampilkan.</p>
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -288,30 +251,69 @@
                 <?php if(!empty($payment)): ?>
                     <p>Status Pembayaran:
                         <span class="badge 
-                            <?php if($payment['status'] === 'PENDING'): ?> bg-warning 
-                            <?php elseif($payment['status'] === 'PAID'): ?> bg-success 
+                            <?php if($payment['payment_type'] === 'reimbursement'): ?> bg-info
+                            <?php elseif($payment['status'] === 'PENDING'): ?> bg-warning
+                            <?php elseif($payment['status'] === 'PAID'): ?> bg-success
                             <?php else: ?> bg-secondary <?php endif; ?>">
-                            <?php echo e(strtoupper($payment['status'])); ?>
+                            <?php echo e(strtoupper($payment['payment_type'] === 'reimbursement' ? 'REIMBURSEMENT' : $payment['status'])); ?>
 
                         </span>
                     </p>
 
                     <?php if($payment['status'] === 'PENDING'): ?>
-                        <a href="<?php echo e($payment['invoice_url']); ?>" target="_blank" class="btn btn-primary">
-                            <i class="ti ti-credit-card me-1"></i> Bayar Sekarang
-                        </a>
+                        <?php if(session('user.role') == 'finance'): ?>
+                            <a href="<?php echo e($payment['invoice_url']); ?>" target="_blank" class="btn btn-primary">
+                                <i class="ti ti-credit-card me-1"></i> Bayar Sekarang
+                            </a>
+                        <?php endif; ?>
                     <?php elseif($payment['status'] === 'PAID'): ?>
                         <p class="text-success fw-bold">Pembayaran berhasil</p>
                     <?php endif; ?>
                 <?php else: ?>
                     <?php if(session('user.role') == 'finance'): ?>
-                    <form action="<?php echo e(route('sppd.pay', $sppd['id'])); ?>" method="POST">
-                        <?php echo csrf_field(); ?>
-                        <input type="hidden" name="amount" value="<?php echo e($total); ?>">
-                        <button type="submit" class="btn btn-success">
-                            Bayar via Xendit
-                        </button>
-                    </form>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card shadow-sm border-primary mb-3 payment-option" onclick="selectPayment('digital')">
+                                    <div class="card-body text-center">
+                                        <i class="ti ti-credit-card fs-1 text-primary"></i>
+                                        <h5 class="mt-2">Digital Payment</h5>
+                                        <p class="text-muted">Bayar langsung via Xendit</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card shadow-sm border-success mb-3 payment-option" onclick="selectPayment('reimbursement')">
+                                    <div class="card-body text-center">
+                                        <i class="ti ti-wallet fs-1 text-success"></i>
+                                        <h5 class="mt-2">Invoicing</h5>
+                                        <p class="text-muted">Tagihan Oleh Pihak Travel</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        
+                        <div id="digital-payment-form" class="d-none mt-3">
+                            <form action="<?php echo e(route('sppd.pay', $sppd['id'])); ?>" method="POST">
+                                <?php echo csrf_field(); ?>
+                                <input type="hidden" name="amount" value="<?php echo e($total); ?>">
+                                <button type="submit" class="btn btn-success">
+                                    Bayar via Xendit
+                                </button>
+                            </form>
+                        </div>
+
+                        
+                        <div id="reimbursement-form" class="d-none mt-3">
+                            <form action="<?php echo e(route('sppd.pay', $sppd['id'])); ?>" method="POST">
+                                <?php echo csrf_field(); ?>
+                                <input type="hidden" name="payment_type" value="invoicing">
+                                <input type="hidden" name="amount" value="<?php echo e($total); ?>">
+                                <button type="submit" class="btn btn-outline-success">
+                                    Pilih Invoicing
+                                </button>
+                            </form>
+                        </div>
                     <?php else: ?>
                         <p>Pembayaran Belum dilakukan</p>
                     <?php endif; ?>
@@ -485,6 +487,18 @@
             title: 'Error',
             text: message
         });
+    }
+</script>
+<script>
+    function selectPayment(type) {
+        document.getElementById('digital-payment-form').classList.add('d-none');
+        document.getElementById('reimbursement-form').classList.add('d-none');
+
+        if(type === 'digital') {
+            document.getElementById('digital-payment-form').classList.remove('d-none');
+        } else if(type === 'reimbursement') {
+            document.getElementById('reimbursement-form').classList.remove('d-none');
+        }
     }
 </script>
 <?php $__env->stopSection(); ?>
