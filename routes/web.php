@@ -19,6 +19,8 @@ use App\Http\Controllers\Companies\CompanyController;
 use App\Http\Controllers\Sppd\SppdController;
 use App\Http\Controllers\Sppd\SppdPaymentController;
 use App\Http\Controllers\Sppd\ApprovalController;
+use App\Http\Controllers\Sppd\ReimbursementController;
+use App\Http\Controllers\Sppd\ReimbursementCategoryController;
 use App\Http\Controllers\Finance\FinanceController;
 
 require __DIR__ . '/auth.php';
@@ -162,7 +164,22 @@ Route::group(['prefix' => '/', 'middleware' => 'jwt.session'], function () {
     Route::prefix('finance')->group(function () {
         Route::get('/report', [FinanceController::class, 'index'])->name('finance.report.index');
     });
-    
+
+    // Reimbursement
+    Route::prefix('reimbursement')->group(function () {
+        Route::get('/index', [ReimbursementController::class, 'index'])->name('reimbursement.index');
+        Route::get('/create', [ReimbursementController::class, 'create'])->name('reimbursement.create');
+        Route::post('/store', [ReimbursementController::class, 'store'])->name('reimbursement.store');
+        Route::post('/delete', [ReimbursementController::class, 'destroy'])->name('reimbursement.delete');
+        Route::get('/single/{id}', [ReimbursementController::class, 'show'])->name('reimbursement.single');
+
+        Route::prefix('category')->group(function () {
+            Route::get('/index', [ReimbursementCategoryController::class, 'index'])->name('reimbursement.category.index');
+            Route::post('/store', [ReimbursementCategoryController::class, 'store'])->name('reimbursement.category.store');
+            Route::post('/update', [ReimbursementCategoryController::class, 'update'])->name('reimbursement.category.update');
+            Route::post('/delete', [ReimbursementCategoryController::class, 'destroy'])->name('reimbursement.category.delete');
+        });
+    });
 
     Route::get('/preview', [SppdController::class, 'preview'])->name('sppd.preview');
 

@@ -67,11 +67,7 @@
                                 <span class="menu-text">Tiket</span>
                             </a>
                         </li>
-                        <li class="side-nav-item">
-                            <a href="#" class="side-nav-link">
-                                <span class="menu-text">Laporan</span>
-                            </a>
-                        </li>
+                        
                     </ul>
                 </div>
             </li>
@@ -98,18 +94,17 @@
                     </ul>
                 </div>
             </li>
-            <?php if(session('user.role') == 'admin'): ?>
-            <li class="side-nav-item">
-                <a href="<?php echo e(route('employee.index')); ?>" class="side-nav-link">
-                    <span class="menu-icon"><i class="ti ti-users"></i></span>
-                    <span class="menu-text"> Karyawan </span>
-                </a>
-            </li>
-            <?php endif; ?>
             <li class="side-nav-item">
                 <a href="<?php echo e(route('sppd.schedule')); ?>" class="side-nav-link">
                     <span class="menu-icon"><i class="ti ti-calendar"></i></span>
                     <span class="menu-text"> Calendar </span>
+                </a>
+            </li>
+            <li class="side-nav-item">
+                <a href="<?php echo e(route('reimbursement.index')); ?>" class="side-nav-link">
+                    <span class="menu-icon"><i class="ti ti-receipt"></i></span>
+                    <span class="menu-text"> Klaim Reimbursement </span>
+                    <!-- <span class="badge bg-success rounded-pill">5</span> -->
                 </a>
             </li>
 
@@ -150,7 +145,13 @@
                             <a href="<?php echo e(route('company.index')); ?>" class="side-nav-link">Perusahaan</a>
                         </li>
                         <li class="side-nav-item">
+                            <a href="<?php echo e(route('reimbursement.category.index')); ?>" class="side-nav-link">Reimbursement Kategori</a>
+                        </li>
+                        <li class="side-nav-item">
                             <a href="<?php echo e(route('companytype.index')); ?>" class="side-nav-link">Jenis Usaha</a>
+                        </li>
+                        <li class="side-nav-item">
+                            <a href="<?php echo e(route('employee.index')); ?>" class="side-nav-link">Karyawan</a>
                         </li>
                         <li class="side-nav-item">
                             <a href="<?php echo e(route('flow.index')); ?>" class="side-nav-link">Approval Layer Sppd</a>
