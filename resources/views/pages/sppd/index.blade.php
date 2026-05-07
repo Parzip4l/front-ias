@@ -6,6 +6,7 @@
 @endsection
 
 @section('content')
+  @php $currentUserId = (int) session('user.id'); @endphp
   @include('layouts.partials.page-title', [
       'subtitle' => 'Sppd',
       'title' => 'List SPPD'
@@ -58,11 +59,17 @@
                             <td>{{ $sppd['tanggal_berangkat'] ?? '-' }}</td>
                             <td>{{ $sppd['tanggal_pulang'] ?? '-' }}</td>
                             <td>
-                                <span class="badge bg-{{ $sppd['status']=='Pending' ? 'warning' : ($sppd['status']=='Approved' ? 'success' : 'secondary') }}">
+                                <span class="badge bg-{{ $sppd['status']=='Pending' ? 'warning' : ($sppd['status']=='Approved' ? 'success' : ($sppd['status']=='Completed' ? 'info' : 'secondary')) }}">
                                     {{ $sppd['status'] }}
                                 </span>
                             </td>
                             <td>
+                                @php
+                                    $canComplete = $currentUserId === (int) ($sppd['user_id'] ?? 0)
+                                        && strtoupper((string) ($sppd['status'] ?? '')) === 'APPROVED'
+                                        && !empty($sppd['tanggal_pulang'])
+                                        && \Carbon\Carbon::today()->gt(\Carbon\Carbon::parse($sppd['tanggal_pulang'])->startOfDay());
+                                @endphp
                                 <!-- Lihat Details -->
                                 <a href="{{ route('sppd.previews', hid($sppd['id'])) }}" class="btn btn-sm btn-primary" title="Edit">
                                     <i class="ti ti-eye"></i>
@@ -77,6 +84,12 @@
                                 <button class="btn btn-sm btn-danger" onclick="confirmDelete({{ json_encode(hid($sppd['id'])) }},'{{ $sppd['nomor_sppd'] }}')" title="Hapus">
                                     <i class="ti ti-trash"></i>
                                 </button>
+
+                                @if($canComplete)
+                                    <button class="btn btn-sm btn-success" onclick="confirmComplete({{ json_encode(hid($sppd['id'])) }}, '{{ addslashes($sppd['nomor_sppd']) }}')" title="Selesaikan SPPD">
+                                        <i class="ti ti-check"></i>
+                                    </button>
+                                @endif
                             </td>
                         </tr>
                         @endforeach
@@ -132,6 +145,39 @@
                 }
             });
         }
+
+        function confirmComplete(id, nomor_sppd) {
+            Swal.fire({
+                title: `Selesaikan SPPD "${nomor_sppd}"?`,
+                text: "Status akan diubah menjadi Completed.",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#16a34a',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: 'Ya, selesaikan',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = `{{ route('sppd.complete') }}`;
+
+                    const csrfInput = document.createElement('input');
+                    csrfInput.type = 'hidden';
+                    csrfInput.name = '_token';
+                    csrfInput.value = '{{ csrf_token() }}';
+                    form.appendChild(csrfInput);
+
+                    const idInput = document.createElement('input');
+                    idInput.type = 'hidden';
+                    idInput.name = 'id';
+                    idInput.value = id;
+                    form.appendChild(idInput);
+
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
+        }
     </script>
 @endsection
-

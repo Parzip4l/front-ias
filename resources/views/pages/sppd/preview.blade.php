@@ -55,6 +55,10 @@
                             $start = !empty($sppd['tanggal_berangkat']) ? \Carbon\Carbon::parse($sppd['tanggal_berangkat']) : null;
                             $end   = !empty($sppd['tanggal_pulang']) ? \Carbon\Carbon::parse($sppd['tanggal_pulang']) : null;
                             $days  = ($start && $end) ? $start->diffInDays($end) + 1 : null;
+                            $canMarkCompleted = (int) session('user.id') === (int) ($sppd['user_id'] ?? 0)
+                                && strtoupper((string) ($sppd['status'] ?? '')) === 'APPROVED'
+                                && $end
+                                && \Carbon\Carbon::today()->gt($end->copy()->startOfDay());
                         @endphp
                         <h5 class="fw-semibold fs-14">Periode Perjalanan:</h5>
                         <p class="text-muted mb-0">
@@ -68,7 +72,7 @@
                     </div>
 
                     <div class="col-md-3 text-center text-md-end">
-                        <img src="/images/png/qr-code.png" alt="QR Code" height="100">
+                        <div id="sppd-public-qrcode" class="d-inline-block"></div>
                     </div>
                 </div>
 
@@ -142,6 +146,15 @@
                 <div class="d-print-none mt-4 text-center">
                     <a href="javascript:window.print()" class="btn btn-primary me-2"><i class="ti ti-printer me-1"></i> Print</a>
                     <a href="#" class="btn btn-info"><i class="ti ti-download me-1"></i> Download</a>
+                    @if($canMarkCompleted)
+                        <form action="{{ route('sppd.complete') }}" method="POST" class="d-inline-block ms-2">
+                            @csrf
+                            <input type="hidden" name="id" value="{{ hid($sppd['id']) }}">
+                            <button type="submit" class="btn btn-success">
+                                <i class="ti ti-check me-1"></i> Tandai Completed
+                            </button>
+                        </form>
+                    @endif
                 </div>
             </div>
         </div>
@@ -149,6 +162,7 @@
         @php
             $apiBaseUrl = rtrim((string) env('SPPD_API_URL'), '/');
             $fileUrl = !empty($file['id']) ? $apiBaseUrl . '/sppd/file/' . $file['id'] : null;
+            $publicSummaryUrl = route('sppd.public.summary', ['id' => hid($sppd['id'])]);
         @endphp
         <div class="card">
             <div class="card-header border-bottom border-dashed">
@@ -256,9 +270,15 @@
 
                     @if($payment['status'] === 'PENDING')
                         @if(session('user.role') == 'finance')
-                            <a href="{{ $payment['invoice_url'] }}" target="_blank" class="btn btn-primary">
-                                <i class="ti ti-credit-card me-1"></i> Bayar Sekarang
-                            </a>
+                            @if(!empty($payment['id']))
+                                <a href="{{ route('sppd.payment.invoice', $payment['id']) }}" class="btn btn-primary">
+                                    <i class="ti ti-credit-card me-1"></i> Lihat Invoice
+                                </a>
+                            @else
+                                <button type="button" class="btn btn-secondary" disabled>
+                                    Invoice Tidak Tersedia
+                                </button>
+                            @endif
                         @endif
                     @elseif($payment['status'] === 'PAID')
                         <p class="text-success fw-bold">Pembayaran berhasil</p>
@@ -352,10 +372,25 @@
 </div>
 @endsection
 @section('scripts')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
     // Fungsi untuk mengupdate status approval
     const API_BASE_URL = "{{ env('SPPD_API_URL') }}";
     const TOKEN = "{{ Session::get('jwt_token') }}";
+    const PUBLIC_SPPD_URL = @json($publicSummaryUrl ?? null);
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const qrContainer = document.getElementById('sppd-public-qrcode');
+        if (qrContainer && PUBLIC_SPPD_URL && typeof QRCode !== 'undefined') {
+            qrContainer.innerHTML = '';
+            new QRCode(qrContainer, {
+                text: PUBLIC_SPPD_URL,
+                width: 120,
+                height: 120,
+            });
+        }
+    });
+
     function updateApprovalStatus(approvalId, status, catatan = '') {
         // Tampilkan loading indicator jika diperlukan
         const button = event.target;

@@ -166,9 +166,15 @@
                                         <td><?php echo e(ucfirst($payment['payment_type'] ?? '-')); ?></td>
                                         <td><?php echo e(\Carbon\Carbon::parse($payment['created_at'])->format('d M Y')); ?></td>
                                         <td>
-                                            <a href="<?php echo e($payment['invoice_url']); ?>" target="_blank" class="btn btn-sm btn-outline-primary">
-                                                Lihat Invoice
-                                            </a>
+                                            <?php if(!empty($payment['id'])): ?>
+                                                <a href="<?php echo e(route('sppd.payment.invoice', $payment['id'])); ?>" class="btn btn-sm btn-outline-primary">
+                                                    Lihat Invoice
+                                                </a>
+                                            <?php else: ?>
+                                                <button type="button" class="btn btn-sm btn-outline-secondary" disabled>
+                                                    Invoice Tidak Tersedia
+                                                </button>
+                                            <?php endif; ?>
                                         </td>
                                     </tr>
                                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>

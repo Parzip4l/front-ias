@@ -136,6 +136,37 @@ class SppdController extends Controller
         ]);
     }
 
+    public function completed()
+    {
+        $apiUrl = rtrim(env('SPPD_API_URL'), '/') . '/sppd/completed';
+        $token = Session::get('jwt_token');
+
+        if (!$token) {
+            return redirect()->route('login')->with('error', 'Token belum tersedia, silakan login dulu.');
+        }
+
+        try {
+            $response = Http::withToken($token)
+                ->accept('application/json')
+                ->get($apiUrl);
+
+            if ($response->successful()) {
+                $sppds = $response->json()['data'] ?? [];
+            } else {
+                $sppds = [];
+                session()->flash('error', 'Gagal mengambil data SPPD Completed dari API.');
+            }
+        } catch (\Exception $e) {
+            $sppds = [];
+            session()->flash('error', 'Terjadi kesalahan saat mengambil data: ' . $e->getMessage());
+        }
+
+        return view('pages.sppd.index', [
+            'sppds' => $sppds,
+            'pageTitle' => 'SPPD Completed'
+        ]);
+    }
+
 
 
     public function create()
@@ -210,6 +241,35 @@ class SppdController extends Controller
             }
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Terjadi kesalahan saat mengambil data: ' . $e->getMessage());
+        }
+    }
+
+    public function publicSummary($id)
+    {
+        try {
+            $apiUrl = rtrim(env('SPPD_API_URL'), '/') . "/sppd/public/{$id}";
+
+            $response = Http::accept('application/json')->get($apiUrl);
+
+            if ($response->successful()) {
+                $data = $response->json();
+
+                $sppd = $data['data'] ?? null;
+                $expense = $data['expense'] ?? [];
+                $tujuan = $data['tujuan'] ?? [];
+                $file = $data['file'] ?? [];
+                $approval = $data['approval'] ?? [];
+
+                if (!$sppd) {
+                    abort(404);
+                }
+
+                return view('pages.sppd.public-summary', compact('sppd', 'expense', 'tujuan', 'file', 'approval'));
+            }
+
+            abort($response->status());
+        } catch (\Exception $e) {
+            abort(404);
         }
     }
 
@@ -345,6 +405,41 @@ class SppdController extends Controller
                 $errorMessage = $response->json('message') ?? 'Gagal menghapus data.';
                 return back()->with('error', $errorMessage);
             }
+        } catch (\Exception $e) {
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    public function complete(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|string',
+        ]);
+
+        $token = Session::get('jwt_token');
+        $apiUrl = rtrim(env('SPPD_API_URL'), '/') . '/sppd/complete';
+
+        if (!$token) {
+            return redirect()->route('login')->with('error', 'Token belum tersedia, silakan login dulu.');
+        }
+
+        $realId = dhid($request->id);
+        if (!$realId) {
+            return back()->with('error', 'ID SPPD tidak valid.');
+        }
+
+        try {
+            $response = Http::withToken($token)
+                ->accept('application/json')
+                ->post($apiUrl, [
+                    'sppd_id' => $realId,
+                ]);
+
+            if ($response->successful()) {
+                return back()->with('success', $response->json('message') ?? 'SPPD berhasil diselesaikan.');
+            }
+
+            return back()->with('error', $response->json('message') ?? 'Gagal mengubah status SPPD menjadi Completed.');
         } catch (\Exception $e) {
             return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }

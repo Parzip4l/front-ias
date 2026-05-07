@@ -37,6 +37,7 @@ Route::get('/reset-password', function (Request $request) {
 })->name('password.reset.form');
 
 Route::post('/logout', [SppdAuthController::class, 'logout'])->name('logout');
+Route::get('/public/sppd/{id}', [SppdController::class, 'publicSummary'])->name('sppd.public.summary');
 
 Route::group(['prefix' => '/', 'middleware' => 'jwt.session'], function () {
     Route::get('', [RoutingController::class, 'index'])->name('root');
@@ -102,15 +103,18 @@ Route::group(['prefix' => '/', 'middleware' => 'jwt.session'], function () {
     Route::prefix('sppd')->group(function () {
         Route::get('/list-data', [SppdController::class, 'index'])->name('sppd.index');
         Route::get('/approved', [SppdController::class, 'approved'])->name('sppd.approved');
+        Route::get('/completed', [SppdController::class, 'completed'])->name('sppd.completed');
         Route::get('/need-approval', [SppdController::class, 'needApproval'])->name('sppd.listapprove');
         Route::get('/need-payment', [SppdController::class, 'needPayment'])->name('sppd.listpayment');
         Route::get('/pengajuan-sppd', [SppdController::class, 'create'])->name('sppd.create');
         Route::get('/preview/{id}', [SppdController::class, 'preview'])->name('sppd.previews');
         Route::get('/myschedule', [SppdController::class, 'schedulesaya'])->name('sppd.schedule');
         Route::post('/store', [SppdController::class, 'store'])->name('sppd.store');
+        Route::post('/complete', [SppdController::class, 'complete'])->name('sppd.complete');
 
         // Payment
         Route::post('/sppd/{id}/pay', [SppdPaymentController::class, 'create'])->name('sppd.pay');
+        Route::get('/payment/{paymentId}/invoice', [SppdPaymentController::class, 'invoice'])->name('sppd.payment.invoice');
 
         
         // Route::put('/update', [SppdController::class, 'updateDivisi'])->name('divisi.update');

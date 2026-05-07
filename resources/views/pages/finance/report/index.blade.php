@@ -165,9 +165,15 @@
                                         <td>{{ ucfirst($payment['payment_type'] ?? '-') }}</td>
                                         <td>{{ \Carbon\Carbon::parse($payment['created_at'])->format('d M Y') }}</td>
                                         <td>
-                                            <a href="{{ $payment['invoice_url'] }}" target="_blank" class="btn btn-sm btn-outline-primary">
-                                                Lihat Invoice
-                                            </a>
+                                            @if(!empty($payment['id']))
+                                                <a href="{{ route('sppd.payment.invoice', $payment['id']) }}" class="btn btn-sm btn-outline-primary">
+                                                    Lihat Invoice
+                                                </a>
+                                            @else
+                                                <button type="button" class="btn btn-sm btn-outline-secondary" disabled>
+                                                    Invoice Tidak Tersedia
+                                                </button>
+                                            @endif
                                         </td>
                                     </tr>
                                     @empty

@@ -63,6 +63,11 @@
                             </a>
                         </li>
                         <li class="side-nav-item">
+                             <a href="<?php echo e(route ('sppd.completed')); ?>" class="side-nav-link">
+                                <span class="menu-text">SPPD Completed</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
                             <a href="<?php echo e(route ('sppd.create')); ?>" class="side-nav-link">
                                 <span class="menu-text">Ajukan SPPD</span>
                             </a>
