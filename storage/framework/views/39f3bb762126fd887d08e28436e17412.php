@@ -1,6 +1,4 @@
-@extends('layouts.vertical', ['title' => 'Dashboard'])
-
-@php
+<?php
     $summary = $dashboardSummary ?? [];
     $charts = $dashboardCharts ?? [];
     $latestSppds = $latestSppds ?? [];
@@ -48,9 +46,9 @@
         'Rejected' => ['class' => 'danger', 'icon' => 'ti ti-circle-filled'],
         'Completed' => ['class' => 'info', 'icon' => 'ti ti-circle-filled'],
     ];
-@endphp
+?>
 
-@section('css')
+<?php $__env->startSection('css'); ?>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <style>
         .dashboard-card .widget-icon {
@@ -62,42 +60,42 @@
             margin-bottom: 0 !important;
         }
     </style>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('content')
-    @include('layouts.partials.page-title', ['title' => 'Dashboard'])
+<?php $__env->startSection('content'); ?>
+    <?php echo $__env->make('layouts.partials.page-title', ['title' => 'Dashboard'], \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 
     <div class="row row-cols-xxl-4 row-cols-md-2 row-cols-1 g-3">
-        @foreach ($summaryCards as $card)
+        <?php $__currentLoopData = $summaryCards; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $card): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
             <div class="col">
                 <div class="card overflow-hidden dashboard-card">
                     <div class="card-body">
-                        <h5 class="text-muted fs-13 text-uppercase">{{ $card['label'] }}</h5>
+                        <h5 class="text-muted fs-13 text-uppercase"><?php echo e($card['label']); ?></h5>
                         <div class="d-flex align-items-center gap-2 my-2 py-1 position-relative">
                             <div class="user-img fs-42 flex-shrink-0">
-                                <span class="avatar-title text-bg-{{ $card['bg'] }} rounded-circle fs-22">
-                                    <iconify-icon icon="{{ $card['icon'] }}"></iconify-icon>
+                                <span class="avatar-title text-bg-<?php echo e($card['bg']); ?> rounded-circle fs-22">
+                                    <iconify-icon icon="<?php echo e($card['icon']); ?>"></iconify-icon>
                                 </span>
                             </div>
-                            <h3 class="mb-0 fw-bold">{{ number_format((float) $card['value']) }}</h3>
-                            <iconify-icon icon="{{ $card['icon'] }}" class="ms-auto display-1 position-absolute opacity-25 text-muted widget-icon"></iconify-icon>
+                            <h3 class="mb-0 fw-bold"><?php echo e(number_format((float) $card['value'])); ?></h3>
+                            <iconify-icon icon="<?php echo e($card['icon']); ?>" class="ms-auto display-1 position-absolute opacity-25 text-muted widget-icon"></iconify-icon>
                         </div>
 
-                        @if (!is_null($card['change']))
+                        <?php if(!is_null($card['change'])): ?>
                             <p class="mb-0 text-muted">
-                                <span class="text-{{ $card['change'] >= 0 ? 'success' : 'danger' }} me-2">
-                                    <i class="ti {{ $card['change'] >= 0 ? 'ti-caret-up-filled' : 'ti-caret-down-filled' }}"></i>
-                                    {{ number_format(abs((float) $card['change']), 1) }}%
+                                <span class="text-<?php echo e($card['change'] >= 0 ? 'success' : 'danger'); ?> me-2">
+                                    <i class="ti <?php echo e($card['change'] >= 0 ? 'ti-caret-up-filled' : 'ti-caret-down-filled'); ?>"></i>
+                                    <?php echo e(number_format(abs((float) $card['change']), 1)); ?>%
                                 </span>
                                 <span class="text-nowrap">Dibanding bulan lalu</span>
                             </p>
-                        @else
+                        <?php else: ?>
                             <p class="mb-0 text-muted">Update real-time dari status pengajuan terbaru.</p>
-                        @endif
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
-        @endforeach
+        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
     </div>
 
     <div class="row">
@@ -140,48 +138,49 @@
             <div class="card card-h-100">
                 <div class="card-header d-flex flex-wrap align-items-center gap-2">
                     <h4 class="header-title me-auto">Daftar SPPD Terbaru</h4>
-                    <span class="badge bg-light text-dark">{{ count($latestSppds) }} data</span>
+                    <span class="badge bg-light text-dark"><?php echo e(count($latestSppds)); ?> data</span>
                 </div>
 
                 <div class="card-body p-0">
                     <div class="table-responsive">
                         <table class="table table-custom table-centered table-sm table-nowrap table-hover mb-0">
                             <tbody>
-                                @forelse ($latestSppds as $item)
-                                    @php $meta = $statusMeta[$item['status']] ?? ['class' => 'secondary', 'icon' => 'ti ti-circle-filled']; @endphp
+                                <?php $__empty_1 = true; $__currentLoopData = $latestSppds; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                                    <?php $meta = $statusMeta[$item['status']] ?? ['class' => 'secondary', 'icon' => 'ti ti-circle-filled']; ?>
                                     <tr>
                                         <td>
                                             <span class="text-muted fs-12">Nomor SPPD</span>
-                                            <h5 class="fs-14 mt-1 fw-normal mb-0">{{ $item['nomor_sppd'] }}</h5>
+                                            <h5 class="fs-14 mt-1 fw-normal mb-0"><?php echo e($item['nomor_sppd']); ?></h5>
                                         </td>
                                         <td>
                                             <span class="text-muted fs-12">Nama</span>
-                                            <h5 class="fs-14 mt-1 fw-normal mb-0">{{ $item['employee_name'] ?? '-' }}</h5>
+                                            <h5 class="fs-14 mt-1 fw-normal mb-0"><?php echo e($item['employee_name'] ?? '-'); ?></h5>
                                         </td>
                                         <td>
                                             <span class="text-muted fs-12">Tanggal Pengajuan</span>
-                                            <h5 class="fs-14 mt-1 fw-normal mb-0">{{ $item['submission_date'] ?? '-' }}</h5>
+                                            <h5 class="fs-14 mt-1 fw-normal mb-0"><?php echo e($item['submission_date'] ?? '-'); ?></h5>
                                         </td>
                                         <td>
                                             <span class="text-muted fs-12">Tujuan Perjalanan</span>
-                                            <h5 class="fs-14 mt-1 fw-normal mb-0">{{ $item['purpose'] ?? '-' }}</h5>
+                                            <h5 class="fs-14 mt-1 fw-normal mb-0"><?php echo e($item['purpose'] ?? '-'); ?></h5>
                                         </td>
                                         <td>
                                             <span class="text-muted fs-12">Status</span>
-                                            <h5 class="fs-14 mt-1 fw-normal mb-0 text-{{ $meta['class'] }}">
-                                                <i class="{{ $meta['icon'] }} fs-12"></i> {{ $item['status'] }}
+                                            <h5 class="fs-14 mt-1 fw-normal mb-0 text-<?php echo e($meta['class']); ?>">
+                                                <i class="<?php echo e($meta['icon']); ?> fs-12"></i> <?php echo e($item['status']); ?>
+
                                             </h5>
                                         </td>
                                         <td>
                                             <span class="text-muted fs-12">Pengeluaran (Rp)</span>
-                                            <h5 class="fs-14 mt-1 fw-normal mb-0">Rp {{ number_format((float) ($item['amount'] ?? 0), 0, ',', '.') }}</h5>
+                                            <h5 class="fs-14 mt-1 fw-normal mb-0">Rp <?php echo e(number_format((float) ($item['amount'] ?? 0), 0, ',', '.')); ?></h5>
                                         </td>
                                     </tr>
-                                @empty
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                                     <tr>
                                         <td colspan="6" class="text-center py-4 text-muted">Belum ada data SPPD untuk ditampilkan.</td>
                                     </tr>
-                                @endforelse
+                                <?php endif; ?>
                             </tbody>
                         </table>
                     </div>
@@ -206,11 +205,11 @@
                     <div class="mt-3">
                         <div class="d-flex justify-content-between mb-2">
                             <span class="text-muted">Completed</span>
-                            <strong>{{ number_format((float) ($summary['completed'] ?? 0)) }}</strong>
+                            <strong><?php echo e(number_format((float) ($summary['completed'] ?? 0))); ?></strong>
                         </div>
                         <div class="d-flex justify-content-between">
                             <span class="text-muted">Total User Terlibat</span>
-                            <strong>{{ number_format((float) ($summary['total_users'] ?? 0)) }}</strong>
+                            <strong><?php echo e(number_format((float) ($summary['total_users'] ?? 0))); ?></strong>
                         </div>
                     </div>
                 </div>
@@ -233,19 +232,19 @@
                         <div class="col-xl-5" dir="ltr">
                             <div class="p-3">
                                 <div id="province-list">
-                                    @forelse ($topProvinces as $province)
+                                    <?php $__empty_1 = true; $__currentLoopData = $topProvinces; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $province): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                                         <div class="d-flex justify-content-between align-items-center mb-3 province-item">
                                             <p class="mb-1 d-flex align-items-center">
-                                                <img src="/images/flags/id.svg" alt="{{ $province['name'] }}" class="me-2 rounded-circle" height="24" style="width:24px; object-fit:cover;">
-                                                <span>{{ $province['name'] }}</span>
+                                                <img src="/images/flags/id.svg" alt="<?php echo e($province['name']); ?>" class="me-2 rounded-circle" height="24" style="width:24px; object-fit:cover;">
+                                                <span><?php echo e($province['name']); ?></span>
                                             </p>
                                             <div>
-                                                <h5 class="fw-semibold mb-0">{{ number_format((float) $province['total']) }} trip</h5>
+                                                <h5 class="fw-semibold mb-0"><?php echo e(number_format((float) $province['total'])); ?> trip</h5>
                                             </div>
                                         </div>
-                                    @empty
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                                         <p class="text-muted mb-0">Belum ada data provinsi yang bisa ditampilkan.</p>
-                                    @endforelse
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>
@@ -254,17 +253,17 @@
             </div>
         </div>
     </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('scripts')
+<?php $__env->startSection('scripts'); ?>
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            const monthlySppd = @json($monthlySppd);
-            const monthlySpending = @json($monthlySpending);
-            const statusBreakdown = @json($statusBreakdown);
-            const topProvinces = @json($topProvinces);
+            const monthlySppd = <?php echo json_encode($monthlySppd, 15, 512) ?>;
+            const monthlySpending = <?php echo json_encode($monthlySpending, 15, 512) ?>;
+            const statusBreakdown = <?php echo json_encode($statusBreakdown, 15, 512) ?>;
+            const topProvinces = <?php echo json_encode($topProvinces, 15, 512) ?>;
 
             const sppdChartColors = document.querySelector('#chart-sppd-per-bulan').getAttribute('data-colors').split(',');
             const spendingChartColors = document.querySelector('#chart-pengeluaran').getAttribute('data-colors').split(',');
@@ -340,4 +339,6 @@
             });
         });
     </script>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.vertical', ['title' => 'Dashboard'], \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH /Users/muhamadsobirin/Documents/front-ias/resources/views/index.blade.php ENDPATH**/ ?>
