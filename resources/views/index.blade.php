@@ -5,6 +5,8 @@
     $charts = $dashboardCharts ?? [];
     $latestSppds = $latestSppds ?? [];
     $topProvinces = $topProvinces ?? [];
+    $dashboardMeta = $dashboardMeta ?? [];
+    $dashboardFilters = $dashboardFilters ?? ['start_date' => '', 'end_date' => ''];
 
     $monthlySppd = $charts['monthly_sppd'] ?? ['labels' => [], 'values' => []];
     $monthlySpending = $charts['monthly_spending'] ?? ['labels' => [], 'values' => []];
@@ -66,6 +68,35 @@
 
 @section('content')
     @include('layouts.partials.page-title', ['title' => 'Dashboard'])
+
+    @if(session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <form method="GET" action="{{ url()->current() }}" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label for="start_date" class="form-label">Tanggal Mulai</label>
+                    <input type="date" id="start_date" name="start_date" class="form-control" value="{{ $dashboardFilters['start_date'] ?? '' }}">
+                </div>
+                <div class="col-md-4">
+                    <label for="end_date" class="form-label">Tanggal Akhir</label>
+                    <input type="date" id="end_date" name="end_date" class="form-control" value="{{ $dashboardFilters['end_date'] ?? '' }}">
+                </div>
+                <div class="col-md-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">Terapkan Filter</button>
+                    <a href="{{ url()->current() }}" class="btn btn-light border">Reset</a>
+                </div>
+            </form>
+            <div class="mt-3 d-flex flex-wrap gap-3 text-muted small">
+                <span>Scope: <strong>{{ $dashboardMeta['scope'] ?? '-' }}</strong></span>
+                <span>Dibuat: <strong>{{ $dashboardMeta['generated_at'] ?? '-' }}</strong></span>
+            </div>
+        </div>
+    </div>
 
     <div class="row row-cols-xxl-4 row-cols-md-2 row-cols-1 g-3">
         @foreach ($summaryCards as $card)

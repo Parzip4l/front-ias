@@ -9,11 +9,11 @@ use Illuminate\Support\Facades\Session;
 
 class RoutingController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         // Pastikan user sudah login (JWT session)
         if (Auth::check()) {
-            $dashboard = $this->fetchDashboardData();
+            $dashboard = $this->fetchDashboardData($request);
 
             return view('index', $dashboard);
         }
@@ -48,7 +48,7 @@ class RoutingController extends Controller
         abort(404);
     }
 
-    private function fetchDashboardData(): array
+    private function fetchDashboardData(Request $request): array
     {
         $token = Session::get('jwt_token');
         $apiUrl = rtrim((string) env('SPPD_API_URL'), '/') . '/finance/dashboard';
@@ -62,6 +62,11 @@ class RoutingController extends Controller
             ],
             'latestSppds' => [],
             'topProvinces' => [],
+            'dashboardMeta' => [],
+            'dashboardFilters' => [
+                'start_date' => (string) $request->query('start_date', ''),
+                'end_date' => (string) $request->query('end_date', ''),
+            ],
         ];
 
         if (!$token) {
@@ -71,10 +76,13 @@ class RoutingController extends Controller
         try {
             $response = Http::withToken($token)
                 ->accept('application/json')
-                ->get($apiUrl);
+                ->get($apiUrl, array_filter([
+                    'start_date' => $request->query('start_date'),
+                    'end_date' => $request->query('end_date'),
+                ]));
 
             if (!$response->successful()) {
-                session()->flash('error', 'Gagal mengambil data dashboard dari API.');
+                session()->flash('error', 'Gagal mengambil data dashboard dari API. [' . $response->status() . '] ' . ($response->json('message') ?? 'Unknown error'));
                 return $fallback;
             }
 
@@ -85,6 +93,11 @@ class RoutingController extends Controller
                 'dashboardCharts' => $json['charts'] ?? $fallback['dashboardCharts'],
                 'latestSppds' => $json['latest_sppds'] ?? $fallback['latestSppds'],
                 'topProvinces' => $json['top_provinces'] ?? $fallback['topProvinces'],
+                'dashboardMeta' => $json['meta'] ?? $fallback['dashboardMeta'],
+                'dashboardFilters' => [
+                    'start_date' => (string) data_get($json, 'meta.filters.start_date', $request->query('start_date', '')),
+                    'end_date' => (string) data_get($json, 'meta.filters.end_date', $request->query('end_date', '')),
+                ],
             ];
         } catch (\Throwable $th) {
             session()->flash('error', 'Terjadi kesalahan saat memuat dashboard: ' . $th->getMessage());
