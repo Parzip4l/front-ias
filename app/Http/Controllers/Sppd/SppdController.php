@@ -107,7 +107,7 @@ class SppdController extends Controller
 
     public function approved()
     {
-        $apiUrl = rtrim(env('SPPD_API_URL'), '/') . '/sppd/list';
+        $apiUrl = rtrim(env('SPPD_API_URL'), '/') . '/sppd/approved';
         $token = Session::get('jwt_token');
 
         if (!$token) {
@@ -120,12 +120,7 @@ class SppdController extends Controller
                 ->get($apiUrl);
 
             if ($response->successful()) {
-                $sppds = collect($response->json()['data'] ?? [])
-                    ->filter(function (array $sppd) {
-                        return strtoupper((string) ($sppd['status'] ?? '')) === 'APPROVED';
-                    })
-                    ->values()
-                    ->all();
+                $sppds = $response->json()['data'] ?? [];
             } else {
                 $sppds = [];
                 session()->flash('error', 'Gagal mengambil data SPPD Approved dari API.');
