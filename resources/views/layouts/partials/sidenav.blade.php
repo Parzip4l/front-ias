@@ -58,6 +58,11 @@
                             </a>
                         </li>
                         <li class="side-nav-item">
+                             <a href="{{ route ('sppd.approved') }}" class="side-nav-link">
+                                <span class="menu-text">SPPD Approved</span>
+                            </a>
+                        </li>
+                        <li class="side-nav-item">
                             <a href="{{ route ('sppd.create') }}" class="side-nav-link">
                                 <span class="menu-text">Ajukan SPPD</span>
                             </a>

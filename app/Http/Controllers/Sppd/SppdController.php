@@ -105,6 +105,42 @@ class SppdController extends Controller
         ]);
     }
 
+    public function approved()
+    {
+        $apiUrl = rtrim(env('SPPD_API_URL'), '/') . '/sppd/list';
+        $token = Session::get('jwt_token');
+
+        if (!$token) {
+            return redirect()->route('login')->with('error', 'Token belum tersedia, silakan login dulu.');
+        }
+
+        try {
+            $response = Http::withToken($token)
+                ->accept('application/json')
+                ->get($apiUrl);
+
+            if ($response->successful()) {
+                $sppds = collect($response->json()['data'] ?? [])
+                    ->filter(function (array $sppd) {
+                        return strtoupper((string) ($sppd['status'] ?? '')) === 'APPROVED';
+                    })
+                    ->values()
+                    ->all();
+            } else {
+                $sppds = [];
+                session()->flash('error', 'Gagal mengambil data SPPD Approved dari API.');
+            }
+        } catch (\Exception $e) {
+            $sppds = [];
+            session()->flash('error', 'Terjadi kesalahan saat mengambil data: ' . $e->getMessage());
+        }
+
+        return view('pages.sppd.index', [
+            'sppds' => $sppds,
+            'pageTitle' => 'SPPD Approved'
+        ]);
+    }
+
 
 
     public function create()

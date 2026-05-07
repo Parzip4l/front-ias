@@ -101,6 +101,7 @@ Route::group(['prefix' => '/', 'middleware' => 'jwt.session'], function () {
     // Sppd
     Route::prefix('sppd')->group(function () {
         Route::get('/list-data', [SppdController::class, 'index'])->name('sppd.index');
+        Route::get('/approved', [SppdController::class, 'approved'])->name('sppd.approved');
         Route::get('/need-approval', [SppdController::class, 'needApproval'])->name('sppd.listapprove');
         Route::get('/need-payment', [SppdController::class, 'needPayment'])->name('sppd.listpayment');
         Route::get('/pengajuan-sppd', [SppdController::class, 'create'])->name('sppd.create');
@@ -187,4 +188,3 @@ Route::group(['prefix' => '/', 'middleware' => 'jwt.session'], function () {
     Route::get('{first}/{second}', [RoutingController::class, 'secondLevel'])->name('second');
     Route::get('{any}', [RoutingController::class, 'root'])->name('any');
 });
-
