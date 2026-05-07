@@ -50,9 +50,19 @@
         'Rejected' => ['class' => 'danger', 'icon' => 'ti ti-circle-filled'],
         'Completed' => ['class' => 'info', 'icon' => 'ti ti-circle-filled'],
     ];
+
+    $currentRangeLabel = '';
+    if (!empty($dashboardFilters['start_date']) && !empty($dashboardFilters['end_date'])) {
+        $currentRangeLabel = $dashboardFilters['start_date'] . ' - ' . $dashboardFilters['end_date'];
+    } elseif (!empty($dashboardFilters['start_date'])) {
+        $currentRangeLabel = $dashboardFilters['start_date'];
+    } elseif (!empty($dashboardFilters['end_date'])) {
+        $currentRangeLabel = $dashboardFilters['end_date'];
+    }
 @endphp
 
 @section('css')
+    @vite(['node_modules/flatpickr/dist/flatpickr.min.css'])
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <style>
         .dashboard-card .widget-icon {
@@ -63,11 +73,52 @@
         .province-item:last-child {
             margin-bottom: 0 !important;
         }
+
+        .dashboard-toolbar {
+            margin-bottom: 1rem;
+        }
+
+        .filter-toggle-btn {
+            width: 40px;
+            height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dashboard-filter-card {
+            border: 1px dashed rgba(108, 117, 125, 0.25);
+            background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+        }
+
+        .dashboard-filter-meta {
+            min-height: 24px;
+        }
     </style>
 @endsection
 
 @section('content')
-    @include('layouts.partials.page-title', ['title' => 'Dashboard'])
+    <div class="page-title-head d-flex flex-wrap align-items-center gap-2 dashboard-toolbar">
+        <div class="flex-grow-1">
+            @include('layouts.partials.page-title', ['title' => 'Dashboard'])
+        </div>
+        <div class="d-flex align-items-center gap-2 ms-auto">
+            @if($currentRangeLabel !== '')
+                <span class="badge bg-primary-subtle text-primary px-3 py-2">{{ $currentRangeLabel }}</span>
+            @endif
+            <button
+                class="btn btn-light border filter-toggle-btn"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#dashboardFilterCollapse"
+                aria-expanded="{{ $currentRangeLabel !== '' ? 'true' : 'false' }}"
+                aria-controls="dashboardFilterCollapse"
+                title="Filter dashboard"
+            >
+                <i class="ti ti-adjustments-horizontal fs-18"></i>
+            </button>
+        </div>
+    </div>
 
     @if(session('error'))
         <div class="alert alert-danger">
@@ -75,27 +126,33 @@
         </div>
     @endif
 
-    <div class="card mb-3">
+    <div class="collapse mb-3 {{ $currentRangeLabel !== '' ? 'show' : '' }}" id="dashboardFilterCollapse">
+    <div class="card dashboard-filter-card mb-0">
         <div class="card-body">
-            <form method="GET" action="{{ url()->current() }}" class="row g-3 align-items-end">
-                <div class="col-md-4">
-                    <label for="start_date" class="form-label">Tanggal Mulai</label>
-                    <input type="date" id="start_date" name="start_date" class="form-control" value="{{ $dashboardFilters['start_date'] ?? '' }}">
+            <form method="GET" action="{{ url()->current() }}" class="row g-3 align-items-end" id="dashboard-filter-form">
+                <input type="hidden" id="dashboard-start-date" name="start_date" value="{{ $dashboardFilters['start_date'] ?? '' }}">
+                <input type="hidden" id="dashboard-end-date" name="end_date" value="{{ $dashboardFilters['end_date'] ?? '' }}">
+                <div class="col-lg-6">
+                    <label for="dashboard-date-range" class="form-label">Rentang Tanggal</label>
+                    <input
+                        type="text"
+                        id="dashboard-date-range"
+                        class="form-control"
+                        placeholder="Pilih rentang tanggal"
+                        value="{{ $currentRangeLabel }}"
+                    >
                 </div>
-                <div class="col-md-4">
-                    <label for="end_date" class="form-label">Tanggal Akhir</label>
-                    <input type="date" id="end_date" name="end_date" class="form-control" value="{{ $dashboardFilters['end_date'] ?? '' }}">
-                </div>
-                <div class="col-md-4 d-flex gap-2">
+                <div class="col-lg-6 d-flex gap-2">
                     <button type="submit" class="btn btn-primary">Terapkan Filter</button>
                     <a href="{{ url()->current() }}" class="btn btn-light border">Reset</a>
                 </div>
             </form>
-            <div class="mt-3 d-flex flex-wrap gap-3 text-muted small">
+            <div class="mt-3 d-flex flex-wrap gap-3 text-muted small dashboard-filter-meta">
                 <span>Scope: <strong>{{ $dashboardMeta['scope'] ?? '-' }}</strong></span>
                 <span>Dibuat: <strong>{{ $dashboardMeta['generated_at'] ?? '-' }}</strong></span>
             </div>
         </div>
+    </div>
     </div>
 
     <div class="row row-cols-xxl-4 row-cols-md-2 row-cols-1 g-3">
@@ -292,6 +349,29 @@
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
+            const rangeInput = document.getElementById('dashboard-date-range');
+            const startDateInput = document.getElementById('dashboard-start-date');
+            const endDateInput = document.getElementById('dashboard-end-date');
+
+            if (rangeInput && typeof flatpickr !== 'undefined') {
+                flatpickr(rangeInput, {
+                    mode: 'range',
+                    dateFormat: 'Y-m-d',
+                    defaultDate: [
+                        startDateInput && startDateInput.value ? startDateInput.value : null,
+                        endDateInput && endDateInput.value ? endDateInput.value : null
+                    ].filter(Boolean),
+                    onClose: function(selectedDates) {
+                        startDateInput.value = selectedDates[0]
+                            ? flatpickr.formatDate(selectedDates[0], 'Y-m-d')
+                            : '';
+                        endDateInput.value = selectedDates[1]
+                            ? flatpickr.formatDate(selectedDates[1], 'Y-m-d')
+                            : '';
+                    }
+                });
+            }
+
             const monthlySppd = @json($monthlySppd);
             const monthlySpending = @json($monthlySpending);
             const statusBreakdown = @json($statusBreakdown);
