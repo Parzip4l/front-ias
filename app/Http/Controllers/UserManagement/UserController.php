@@ -258,6 +258,35 @@ class UserController extends Controller
         }
     }
 
+    public function resendResetPassword(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'email' => 'required|email',
+        ]);
+
+        $apiUrl = rtrim(env('SPPD_API_URL'), '/') . '/auth/forgot-password';
+
+        try {
+            $response = Http::accept('application/json')
+                ->post($apiUrl, [
+                    'email' => $validated['email'],
+                ]);
+
+            if ($response->successful()) {
+                return redirect()->route('users.index')->with('success', 'Link reset password berhasil dikirim ulang.');
+            }
+
+            $errorMessage = $response->json('message') ?? 'Gagal mengirim ulang link reset password.';
+            if (isset($response->json()['email'])) {
+                $errorMessage = collect($response->json()['email'])->implode(' ');
+            }
+
+            return redirect()->route('users.index')->with('error', $errorMessage);
+        } catch (\Exception $e) {
+            return redirect()->route('users.index')->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
     // Roles Section
 
     // 1. Get Roles
