@@ -147,9 +147,8 @@
         </div>
 
         @php
-
-            $baseUrl = str_replace('/api', '', env('SPPD_API_URL'));
-            $fileUrl = $baseUrl . '/' . 'storage'. '/' . $file['file_path'];
+            $apiBaseUrl = rtrim((string) env('SPPD_API_URL'), '/');
+            $fileUrl = !empty($file['id']) ? $apiBaseUrl . '/sppd/file/' . $file['id'] : null;
         @endphp
         <div class="card">
             <div class="card-header border-bottom border-dashed">
