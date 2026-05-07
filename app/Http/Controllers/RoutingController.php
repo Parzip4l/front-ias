@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
@@ -12,7 +11,7 @@ class RoutingController extends Controller
     public function index(Request $request)
     {
         // Pastikan user sudah login (JWT session)
-        if (Auth::check()) {
+        if (Session::has('jwt_token')) {
             $dashboard = $this->fetchDashboardData($request);
 
             return view('index', $dashboard);

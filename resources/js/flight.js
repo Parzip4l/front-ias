@@ -15,6 +15,12 @@ $(document).ready(function(){
         let returnDate = $("#returnDate").val();
         let adults = $("#adults").val();
 
+        if(!origin || !destination || !departureDate){
+            $("#flightListPergi").html('<div class="alert alert-warning">Origin, destination, dan tanggal berangkat wajib diisi.</div>');
+            $("#flightListPulang").html('');
+            return;
+        }
+
         // pergi
         $("#flightListPergi").html('<div class="text-center p-3">Loading...</div>');
         $.ajax({
@@ -24,20 +30,32 @@ $(document).ready(function(){
             success: function(res){
                 $("#flightListPergi").empty();
                 renderFlights(res, "#flightListPergi", "pergi");
+            },
+            error: function(xhr){
+                const message = xhr.responseJSON?.message || 'Gagal mengambil data penerbangan.';
+                $("#flightListPergi").html(`<div class="alert alert-danger">${message}</div>`);
             }
         });
 
         // pulang
-        $("#flightListPulang").html('<div class="text-center p-3">Loading...</div>');
-        $.ajax({
-            url: BASE_URL + "/flights/search",
-            method: "GET",
-            data: { origin: destination, destination: origin, date: returnDate, adults },
-            success: function(res){
-                $("#flightListPulang").empty();
-                renderFlights(res, "#flightListPulang", "pulang");
-            }
-        });
+        if(returnDate){
+            $("#flightListPulang").html('<div class="text-center p-3">Loading...</div>');
+            $.ajax({
+                url: BASE_URL + "/flights/search",
+                method: "GET",
+                data: { origin: destination, destination: origin, date: returnDate, adults },
+                success: function(res){
+                    $("#flightListPulang").empty();
+                    renderFlights(res, "#flightListPulang", "pulang");
+                },
+                error: function(xhr){
+                    const message = xhr.responseJSON?.message || 'Gagal mengambil data penerbangan pulang.';
+                    $("#flightListPulang").html(`<div class="alert alert-danger">${message}</div>`);
+                }
+            });
+        } else {
+            $("#flightListPulang").html('<div class="alert alert-info">Isi tanggal pulang untuk melihat opsi penerbangan pulang.</div>');
+        }
     });
 
     function renderFlights(res, container, type){
