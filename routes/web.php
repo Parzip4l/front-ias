@@ -49,6 +49,8 @@ Route::group(['prefix' => '/', 'middleware' => 'jwt.session'], function () {
         Route::get('/users', [UserController::class, 'index'])->name('users.index');
         Route::get('/users-create', [UserController::class, 'create'])->name('users.create');
         Route::post('/users-store', [UserController::class, 'storeUser'])->name('users.store');
+        Route::get('/users/{id}/edit', [UserController::class, 'edit'])->name('users.edit');
+        Route::post('/users/{id}/update', [UserController::class, 'updateUser'])->name('users.update');
 
         // Roles
         Route::get('/roles', [UserController::class, 'roles'])->name('roles.index');

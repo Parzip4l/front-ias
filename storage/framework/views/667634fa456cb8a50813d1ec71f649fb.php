@@ -44,7 +44,7 @@
                                   <?php endif; ?>
                               </td>
                               <td>
-                                <a href="" class='btn btn-sm btn-warning'>Edit</a>
+                                <a href="<?php echo e(route('users.edit', $user['id'])); ?>" class='btn btn-sm btn-warning'>Edit</a>
                                 <a href="" class='btn btn-sm btn-danger'>Hapus</a>
                               </td>
                           </tr>

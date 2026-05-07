@@ -85,7 +85,72 @@ class UserController extends Controller
         } catch (\Exception $e) {
             session()->flash('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
-        return view('pages.usermanagement.createuser', compact('divisi', 'role'));
+        return view('pages.usermanagement.createuser', [
+            'divisi' => $divisi,
+            'role' => $role,
+            'userData' => null,
+            'formAction' => route('users.store'),
+            'formMethod' => 'POST',
+            'pageMode' => 'create',
+        ]);
+    }
+
+    public function edit($id)
+    {
+        $baseUrl = rtrim(env('SPPD_API_URL'), '/');
+        $token = Session::get('jwt_token');
+
+        if (!$token) {
+            return redirect()->route('login')->with('error', 'Token belum tersedia, silakan login dulu.');
+        }
+
+        $divisi = [];
+        $role = [];
+        $userData = null;
+
+        try {
+            $userResponse = Http::withToken($token)
+                ->accept('application/json')
+                ->get($baseUrl . '/user/find-user/' . $id);
+
+            if ($userResponse->status() == 401) {
+                Session::forget('jwt_token');
+                return redirect()->route('login')->with('error', 'Sesi habis, silakan login ulang.');
+            }
+
+            if ($userResponse->successful()) {
+                $userData = $userResponse->json()['data'] ?? null;
+            } else {
+                return redirect()->route('users.index')->with('error', 'Gagal mengambil data user.');
+            }
+
+            $divisiResponse = Http::withToken($token)
+                ->accept('application/json')
+                ->get($baseUrl . '/divisi/list');
+
+            if ($divisiResponse->successful()) {
+                $divisi = $divisiResponse->json()['data'] ?? [];
+            }
+
+            $roleResponse = Http::withToken($token)
+                ->accept('application/json')
+                ->get($baseUrl . '/user/role-list');
+
+            if ($roleResponse->successful()) {
+                $role = $roleResponse->json()['data'] ?? [];
+            }
+        } catch (\Exception $e) {
+            return redirect()->route('users.index')->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+
+        return view('pages.usermanagement.createuser', [
+            'divisi' => $divisi,
+            'role' => $role,
+            'userData' => $userData,
+            'formAction' => route('users.update', $id),
+            'formMethod' => 'POST',
+            'pageMode' => 'edit',
+        ]);
     }
 
     // Store User
@@ -142,6 +207,53 @@ class UserController extends Controller
 
         } catch (\Exception $e) {
             // Tangani error exception, redirect balik dengan pesan error
+            return back()->withInput()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    public function updateUser(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:50',
+            'email' => 'required|email',
+            'divisi_id' => 'required',
+            'role' => 'required',
+        ]);
+
+        $apiUrl = rtrim(env('SPPD_API_URL'), '/') . '/user/update-user/' . $id;
+        $token = Session::get('jwt_token');
+
+        if (!$token) {
+            return redirect()->route('login')->with('error', 'Token belum tersedia, silakan login dulu.');
+        }
+
+        try {
+            $response = Http::withToken($token)
+                ->accept('application/json')
+                ->post($apiUrl, [
+                    'name' => $validated['name'],
+                    'email' => $validated['email'],
+                    'divisi_id' => $validated['divisi_id'],
+                    'role' => $validated['role'],
+                ]);
+
+            if ($response->status() == 401) {
+                Session::forget('jwt_token');
+                return redirect()->route('login')->with('error', 'Sesi habis, silakan login ulang.');
+            }
+
+            if ($response->successful()) {
+                return redirect()->route('users.index')->with('success', 'User berhasil diperbarui.');
+            }
+
+            $errorMessage = $response->json('message') ?? 'Gagal memperbarui user.';
+            if (isset($response->json()['errors'])) {
+                $errors = $response->json()['errors'];
+                $errorMessage = collect($errors)->flatten()->implode(' ');
+            }
+
+            return back()->withInput()->with('error', $errorMessage);
+        } catch (\Exception $e) {
             return back()->withInput()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }

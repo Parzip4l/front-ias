@@ -7,43 +7,43 @@
 @section('content')
   @include('layouts.partials.page-title', [
       'subtitle' => 'User Management',
-      'title' => 'Create User'
+      'title' => ($pageMode ?? 'create') === 'edit' ? 'Edit User' : 'Create User'
   ])
 
     <div class="row">
         <div class="col-12">
             <div class="card">
                 <div class="card-header border-bottom border-dashed d-flex justify-content-between">
-                    <h5 class="mb-0">Form Tambah User</h5>
+                    <h5 class="mb-0">{{ ($pageMode ?? 'create') === 'edit' ? 'Form Edit User' : 'Form Tambah User' }}</h5>
                 </div>
                 <div class="card-body">
-                    <form action="{{route('users.store')}}" method="post">
+                    <form action="{{ $formAction ?? route('users.store') }}" method="post">
                         @csrf
                         <div class="mb-2">
                             <label for="simpleinput" class="form-label">Nama Lengkap</label>
-                            <input type="text" name="name" class="form-control" placeholder="Nama Lengkap" required>
+                            <input type="text" name="name" class="form-control" placeholder="Nama Lengkap" value="{{ old('name', $userData['name'] ?? '') }}" required>
                         </div>
                         <div class="mb-2">
                             <label for="simpleinput" class="form-label">Email</label>
-                            <input type="email" name="email" class="form-control" placeholder="user@email.com" required>
+                            <input type="email" name="email" class="form-control" placeholder="user@email.com" value="{{ old('email', $userData['email'] ?? '') }}" required>
                         </div>
                         <div class="mb-3">
                             <label for="simpleinput" class="form-label">Divisi</label>
                             <select name="divisi_id" id="divisi_id" class="form-control select2" data-toggle="select2" required>
-                                @foreach($divisi as $divisi)
-                                    <option value="{{ $divisi['id'] }}">{{ $divisi['name'] }}</option>
+                                @foreach($divisi as $div)
+                                    <option value="{{ $div['id'] }}" @selected((string) old('divisi_id', $userData['divisi_id'] ?? '') === (string) $div['id'])>{{ $div['name'] }}</option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="mb-3">
                             <label for="simpleinput" class="form-label">Role</label>
                             <select name="role" id="role_id" class="form-control select2" data-toggle="select2" required>
-                                @foreach($role as $role)
-                                    <option value="{{ $role['name'] }}">{{ $role['name'] }}</option>
+                                @foreach($role as $roleItem)
+                                    <option value="{{ $roleItem['name'] }}" @selected((string) old('role', $userData['role'] ?? '') === (string) $roleItem['name'])>{{ $roleItem['name'] }}</option>
                                 @endforeach
                             </select>
                         </div>
-                        <button class="btn btn-primary w-100" type="submit">Buat User</button>
+                        <button class="btn btn-primary w-100" type="submit">{{ ($pageMode ?? 'create') === 'edit' ? 'Update User' : 'Buat User' }}</button>
                     </form>
                 </div> <!-- end card body-->
             </div> <!-- end card -->
