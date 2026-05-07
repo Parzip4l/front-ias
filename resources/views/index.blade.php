@@ -79,40 +79,67 @@
         }
 
         .filter-toggle-btn {
-            width: 40px;
-            height: 40px;
+            width: 42px;
+            height: 42px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
         }
 
-        .dashboard-filter-card {
-            border: 1px dashed rgba(108, 117, 125, 0.25);
-            background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+        .dashboard-page-title {
+            margin-bottom: 0;
         }
 
-        .dashboard-filter-meta {
-            min-height: 24px;
+        .dashboard-page-title .breadcrumb {
+            justify-content: flex-end;
+        }
+
+        .dashboard-range-badge {
+            border-radius: 999px;
+            font-weight: 600;
+            padding: 0.65rem 0.9rem;
+        }
+
+        .dashboard-filter-modal .modal-content {
+            border: 0;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 30px 80px rgba(15, 23, 42, 0.18);
+        }
+
+        .dashboard-filter-modal .modal-header {
+            background: linear-gradient(135deg, #f8fbff 0%, #eef5ff 100%);
+            border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+            padding: 1.25rem 1.5rem;
+        }
+
+        .dashboard-filter-modal .modal-body {
+            padding: 1.5rem;
+        }
+
+        .dashboard-filter-modal .modal-footer {
+            border-top: 1px solid rgba(148, 163, 184, 0.18);
+            padding: 1rem 1.5rem 1.5rem;
         }
     </style>
 @endsection
 
 @section('content')
-    <div class="page-title-head d-flex flex-wrap align-items-center gap-2 dashboard-toolbar">
-        <div class="flex-grow-1">
+    <div class="page-title-head d-flex align-items-start justify-content-between gap-3 dashboard-toolbar">
+        <div class="dashboard-page-title flex-grow-1">
             @include('layouts.partials.page-title', ['title' => 'Dashboard'])
         </div>
         <div class="d-flex align-items-center gap-2 ms-auto">
             @if($currentRangeLabel !== '')
-                <span class="badge bg-primary-subtle text-primary px-3 py-2">{{ $currentRangeLabel }}</span>
+                <span class="badge bg-primary-subtle text-primary dashboard-range-badge">{{ $currentRangeLabel }}</span>
             @endif
             <button
                 class="btn btn-light border filter-toggle-btn"
                 type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#dashboardFilterCollapse"
-                aria-expanded="{{ $currentRangeLabel !== '' ? 'true' : 'false' }}"
-                aria-controls="dashboardFilterCollapse"
+                data-bs-toggle="modal"
+                data-bs-target="#dashboardFilterModal"
                 title="Filter dashboard"
             >
                 <i class="ti ti-adjustments-horizontal fs-18"></i>
@@ -125,35 +152,6 @@
             {{ session('error') }}
         </div>
     @endif
-
-    <div class="collapse mb-3 {{ $currentRangeLabel !== '' ? 'show' : '' }}" id="dashboardFilterCollapse">
-    <div class="card dashboard-filter-card mb-0">
-        <div class="card-body">
-            <form method="GET" action="{{ url()->current() }}" class="row g-3 align-items-end" id="dashboard-filter-form">
-                <input type="hidden" id="dashboard-start-date" name="start_date" value="{{ $dashboardFilters['start_date'] ?? '' }}">
-                <input type="hidden" id="dashboard-end-date" name="end_date" value="{{ $dashboardFilters['end_date'] ?? '' }}">
-                <div class="col-lg-6">
-                    <label for="dashboard-date-range" class="form-label">Rentang Tanggal</label>
-                    <input
-                        type="text"
-                        id="dashboard-date-range"
-                        class="form-control"
-                        placeholder="Pilih rentang tanggal"
-                        value="{{ $currentRangeLabel }}"
-                    >
-                </div>
-                <div class="col-lg-6 d-flex gap-2">
-                    <button type="submit" class="btn btn-primary">Terapkan Filter</button>
-                    <a href="{{ url()->current() }}" class="btn btn-light border">Reset</a>
-                </div>
-            </form>
-            <div class="mt-3 d-flex flex-wrap gap-3 text-muted small dashboard-filter-meta">
-                <span>Scope: <strong>{{ $dashboardMeta['scope'] ?? '-' }}</strong></span>
-                <span>Dibuat: <strong>{{ $dashboardMeta['generated_at'] ?? '-' }}</strong></span>
-            </div>
-        </div>
-    </div>
-    </div>
 
     <div class="row row-cols-xxl-4 row-cols-md-2 row-cols-1 g-3">
         @foreach ($summaryCards as $card)
@@ -342,6 +340,44 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade dashboard-filter-modal" id="dashboardFilterModal" tabindex="-1" aria-labelledby="dashboardFilterModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div>
+                        <h5 class="modal-title mb-1" id="dashboardFilterModalLabel">Filter Dashboard</h5>
+                        <p class="text-muted mb-0 small">Gunakan rentang tanggal untuk menyaring seluruh metrik dashboard.</p>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="GET" action="{{ url()->current() }}" id="dashboard-filter-form">
+                        <input type="hidden" id="dashboard-start-date" name="start_date" value="{{ $dashboardFilters['start_date'] ?? '' }}">
+                        <input type="hidden" id="dashboard-end-date" name="end_date" value="{{ $dashboardFilters['end_date'] ?? '' }}">
+                        <div class="mb-3">
+                            <label for="dashboard-date-range" class="form-label">Date Range</label>
+                            <input
+                                type="text"
+                                id="dashboard-date-range"
+                                class="form-control"
+                                placeholder="Pilih rentang tanggal"
+                                value="{{ $currentRangeLabel }}"
+                            >
+                        </div>
+                        <div class="d-flex flex-wrap gap-3 text-muted small">
+                            <span>Scope: <strong>{{ $dashboardMeta['scope'] ?? '-' }}</strong></span>
+                            <span>Dibuat: <strong>{{ $dashboardMeta['generated_at'] ?? '-' }}</strong></span>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <a href="{{ url()->current() }}" class="btn btn-light border">Reset</a>
+                    <button type="submit" form="dashboard-filter-form" class="btn btn-primary">Terapkan Filter</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @section('scripts')
@@ -395,6 +431,13 @@
                 colors: spendingChartColors,
                 series: [{ name: 'Pengeluaran', data: monthlySpending.values || [] }],
                 xaxis: { categories: monthlySpending.labels || [] },
+                yaxis: {
+                    labels: {
+                        formatter: function (val) {
+                            return 'Rp ' + Number(val || 0).toLocaleString('id-ID');
+                        }
+                    }
+                },
                 dataLabels: { enabled: false },
                 stroke: { curve: 'smooth' },
                 tooltip: {
