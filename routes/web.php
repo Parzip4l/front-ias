@@ -37,7 +37,8 @@ Route::get('/reset-password', function (Request $request) {
 })->name('password.reset.form');
 
 Route::post('/logout', [SppdAuthController::class, 'logout'])->name('logout');
-Route::get('/public/sppd/{id}', [SppdController::class, 'publicSummary'])->name('sppd.public.summary');
+Route::get('/scan/sppd/{id}', [SppdController::class, 'publicSummary'])->name('sppd.public.summary');
+Route::get('/public/sppd/{id}', [SppdController::class, 'publicSummary'])->name('sppd.public.summary.legacy');
 
 Route::group(['prefix' => '/', 'middleware' => 'jwt.session'], function () {
     Route::get('', [RoutingController::class, 'index'])->name('root');
