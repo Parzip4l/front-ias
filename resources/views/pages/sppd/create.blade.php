@@ -409,12 +409,26 @@ $(function(){
 
         // jika sudah step 5, tampilkan preview
         if (step === 6) {
-            let tujuan = $("input[name='tujuan']").val();
-            let lokasi = $("input[name='lokasi_tujuan']").val();
+            const province = $("#province option:selected").text();
+            const regency = $("#regency option:selected").text();
+            const district = $("#district option:selected").text();
+            const village = $("#village option:selected").text();
+            const fullAddress = $("textarea[name='full_address']").val()?.trim() || "";
+
+            const safeProvince = province && !province.startsWith("--") ? province : "";
+            const safeRegency = regency && !regency.startsWith("--") ? regency : "";
+            const safeDistrict = district && !district.startsWith("--") ? district : "";
+            const safeVillage = village && !village.startsWith("--") ? village : "";
+
+            let tujuan = fullAddress || [safeVillage, safeDistrict, safeRegency, safeProvince].filter(Boolean).join(", ");
+            let lokasi = [safeRegency, safeProvince].filter(Boolean).join(", ");
             let tglB = $("input[name='tanggal_berangkat']").val();
             let tglP = $("input[name='tanggal_pulang']").val();
-            let trans = $("#transportasi").val();
-            let biaya = parseInt($("#biaya_estimasi").val() || 0);
+            let transportPergi = $("#transportasi_pergi").val();
+            let transportPulang = $("#transportasi_pulang").val();
+            let trans = [transportPergi, transportPulang].filter(Boolean).join(" / ");
+            let biayaPergi = parseInt($("#biaya_pergi").val() || 0);
+            let biayaPulang = parseInt($("#biaya_pulang").val() || 0);
             let hotel = $("#hotel_nama").val();
             let hotelHarga = parseInt($("#hotel_harga").val() || 0);
 
@@ -422,13 +436,13 @@ $(function(){
             let startDate = new Date(tglB);
             let endDate = new Date(tglP);
             let timeDiff = endDate - startDate;
-            let totalHari = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)) || 1;
+            let totalHari = Math.max(Math.ceil(timeDiff / (1000 * 60 * 60 * 24)), 1);
 
             // hotel total
             let totalHotel = hotelHarga * totalHari;
 
             // transport PP
-            let totalTransport = biaya * 2;
+            let totalTransport = biayaPergi + biayaPulang;
 
             // addons
             let addons = [];
@@ -459,7 +473,7 @@ $(function(){
                 <div class="card-body p-4">
                 <div class="mb-3">
                     <h6 class="fw-bold text-secondary">Tujuan</h6>
-                    <p class="mb-1 fs-5">${tujuan} (${lokasi})</p>
+                    <p class="mb-1 fs-5">${tujuan || '-'}${lokasi ? ` (${lokasi})` : ''}</p>
                 </div>
 
                 <div class="mb-3">
