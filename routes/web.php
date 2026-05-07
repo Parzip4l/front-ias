@@ -40,7 +40,7 @@ Route::post('/logout', [SppdAuthController::class, 'logout'])->name('logout');
 
 Route::group(['prefix' => '/', 'middleware' => 'jwt.session'], function () {
     Route::get('', [RoutingController::class, 'index'])->name('root');
-    Route::get('/home', fn() => view('index'))->name('home');
+    Route::get('/home', [RoutingController::class, 'index'])->name('home');
 
     // user Management
     Route::prefix('user-management')->group(function () {
@@ -187,5 +187,4 @@ Route::group(['prefix' => '/', 'middleware' => 'jwt.session'], function () {
     Route::get('{first}/{second}', [RoutingController::class, 'secondLevel'])->name('second');
     Route::get('{any}', [RoutingController::class, 'root'])->name('any');
 });
-
 
